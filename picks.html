@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Members Only - NFL Picks | YardLineIQ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            min-height: 100vh;
+            background: radial-gradient(ellipse at top, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                        radial-gradient(ellipse at bottom right, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                        #0a0a0a;
+        }
+
+        .header {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 3rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 107, 107, 0.2);
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+        }
+
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            color: #000;
+            border: none;
+            padding: 1.2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .picks-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem;
+            display: none;
+        }
+
+        .picks-content.visible {
+            display: block;
+        }
+
+        .picks-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .picks-title {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .picks-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+        }
+
+        .picks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .pick-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+
+        .pick-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .pick-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .pick-teams {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .pick-confidence {
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            color: #000;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .pick-details {
+            margin-bottom: 1rem;
+        }
+
+        .pick-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .pick-analysis {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .week-separator {
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+            margin: 4rem 0;
+        }
+
+        .archive-section {
+            margin-top: 4rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .archive-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1.5rem;
+            }
+            
+            .picks-content {
+                padding: 1.5rem;
+            }
+            
+            .picks-title {
+                font-size: 2rem;
+            }
+            
+            .picks-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo">YARDLINEIQ</div>
+            <button class="logout-btn" onclick="logout()" style="display: none;" id="logoutBtn">Logout</button>
+        </nav>
+    </header>
+
+    <!-- Login Form -->
+    <div id="loginForm" class="login-form">
+        <h2>Members Only Access</h2>
+        <form onsubmit="checkLogin(event)">
+            <div class="form-group">
+                <label class="form-label">Username:</label>
+                <input type="text" class="form-input" id="username" placeholder="Enter username" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password:</label>
+                <input type="password" class="form-input" id="password" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="login-btn">Access My Picks</button>
+        </form>
+        <div class="error-message" id="errorMessage">Invalid username or password</div>
+    </div>
+
+    <!-- ALL PICKS CONTENT IN ONE CONTAINER -->
+    <div id="picksContent" class="picks-content">
+        <!-- WEEK 8 SECTION (CURRENT) -->
+        <div class="picks-header">
+            <h1 class="picks-title">This Week's NFL Picks</h1>
+            <p class="picks-subtitle">Week 8 - October 2025 | 63% Win Rate Model</p>
+        </div>
+
+        <div class="picks-grid">
+            <!-- PLACEHOLDER CARDS - Replace with your actual Week 8 picks -->
+            <div class="pick-card">
+                <div class="pick-header">
+                    <div class="pick-teams">Browns @ Patriots</div>
+                    <div class="pick-confidence">Medium</div>
+                </div>
+                <div class="pick-details">
+                    <div class="pick-line">
+                        <span>Pick:</span>
+                        <span><strong>Patriots -7</strong></span>
+                    </div>
+                    <div class="pick-line">
+                        <span>Game Time:</span>
+                        <span>1:00 EST</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pick-card">
+                <div class="pick-header">
+                    <div class="pick-teams">Giants @ Eagles</div>
+                    <div class="pick-confidence">Medium</div>
+                </div>
+                <div class="pick-details">
+                    <div class="pick-line">
+                        <span>Pick:</span>
+                        <span><strong>Giants +7.5</strong></span>
+                    </div>
+                    <div class="pick-line">
+                        <span>Game Time:</span>
+                        <span>1:00 EST</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pick-card">
+                <div class="pick-header">
+                    <div class="pick-teams">Tampa Bay @ New Orleans</div>
+                    <div class="pick-confidence">Medium</div>
+                </div>
+                <div class="pick-details">
+                    <div class="pick-line">
+                        <span>Pick:</span>
+                        <span><strong>Saints +4.5</strong></span>
+                    </div>
+                    <div class="pick-line">
+                        <span>Game Time:</span>
+                        <span>4:05 EST</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pick-card">
+                <div class="pick-header">
+                    <div class="pick-teams">Cowboys @ Broncos</div>
+                    <div class="pick-confidence">Low</div>
+                </div>
+                <div class="pick-details">
+                    <div class="pick-line">
+                        <span>Pick:</span>
+                        <span><strong>Cowboys +3.5</strong></span>
+                    </div>
+                    <div class="pick-line">
+                        <span>Game Time:</span>
+                        <span>4:25 EST</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pick-card">
+                <div class="pick-header">
+                    <div class="pick-teams">Commanders @ Chiefs</div>
+                    <div class="pick-confidence">Medium</div>
+                </div>
+                <div class="pick-details">
+                    <div class="pick-line">
+                        <span>Pick:</span>
+                        <span><strong>Chiefs -11.5</strong></span>
+                    </div>
+                    <div class="pick-line">
+                        <span>Game Time:</span>
+                        <span>Monday 8:15 EST</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            <!-- WEEK 7 ARCHIVE -->
+            <div class="picks-header">
+                <h3 class="picks-title" style="font-size: 2rem;">Week 7 Results</h3>
+                <p class="picks-subtitle">October 2025</p>
+            </div>
+
+            <div class="picks-grid">
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Saints @ Bears</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Bears -5.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Dolphins @ Browns</div>
+                        <div class="pick-confidence">High</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Browns -2.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Panthers @ Jets</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Panthers +1.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Commanders @ Cowboys</div>
+                        <div class="pick-confidence">Low</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Commanders +1.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Loss</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Texans @ Seahawks</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Seahawks -2.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="week-separator"></div>
+                        <!-- WEEK 6 ARCHIVE -->
+            <div class="picks-header">
+                <h3 class="picks-title" style="font-size: 2rem;">Week 6 Results</h3>
+                <p class="picks-subtitle">October 2025</p>
+            </div>
+
+            <div class="picks-grid">
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Eagles @ Giants</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Giants +7.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Won</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Lions @ Chiefs</div>
+                        <div class="pick-confidence">High</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Lions +2.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Loss</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Patriots @ Saints</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Patriots -3.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Won</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Titans @ Raiders</div>
+                        <div class="pick-confidence">Low</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Raiders -3.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Won</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Bills @ Falcons</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Bills -4.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Loss</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="week-separator"></div>
+            
+            <!-- WEEK 5 ARCHIVE -->
+            <div class="picks-header">
+                <h3 class="picks-title" style="font-size: 2rem;">Week 5 Results</h3>
+                <p class="picks-subtitle">October 2025</p>
+            </div>
+
+            <div class="picks-grid">
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">49ers @ Rams</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>49ers +8.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Cowboys @ Jets</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Cowboys -1.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Texans @ Ravens</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Ravens +1.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Loss</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Denver @ Philadelphia</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Eagles -3.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Loss</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Titans @ Cardinals</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Cardinals -7.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Loss</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="week-separator"></div>
+            
+            <!-- WEEK 4 ARCHIVE -->
+            <div class="picks-header">
+                <h3 class="picks-title" style="font-size: 2rem;">Week 4 Results</h3>
+                <p class="picks-subtitle">September/October 2025</p>
+            </div>
+
+            <div class="picks-grid">
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Seahawks @ Cardinals</div>
+                        <div class="pick-confidence">High</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Seahawks -1.0</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Won</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Minnesota @ Pittsburgh</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Minnesota -2.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Loss</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Jaguars @ 49ers</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>49ers -3.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Loss</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Colts @ Rams</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Rams -3.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Won</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Bears @ Raiders</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Bears +1.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Won</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="week-separator"></div>
+            
+            <!-- WEEK 3 ARCHIVE -->
+            <div class="picks-header">
+                <h3 class="picks-title" style="font-size: 2rem;">Week 3 Results</h3>
+                <p class="picks-subtitle">September 2025</p>
+            </div>
+
+            <div class="picks-grid">
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Rams @ Eagles</div>
+                        <div class="pick-confidence">High</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Eagles -3.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Jets @ Buccaneers</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Buccaneers -6.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Loss</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Broncos @ Chargers</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Chargers -2.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Cowboys @ Bears</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Cowboys -1.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Loss</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Lions @ Ravens</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Ravens -4.5</strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Loss</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="week-separator"></div>
+            
+            <!-- WEEK 2 ARCHIVE -->
+            <div class="picks-header">
+                <h3 class="picks-title" style="font-size: 2rem;">Week 2 Results</h3>
+                <p class="picks-subtitle">September 2025</p>
+            </div>
+
+            <div class="picks-grid">
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Jaguars @ Bengals</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Bengals -3.5 </strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Patriots @ Dolphins</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Patriots +1 </strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Tampa Bay @ Houston</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Tampa +2.5 </strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Commanders @ Packers</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Packers -3.5 </strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="week-separator"></div>
+
+            <!-- WEEK 1 ARCHIVE -->
+            <div class="picks-header">
+                <h3 class="picks-title" style="font-size: 2rem;">Week 1 Results</h3>
+                <p class="picks-subtitle">September 2025</p>
+            </div>
+
+            <div class="picks-grid">
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Cowboys @ Eagles</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Eagles -8 </strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Loss</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Chargers @ Chiefs (Brazil)</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Chargers +3 </strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Giants @ Commanders</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Commanders -6.5 </strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Panthers @ Jaguars</div>
+                        <div class="pick-confidence">Medium</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Jaguars -3.5 </strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Win</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-teams">Lions @ Packers</div>
+                        <div class="pick-confidence">High</div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">
+                            <span>Pick:</span>
+                            <span><strong>Lions +1.5/Moneyline </strong></span>
+                        </div>
+                        <div class="pick-line">
+                            <span>Result:</span>
+                            <span>Loss</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: rgba(0, 255, 136, 0.1); border-radius: 15px;">
+            <h3 style="color: #00ff88; margin-bottom: 1rem;">📊 Current Record: Overall - 22-13, VIP - 18-10, Free Picks 4-3 (63% Win Rate YTD)</h3>
+            <p style="color: rgba(255, 255, 255, 0.8);">New picks posted every Wednesday and Saturday. Questions? Email admin@yardlineiq.com</p>
+        </div>
+    </div>
+
+    <script>
+        // Individual login system - Option #2
+        function checkLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Add your customers here as you get them
+            const validLogins = {
+                'john@email.com': 'NFLpicks123',
+                'sarah@gmail.com': 'NFLpicks456',
+                'mike@yahoo.com': 'NFLpicks789',
+                'gustin.puckett@gmail.com': 'Rockytop66',
+                'BRSmith182@gmail.com': 'NFLpicks456'
+                // Add new customers here: 'customer@email.com': 'theirpassword'
+            };
+            
+            // Check if username and password match
+            if (validLogins[username] === password) {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('picksContent').classList.add('visible');
+                document.getElementById('logoutBtn').style.display = 'block';
+                
+                // Store login status
+                sessionStorage.setItem('loggedIn', 'true');
+            } else {
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        }
+        
+        function logout() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('picksContent').classList.remove('visible');
+            document.getElementById('logoutBtn').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            sessionStorage.removeItem('loggedIn');
+        }
+        
+        // Check if already logged in
+        window.addEventListener('load', function() {
+            if (sessionStorage.getItem('loggedIn') === 'true') {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('picksContent').classList.add('visible');
+                document.getElementById('logoutBtn').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

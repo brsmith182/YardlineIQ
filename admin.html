@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YardlineIQ Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .login-form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            min-width: 350px;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            color: #00ff94;
+            margin-bottom: 2rem;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-input::placeholder {
+            color: #aaa;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: #00ff94;
+            color: #1e1e2e;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .login-btn:hover {
+            background: #00cc75;
+        }
+
+        .admin-content {
+            display: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff94;
+        }
+
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #00ff94;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #ccc;
+            font-size: 1.1rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .content-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #00ff94;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ccc;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-group input::placeholder {
+            color: #aaa;
+        }
+
+        .btn {
+            background: #00ff94;
+            color: #1e1e2e;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #00cc75;
+        }
+
+        .btn-secondary {
+            background: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #777;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .success-message {
+            color: #00ff94;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .user-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        .email-badge {
+            background: #00ff94;
+            color: #1e1e2e;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginContainer">
+        <form class="login-form" id="loginForm">
+            <h1 class="login-title">YARDLINEIQ ADMIN</h1>
+            <input type="password" class="login-input" id="passwordInput" placeholder="Enter admin password" required>
+            <button type="submit" class="login-btn">LOGIN</button>
+            <div id="loginError" class="error-message" style="display: none;"></div>
+        </form>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-content" id="adminContent">
+        <div class="header">
+            <div class="logo">YARDLINEIQ ADMIN</div>
+            <button class="logout-btn" onclick="logout()">LOGOUT</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalUsers">0</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="paidSubscribers">0</div>
+                <div class="stat-label">Paid Subscribers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalPicks">0</div>
+                <div class="stat-label">Total Picks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="emailSignups">0</div>
+                <div class="stat-label">Email Signups</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="overallWinRate">61%</div>
+                <div class="stat-label">Overall Win Rate</div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="content-section">
+                <h2 class="section-title">Post New Pick</h2>
+                <form id="pickForm">
+                    <div class="form-group">
+                        <label>Week</label>
+                        <input type="text" id="week" placeholder="Week 1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Game</label>
+                        <input type="text" id="game" placeholder="Chiefs vs Patriots" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Pick</label>
+                        <input type="text" id="pick" placeholder="Chiefs -3.5" required>
+                    </div>
+                    <button type="submit" class="btn">Post Pick</button>
+                </form>
+                <div id="pickMessage"></div>
+            </div>
+
+            <div class="content-section">
+                <h2 class="section-title">User Management</h2>
+                <button class="btn" onclick="refreshUsers()">Refresh Users</button>
+                <button class="btn btn-secondary" onclick="exportUsers()">Export CSV</button>
+                
+                <div id="usersList">
+                    <div class="error-message">Click "Refresh Users" to load data</div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2 class="section-title">Email Signups <span id="emailCount" class="email-badge">0</span></h2>
+                <button class="btn" onclick="refreshEmails()">Refresh Emails</button>
+                <button class="btn btn-secondary" onclick="exportEmails()">Export Emails</button>
+                
+                <div id="emailsList">
+                    <div class="error-message">Click "Refresh Emails" to load data</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let authToken = null;
+
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const password = document.getElementById('passwordInput').value;
+            const loginError = document.getElementById('loginError');
+            
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.token;
+                    showAdminPanel();
+                    loadStats();
+                } else {
+                    loginError.textContent = 'Invalid password';
+                    loginError.style.display = 'block';
+                }
+            } catch (error) {
+                loginError.textContent = 'Login failed';
+                loginError.style.display = 'block';
+            }
+        });
+
+        function showAdminPanel() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('adminContent').style.display = 'block';
+        }
+
+        function logout() {
+            authToken = null;
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('adminContent').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+        }
+
+        // Helper function for authenticated requests
+        function fetchWithAuth(url, options = {}) {
+            return fetch(url, {
+                ...options,
+                headers: {
+                    ...options.headers,
+                    'Authorization': `Bearer ${authToken}`
+                }
+            });
+        }
+
+        // Load stats with authentication
+        async function loadStats() {
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/api/admin/stats`);
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
+                    document.getElementById('paidSubscribers').textContent = stats.paidSubscribers || 0;
+                    document.getElementById('totalPicks').textContent = stats.totalPicks || 0;
+                    document.getElementById('emailSignups').textContent = stats.emailSignups || 0;
+                    document.getElementById('overallWinRate').textContent = `${stats.overallWinRate || 61}%`;
+                    document.getElementById('emailCount').textContent = stats.emailSignups || 0;
+                } else if (response.status === 401) {
+                    logout();
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Post new pick
+        document.getElementById('pickForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const week = document.getElementById('week').value;
+            const game = document.getElementById('game').value;
+            const pick = document.getElementById('pick').value;
+            
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/api/picks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ week, game, pick })
+                });
+                
+                const result = await response.json();
+                const messageDiv = document.getElementById('pickMessage');
+                
+                if (response.ok) {
+                    messageDiv.innerHTML = '<div class="success-message">Pick posted successfully!</div>';
+                    document.getElementById('pickForm').reset();
+                    loadStats();
+                } else {
+                    messageDiv.innerHTML = `<div class="error-message">${result.error || 'Failed to post pick'}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('pickMessage').innerHTML = '<div class="error-message">Error posting pick</div>';
+            }
+        });
+
+        // Refresh users with authentication
+        async function refreshUsers() {
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/api/users`);
+                if (response.ok) {
+                    const users = await response.json();
+                    const usersList = document.getElementById('usersList');
+                    
+                    if (users.length === 0) {
+                        usersList.innerHTML = '<div class="error-message">No users found</div>';
+                    } else {
+                        usersList.innerHTML = `
+                            <div class="user-list">
+                                ${users.map(user => `
+                                    <div class="user-item">
+                                        <strong>${user.email}</strong>
+                                        ${user.name ? `(${user.name})` : ''}
+                                        <span class="email-badge">${user.type || 'user'}</span>
+                                        <br>
+                                        <small>Signed up: ${new Date(user.date || user.signupDate).toLocaleDateString()}</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                } else if (response.status === 401) {
+                    logout();
+                } else {
+                    document.getElementById('usersList').innerHTML = '<div class="error-message">Failed to load users</div>';
+                }
+            } catch (error) {
+                document.getElementById('usersList').innerHTML = '<div class="error-message">Error loading users</div>';
+            }
+        }
+
+        // Refresh emails
+        async function refreshEmails() {
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/api/users`);
+                if (response.ok) {
+                    const users = await response.json();
+                    const emailUsers = users.filter(user => user.type === 'email_signup' || !user.type);
+                    const emailsList = document.getElementById('emailsList');
+                    
+                    if (emailUsers.length === 0) {
+                        emailsList.innerHTML = '<div class="error-message">No email signups found</div>';
+                    } else {
+                        emailsList.innerHTML = `
+                            <div class="user-list">
+                                ${emailUsers.map(user => `
+                                    <div class="user-item">
+                                        <strong>${user.email}</strong>
+                                        ${user.name ? `(${user.name})` : ''}
+                                        <br>
+                                        <small>Signed up: ${new Date(user.date || user.signupDate).toLocaleDateString()}</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                } else if (response.status === 401) {
+                    logout();
+                } else {
+                    document.getElementById('emailsList').innerHTML = '<div class="error-message">Failed to load emails</div>';
+                }
+            } catch (error) {
+                document.getElementById('emailsList').innerHTML = '<div class="error-message">Error loading emails</div>';
+            }
+        }
+
+        // Export users as CSV
+        async function exportUsers() {
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/api/export/users`);
+                if (response.ok) {
+                    const csvData = await response.text();
+                    const blob = new Blob([csvData], { type: 'text/csv' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'yardlineiq-users.csv';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                } else if (response.status === 401) {
+                    logout();
+                } else {
+                    alert('Failed to export users');
+                }
+            } catch (error) {
+                alert('Error exporting users');
+            }
+        }
+
+        // Export emails as text file
+        async function exportEmails() {
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/api/users`);
+                if (response.ok) {
+                    const users = await response.json();
+                    const emailUsers = users.filter(user => user.type === 'email_signup' || !user.type);
+                    const emailList = emailUsers.map(user => user.email).join('\n');
+                    
+                    const blob = new Blob([emailList], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'yardlineiq-emails.txt';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                } else if (response.status === 401) {
+                    logout();
+                } else {
+                    alert('Failed to export emails');
+                }
+            } catch (error) {
+                alert('Error exporting emails');
+            }
+        }
+    </script>
+</body>
+</html>
+
+

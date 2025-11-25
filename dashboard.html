@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard - YardLineIQ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: rgba(10, 10, 10, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .subscription-badge {
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            color: #000;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 3rem;
+        }
+
+        .picks-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #00ff88;
+        }
+
+        .pick-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .pick-card:hover {
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .pick-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .pick-game {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .confidence-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .confidence-high { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        .confidence-medium { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+        .confidence-low { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); }
+
+        .pick-details {
+            margin: 1rem 0;
+        }
+
+        .pick-line {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+
+        .pick-analysis {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+        }
+
+        .game-time {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .stats-card, .account-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #00ff88;
+        }
+
+        .upgrade-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            color: #000;
+            border: none;
+            padding: 1rem;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .upgrade-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .no-picks, .loading {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 968px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .main-content { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">YARDLINEIQ</div>
+            <div class="user-info">
+                <span id="userName">Loading...</span>
+                <span class="subscription-badge" id="subscriptionBadge">FREE</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="welcome-section">
+            <h1 class="welcome-title">Welcome Back!</h1>
+            <p class="welcome-subtitle">Your latest NFL picks and account information</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="picks-section">
+                <h2 class="section-title">Your NFL Picks</h2>
+                <div id="picksContainer">
+                    <div class="loading">Loading your picks...</div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="stats-card">
+                    <h3 class="section-title">Your Stats</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">Win Rate</span>
+                        <span class="stat-value" id="userWinRate">-%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Picks</span>
+                        <span class="stat-value" id="totalPicks">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">This Week</span>
+                        <span class="stat-value" id="weeklyPicks">0</span>
+                    </div>
+                </div>
+
+                <div class="account-card">
+                    <h3 class="section-title">Account</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">Subscription</span>
+                        <span class="stat-value" id="accountSubscription">Free</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Expires</span>
+                        <span class="stat-value" id="subscriptionEnd">-</span>
+                    </div>
+                    <button class="upgrade-btn" onclick="window.location.href='/#pricing'">
+                        Upgrade Package
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        document.getElementById('userName').textContent = user.firstName || 'Member';
+        document.getElementById('subscriptionBadge').textContent = (user.subscription || 'free').toUpperCase();
+        document.getElementById('accountSubscription').textContent = (user.subscription || 'free').toUpperCase();
+
+        async function loadPicks() {
+            try {
+                const response = await fetch('/api/picks/user-picks', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayPicks(data.picks);
+                    updateStats(data.stats);
+                } else {
+                    document.getElementById('picksContainer').innerHTML = 
+                        '<div class="no-picks">Unable to load picks. Please try again.</div>';
+                }
+            } catch (error) {
+                document.getElementById('picksContainer').innerHTML = 
+                    '<div class="no-picks">Network error. Please try again.</div>';
+            }
+        }
+
+        function displayPicks(picks) {
+            const container = document.getElementById('picksContainer');
+            
+            if (!picks || picks.length === 0) {
+                container.innerHTML = '<div class="no-picks">No picks available yet. Check back soon!</div>';
+                return;
+            }
+
+            container.innerHTML = picks.map(pick => `
+                <div class="pick-card">
+                    <div class="pick-header">
+                        <div class="pick-game">${pick.game}</div>
+                        <div class="confidence-badge confidence-${pick.confidence.toLowerCase()}">
+                            ${pick.confidence}
+                        </div>
+                    </div>
+                    <div class="pick-details">
+                        <div class="pick-line">${pick.pick}</div>
+                        <div class="pick-analysis">${pick.analysis || 'Analysis coming soon...'}</div>
+                        <div class="game-time">Game Time: ${new Date(pick.gameTime).toLocaleDateString()} ${new Date(pick.gameTime).toLocaleTimeString()}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(stats) {
+            if (stats) {
+                document.getElementById('userWinRate').textContent = stats.winRate || '-%';
+                document.getElementById('totalPicks').textContent = stats.totalPicks || '0';
+                document.getElementById('weeklyPicks').textContent = stats.weeklyPicks || '0';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+
+        loadPicks();
+    </script>
+</body>
+</html>
