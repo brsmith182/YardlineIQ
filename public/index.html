@@ -1,865 +1,2031 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
+    <!-- Google tag (gtag.js) -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L6R1V0FNXH"></script>
+
+    <script>
+
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag(){dataLayer.push(arguments);}
+
+      gtag('js', new Date());
+
+      gtag('config', 'G-L6R1V0FNXH');
+
+    </script>
+
+    
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YardLineIQ | Data-Driven NFL Betting Picks (61% Win Rate)</title>
-    <meta name="description" content="Access data-driven NFL betting picks with a proven 61% win rate. Stop guessing and start winning with YardLineIQ's analytical models.">
-    <link rel="icon" href="/favicon.ico">
-    <script src="https://js.stripe.com/v3/"></script>
-    <style>
-        /* General Reset & Variables */
-        :root {
-            --primary-color: #0d9488; /* Teal */
-            --secondary-color: #fca5a5; /* Light Red/Coral */
-            --bg-color: #111827; /* Dark Slate */
-            --card-bg: #1f2937; /* Darker Slate */
-            --text-color: #f9fafb; /* Off-White */
-            --text-secondary: #d1d5db; /* Light Gray */
-            --font-family: 'Arial', sans-serif;
+
+    <title>Free NFL Picks 2025 | 61% Win Rate Expert Predictions Against the Spread | YardLineIQ</title>
+
+    <meta name="description" content="Get free NFL picks with proven 61% win rate. Expert NFL predictions against the spread, betting tips, and winning NFL handicapping. Join smart bettors today!">
+
+    <meta name="keywords" content="free NFL picks, NFL picks 2025, NFL predictions, NFL betting picks, NFL picks against the spread, expert NFL picks, NFL betting tips, NFL handicapping, best NFL picks 2025">
+
+    
+
+    <!-- SEO Schema Markup -->
+
+    <script type="application/ld+json">
+
+    {
+
+        "@context": "https://schema.org",
+
+        "@type": "Organization",
+
+        "name": "YardLineIQ",
+
+        "url": "https://www.yardlineiq.com",
+
+        "description": "Expert NFL picks and predictions with proven 61% win rate. Free NFL picks against the spread.",
+
+        "logo": "https://www.yardlineiq.com/logo.png",
+
+        "contactPoint": {
+
+            "@type": "ContactPoint",
+
+            "email": "admin@yardlineiq.com",
+
+            "contactType": "customer service"
+
         }
+
+    }
+
+    </script>
+
+    
+
+    <!-- Article Schema for SEO -->
+
+    <script type="application/ld+json">
+
+    {
+
+        "@context": "https://schema.org",
+
+        "@type": "Article",
+
+        "headline": "Free NFL Picks 2025 with 61% Win Rate",
+
+        "description": "Expert NFL predictions and betting tips from proven analytics system",
+
+        "author": {
+
+            "@type": "Organization",
+
+            "name": "YardLineIQ"
+
+        },
+
+        "publisher": {
+
+            "@type": "Organization",
+
+            "name": "YardLineIQ"
+
+        }
+
+    }
+
+    </script>
+
+    
+
+    <script src="https://js.stripe.com/v3/"></script>
+
+    
+
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+        
 
         * {
+
             margin: 0;
+
             padding: 0;
+
             box-sizing: border-box;
+
         }
+
+
 
         body {
-            font-family: var(--font-family);
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            scroll-behavior: smooth;
+
+            font-family: 'Inter', sans-serif;
+
+            background: #0a0a0a;
+
+            color: white;
+
+            overflow-x: hidden;
+
+            line-height: 1.4;
+
         }
 
-        a {
-            color: var(--primary-color);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
 
-        a:hover {
-            color: var(--secondary-color);
-        }
 
-        /* Utility Classes */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .highlight {
-            color: var(--primary-color);
-            font-weight: 700;
-        }
-
-        .btn-primary {
-            display: inline-block;
-            background-color: var(--primary-color);
-            color: var(--bg-color);
-            padding: 12px 25px;
-            border-radius: 6px;
-            font-weight: 600;
-            transition: background-color 0.3s, transform 0.2s;
-            border: none;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-primary:hover {
-            background-color: #0f766e; /* Slightly darker teal */
-            transform: translateY(-2px);
-        }
-
-        /* Header & Navigation */
         .header {
+
             position: fixed;
+
+            top: 0;
+
             width: 100%;
-            background-color: transparent;
-            padding: 15px 0;
+
+            padding: 2rem 0;
+
             z-index: 1000;
-            transition: background-color 0.3s, box-shadow 0.3s;
+
+            transition: all 0.3s ease;
+
         }
+
+
 
         .header.scrolled {
-            background-color: var(--card-bg);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+
+            background: rgba(10, 10, 10, 0.95);
+
+            backdrop-filter: blur(20px);
+
+            padding: 1rem 0;
+
         }
+
+
 
         .nav-container {
+
+            max-width: 1400px;
+
+            margin: 0 auto;
+
             display: flex;
+
             justify-content: space-between;
+
             align-items: center;
+
+            padding: 0 3rem;
+
         }
+
+
 
         .logo {
-            font-size: 1.5rem;
+
+            font-size: 1.8rem;
+
             font-weight: 800;
-            color: var(--text-color);
+
+            letter-spacing: -0.02em;
+
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+
+            background-clip: text;
+
         }
+
+
+
+        .nav-links {
+
+            display: flex;
+
+            list-style: none;
+
+            gap: 3rem;
+
+        }
+
+
 
         .nav-links a {
-            color: var(--text-secondary);
-            margin-left: 25px;
+
+            color: rgba(255, 255, 255, 0.7);
+
+            text-decoration: none;
+
             font-weight: 500;
-            font-size: 1rem;
+
+            font-size: 0.95rem;
+
+            transition: color 0.3s ease;
+
+            letter-spacing: 0.02em;
+
         }
+
+
 
         .nav-links a:hover {
-            color: var(--primary-color);
+
+            color: #00ff88;
+
         }
 
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(rgba(17, 24, 39, 0.9), rgba(17, 24, 39, 0.9)), url('image_965cbc.jpg') no-repeat center center/cover;
-            height: 100vh;
+
+
+        .login-btn {
+
+            background: rgba(255, 255, 255, 0.1);
+
+            border: 1px solid rgba(255, 255, 255, 0.2);
+
+            color: white;
+
+            padding: 0.8rem 1.5rem;
+
+            border-radius: 25px;
+
+            text-decoration: none;
+
+            font-weight: 500;
+
+            transition: all 0.3s ease;
+
+            min-height: 44px;
+
+            min-width: 44px;
+
             display: flex;
+
             align-items: center;
-            text-align: center;
-            padding-top: 60px; /* Account for fixed header */
+
         }
 
-        .hero-content {
-            max-width: 800px;
+
+
+        .login-btn:hover {
+
+            background: rgba(0, 255, 136, 0.2);
+
+            border-color: #00ff88;
+
+            color: #00ff88;
+
+        }
+
+
+
+        /* Mobile menu button */
+
+        .mobile-menu-btn {
+
+            display: none;
+
+            background: none;
+
+            border: none;
+
+            color: white;
+
+            font-size: 1.5rem;
+
+            cursor: pointer;
+
+            padding: 8px;
+
+            min-height: 44px;
+
+            min-width: 44px;
+
+        }
+
+
+
+        .hero {
+
+            min-height: 100vh;
+
+            display: flex;
+
+            align-items: center;
+
+            position: relative;
+
+            padding: 0 3rem;
+
+            background: radial-gradient(ellipse at top, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+
+                        radial-gradient(ellipse at bottom right, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+
+        }
+
+
+
+        .hero-grid {
+
+            max-width: 1400px;
+
             margin: 0 auto;
+
+            display: grid;
+
+            grid-template-columns: 1fr 0.8fr;
+
+            gap: 4rem;
+
+            align-items: center;
+
+            width: 100%;
+
         }
 
-        .hero-title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            line-height: 1.1;
+
+
+        .hero-content h1 {
+
+            font-size: clamp(3rem, 6vw, 8rem);
+
+            font-weight: 900;
+
+            line-height: 0.9;
+
+            letter-spacing: -0.05em;
+
+            margin-bottom: 2rem;
+
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.4) 100%);
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+
+            background-clip: text;
+
         }
+
+
+
+        .hero-content .highlight {
+
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+
+            background-clip: text;
+
+            display: block;
+
+        }
+
+
 
         .hero-subtitle {
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
+
+            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+
+            color: rgba(255, 255, 255, 0.6);
+
+            margin-bottom: 3rem;
+
+            font-weight: 400;
+
+            max-width: 500px;
+
+            line-height: 1.5;
+
         }
 
-        .stats-bar {
-            background-color: var(--card-bg);
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 3rem;
+
+
+        .hero-stats {
+
             display: flex;
-            justify-content: space-around;
+
+            gap: 2rem;
+
+            margin-bottom: 3rem;
+
             flex-wrap: wrap;
-            border-top: 3px solid var(--primary-color);
+
         }
+
+
 
         .stat-item {
-            text-align: center;
-            margin: 10px 15px;
+
+            text-align: left;
+
         }
+
+
 
         .stat-number {
-            font-size: 2.5rem;
+
+            font-size: clamp(2rem, 4vw, 3rem);
+
             font-weight: 800;
-            color: var(--primary-color);
+
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+
+            background-clip: text;
+
             line-height: 1;
+
         }
+
+
 
         .stat-label {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            margin-top: 5px;
-        }
 
-        /* Free Pick Section */
-        .free-pick {
-            padding: 80px 0;
-            text-align: center;
-            background-color: var(--bg-color);
-        }
-
-        .form-container {
-            background-color: var(--card-bg);
-            max-width: 600px;
-            margin: 30px auto 0;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .form-container h3 {
-            font-size: 2rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .form-group input[type="email"] {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #374151;
-            border-radius: 6px;
-            background-color: #1f2937;
-            color: var(--text-color);
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input[type="email"]:focus {
-            border-color: var(--primary-color);
-            outline: none;
-        }
-
-        .agreement-checkbox {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 15px;
             font-size: 0.9rem;
-            color: var(--text-secondary);
+
+            color: rgba(255, 255, 255, 0.5);
+
+            font-weight: 500;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.1em;
+
         }
 
-        .agreement-checkbox input[type="checkbox"] {
-            margin-right: 10px;
-            width: 16px;
-            height: 16px;
-            accent-color: var(--primary-color);
+
+
+        .hero-visual {
+
+            position: relative;
+
+            height: 600px;
+
         }
 
-        #freePickSubmit {
-            width: 100%;
-            opacity: 0.5;
-            cursor: not-allowed;
+
+
+        .floating-card {
+
+            position: absolute;
+
+            background: rgba(255, 255, 255, 0.05);
+
+            border: 1px solid rgba(255, 255, 255, 0.1);
+
+            border-radius: 20px;
+
+            padding: 2rem;
+
+            backdrop-filter: blur(20px);
+
+            animation: float 6s ease-in-out infinite;
+
         }
-        
-        #freePickSubmit:enabled {
+
+
+
+        .card-1 {
+
+            top: 50px;
+
+            right: 100px;
+
+            width: 280px;
+
+            animation-delay: -2s;
+
+        }
+
+
+
+        .card-2 {
+
+            bottom: 100px;
+
+            left: 50px;
+
+            width: 200px;
+
+            animation-delay: -4s;
+
+        }
+
+
+
+        .card-3 {
+
+            top: 200px;
+
+            left: 200px;
+
+            width: 150px;
+
+            animation-delay: -1s;
+
+        }
+
+
+
+        @keyframes float {
+
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+
+            50% { transform: translateY(-20px) rotate(1deg); }
+
+        }
+
+
+
+        .win-indicator {
+
+            font-size: 2rem;
+
+            font-weight: 800;
+
+            color: #00ff88;
+
+            margin-bottom: 0.5rem;
+
+        }
+
+
+
+        .pick-text {
+
+            color: rgba(255, 255, 255, 0.7);
+
+            font-size: 0.9rem;
+
+        }
+
+
+
+        .cta-group {
+
+            display: flex;
+
+            gap: 1.5rem;
+
+            flex-wrap: wrap;
+
+        }
+
+
+
+        .btn-primary {
+
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+
+            color: #000;
+
+            border: none;
+
+            padding: 1.2rem 2.5rem;
+
+            font-size: 1rem;
+
+            font-weight: 700;
+
+            border-radius: 50px;
+
             cursor: pointer;
-            opacity: 1;
-        }
 
-        /* Pricing Section */
-        .pricing {
-            padding: 80px 0;
-            background-color: #1f2937; /* Darker background for contrast */
-        }
+            transition: all 0.3s ease;
 
-        .section-header {
+            text-decoration: none;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 0.5rem;
+
+            min-height: 56px;
+
+            justify-content: center;
+
             text-align: center;
-            margin-bottom: 40px;
+
         }
+
+
+
+        .btn-primary:hover {
+
+            transform: translateY(-2px);
+
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.3);
+
+        }
+
+
+
+        .btn-secondary {
+
+            background: transparent;
+
+            color: white;
+
+            border: 2px solid rgba(255, 255, 255, 0.2);
+
+            padding: 1.2rem 2.5rem;
+
+            font-size: 1rem;
+
+            font-weight: 600;
+
+            border-radius: 50px;
+
+            cursor: pointer;
+
+            transition: all 0.3s ease;
+
+            text-decoration: none;
+
+            min-height: 56px;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+        }
+
+
+
+        .btn-secondary:hover {
+
+            border-color: #00ff88;
+
+            color: #00ff88;
+
+            transform: translateY(-2px);
+
+        }
+
+
+
+        .free-pick-section {
+
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+
+            padding: 80px 3rem;
+
+        }
+
+
+
+        .free-pick-container {
+
+            max-width: 800px;
+
+            margin: 0 auto;
+
+            text-align: center;
+
+        }
+
+
 
         .section-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
+
+            font-size: clamp(2rem, 5vw, 3rem);
+
+            font-weight: 900;
+
+            margin-bottom: 1rem;
+
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+
+            background-clip: text;
+
         }
+
+
+
+        .email-signup-form {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 1rem;
+
+            max-width: 500px;
+
+            margin: 2rem auto;
+
+            align-items: center;
+
+        }
+
+
+
+        .email-input {
+
+            flex: 1;
+
+            padding: 1rem 1.5rem;
+
+            border: 2px solid rgba(255, 255, 255, 0.1);
+
+            background: rgba(255, 255, 255, 0.05);
+
+            border-radius: 50px;
+
+            color: white;
+
+            font-size: 1rem;
+
+            outline: none;
+
+            transition: border-color 0.3s ease;
+
+            min-width: 280px;
+
+            min-height: 56px;
+
+        }
+
+
+
+        .email-input:focus {
+
+            border-color: #00ff88;
+
+        }
+
+
+
+        .email-input::placeholder {
+
+            color: rgba(255, 255, 255, 0.5);
+
+        }
+
+
+
+        .pricing {
+
+            padding: 120px 3rem;
+
+            background: linear-gradient(180deg, transparent 0%, rgba(139, 92, 246, 0.05) 100%);
+
+        }
+
+
+
+        .pricing-container {
+
+            max-width: 1400px;
+
+            margin: 0 auto;
+
+        }
+
+
+
+        .section-header {
+
+            text-align: center;
+
+            margin-bottom: 6rem;
+
+        }
+
+
 
         .section-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
+
+            font-size: clamp(1rem, 2vw, 1.2rem);
+
+            color: rgba(255, 255, 255, 0.6);
+
+            font-weight: 400;
+
         }
+
+
 
         .pricing-grid {
+
             display: grid;
+
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
+
+            gap: 2rem;
+
         }
+
+
 
         .pricing-card {
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid #374151;
-            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+
+            background: rgba(255, 255, 255, 0.03);
+
+            border: 1px solid rgba(255, 255, 255, 0.08);
+
+            border-radius: 24px;
+
+            padding: 3rem 2.5rem;
+
+            position: relative;
+
+            transition: all 0.4s ease;
+
+            backdrop-filter: blur(20px);
+
         }
+
+
 
         .pricing-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary-color);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+
+            transform: translateY(-10px);
+
+            border-color: rgba(0, 255, 136, 0.3);
+
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+
         }
+
+
 
         .pricing-card.featured {
-            background-color: #273444; /* Slightly different background for featured */
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 0 3px var(--secondary-color);
-            position: relative;
-            transform: scale(1.05);
+
+            border-color: #00ff88;
+
+            background: rgba(0, 255, 136, 0.05);
+
+            transform: scale(1.02);
+
         }
-        
-        .pricing-card.featured:hover {
-             transform: scale(1.08) translateY(-5px);
-        }
+
+
 
         .featured-badge {
+
             position: absolute;
-            top: -15px;
+
+            top: -12px;
+
             left: 50%;
+
             transform: translateX(-50%);
-            background-color: var(--secondary-color);
-            color: var(--bg-color);
-            padding: 5px 15px;
+
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+
+            color: #000;
+
+            padding: 0.5rem 1.5rem;
+
             border-radius: 20px;
-            font-weight: 700;
+
             font-size: 0.85rem;
+
+            font-weight: 700;
+
             text-transform: uppercase;
+
+            letter-spacing: 0.05em;
+
         }
+
+
 
         .plan-name {
-            font-size: 1.75rem;
+
+            font-size: 1.5rem;
+
             font-weight: 700;
-            color: var(--text-color);
+
             margin-bottom: 0.5rem;
+
+            letter-spacing: -0.01em;
+
         }
+
+
 
         .plan-desc {
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-            min-height: 40px; /* Ensure consistent card height */
+
+            color: rgba(255, 255, 255, 0.5);
+
+            font-size: 0.9rem;
+
+            margin-bottom: 2rem;
+
+            line-height: 1.5;
+
         }
+
+
 
         .plan-price {
-            margin-bottom: 1.5rem;
-            line-height: 1;
+
+            margin-bottom: 2rem;
+
         }
+
+
 
         .price-amount {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--primary-color);
+
+            font-size: 3.5rem;
+
+            font-weight: 900;
+
+            line-height: 1;
+
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+
+            background-clip: text;
+
         }
 
-        .pricing-card.featured .price-amount {
-            color: var(--secondary-color);
-        }
+
 
         .price-period {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
+
+            color: rgba(255, 255, 255, 0.5);
+
+            font-size: 1rem;
+
+            font-weight: 500;
+
         }
+
+
 
         .plan-features {
+
             list-style: none;
-            text-align: left;
-            margin-bottom: 2rem;
-            padding: 0;
+
+            margin-bottom: 2.5rem;
+
         }
+
+
 
         .plan-features li {
-            padding: 10px 0;
-            border-bottom: 1px solid #374151;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
+
+            padding: 0.75rem 0;
+
+            color: rgba(255, 255, 255, 0.8);
+
             font-size: 0.95rem;
+
+            position: relative;
+
+            padding-left: 1.5rem;
+
         }
 
-        .plan-features li:before {
-            content: '✔';
-            color: var(--primary-color);
-            margin-right: 10px;
-            font-weight: 700;
+
+
+        .plan-features li::before {
+
+            content: '✓';
+
+            position: absolute;
+
+            left: 0;
+
+            color: #00ff88;
+
+            font-weight: bold;
+
         }
 
-        .pricing-card.featured .plan-features li:before {
-            color: var(--secondary-color);
-        }
+
 
         .plan-button {
+
             width: 100%;
-            background-color: var(--primary-color);
-            color: var(--bg-color);
-            padding: 14px 20px;
-            border-radius: 6px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            border: none;
+
+            background: rgba(255, 255, 255, 0.05);
+
+            border: 2px solid rgba(255, 255, 255, 0.1);
+
+            color: white;
+
+            padding: 1rem 2rem;
+
+            font-size: 1rem;
+
+            font-weight: 600;
+
+            border-radius: 12px;
+
             cursor: pointer;
-            transition: background-color 0.3s;
+
+            transition: all 0.3s ease;
+
+            min-height: 56px;
+
         }
+
+
 
         .plan-button:hover {
-            background-color: #0f766e;
+
+            border-color: #00ff88;
+
+            background: rgba(0, 255, 136, 0.1);
+
         }
 
-        /* About Section */
-        .about {
-            padding: 80px 0;
-            background-color: var(--bg-color);
+
+
+        .featured .plan-button {
+
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+
+            color: #000;
+
+            border: none;
+
         }
+
+
+
+        .featured .plan-button:hover {
+
+            transform: translateY(-2px);
+
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+
+        }
+
+
+
+        .about {
+
+            padding: 120px 3rem;
+
+            background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.05) 0%, transparent 70%);
+
+        }
+
+
 
         .about-container {
+
+            max-width: 1200px;
+
+            margin: 0 auto;
+
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 40px;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 6rem;
+
             align-items: center;
+
         }
 
-        @media (min-width: 768px) {
-            .about-container {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
+
 
         .about-content h2 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
+
+            font-size: clamp(2rem, 4vw, 4rem);
+
+            font-weight: 900;
+
+            line-height: 1.1;
+
+            margin-bottom: 2rem;
+
+            letter-spacing: -0.02em;
+
         }
+
+
 
         .about-content p {
-            color: var(--text-secondary);
+
+            font-size: clamp(1rem, 2vw, 1.1rem);
+
+            color: rgba(255, 255, 255, 0.7);
+
+            line-height: 1.6;
+
             margin-bottom: 1.5rem;
-            font-size: 1.05rem;
+
         }
+
+
 
         .about-visual {
-            /* Placeholder for visual element (e.g., graph, server rack image) */
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            min-height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-            font-size: 1.5rem;
-            border: 2px dashed #374151;
-        }
-        
-        .about-visual:after {
-            content: "Analytics Visualization Placeholder";
+
+            position: relative;
+
+            height: 400px;
+
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+
+            border-radius: 20px;
+
+            overflow: hidden;
+
         }
 
-        /* Footer */
+
+
         .footer {
-            background-color: #0f172a; /* Even darker blue/slate */
-            padding: 20px 0;
+
+            background: rgba(0, 0, 0, 0.5);
+
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+
+            padding: 2rem 3rem;
+
             text-align: center;
+
+            color: rgba(255, 255, 255, 0.4);
+
             font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.5);
+
         }
 
-        .footer-content a {
-            color: rgba(255, 255, 255, 0.7);
-        }
-        
-        .footer-content a:hover {
-            color: var(--primary-color);
-        }
 
-        /* Payment Modal Styling */
+
         .payment-modal {
-            display: none; 
+
+            display: none;
+
             position: fixed;
-            z-index: 2000;
-            left: 0;
+
             top: 0;
+
+            left: 0;
+
             width: 100%;
+
             height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.7);
+
+            background: rgba(0, 0, 0, 0.8);
+
+            z-index: 10000;
+
+            backdrop-filter: blur(10px);
+
         }
+
+
 
         .modal-content {
-            background-color: var(--card-bg);
-            margin: 10% auto;
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 450px;
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+
+            position: absolute;
+
+            top: 50%;
+
+            left: 50%;
+
+            transform: translate(-50%, -50%);
+
+            background: #1a1a1a;
+
+            border-radius: 20px;
+
+            padding: 3rem;
+
+            max-width: 500px;
+
+            width: 90%;
+
+            border: 1px solid rgba(255, 255, 255, 0.1);
+
         }
+
+
+
+        .modal-header {
+
+            text-align: center;
+
+            margin-bottom: 2rem;
+
+        }
+
+
+
+        .modal-title {
+
+            font-size: 1.8rem;
+
+            font-weight: 700;
+
+            margin-bottom: 0.5rem;
+
+        }
+
+
+
+        .modal-price {
+
+            font-size: 2.5rem;
+
+            font-weight: 900;
+
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+
+            background-clip: text;
+
+        }
+
+
 
         .close-modal {
-            color: var(--text-secondary);
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
+
+            position: absolute;
+
+            top: 1rem;
+
+            right: 1rem;
+
             background: none;
+
             border: none;
+
+            color: rgba(255, 255, 255, 0.5);
+
+            font-size: 1.5rem;
+
             cursor: pointer;
+
+            min-height: 44px;
+
+            min-width: 44px;
+
         }
 
-        .close-modal:hover,
-        .close-modal:focus {
-            color: var(--secondary-color);
-        }
-        
-        .modal-header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #374151;
-        }
-        
-        .modal-title {
-            color: var(--primary-color);
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-        }
 
-        .modal-price .price-amount {
-            font-size: 2.5rem;
-            color: var(--secondary-color);
-        }
 
         #card-element {
-            padding: 12px;
-            border: 1px solid #374151;
-            border-radius: 4px;
-            background-color: #1f2937;
-            margin-bottom: 20px;
+
+            background: rgba(255, 255, 255, 0.05);
+
+            border: 2px solid rgba(255, 255, 255, 0.1);
+
+            border-radius: 10px;
+
+            padding: 1rem;
+
+            margin: 1rem 0;
+
         }
+
+
 
         .payment-button {
+
             width: 100%;
-            padding: 15px;
-            background-color: var(--secondary-color);
-            color: var(--bg-color);
+
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+
+            color: #000;
+
             border: none;
-            border-radius: 6px;
-            font-size: 1.1rem;
+
+            padding: 1rem 2rem;
+
+            font-size: 1rem;
+
             font-weight: 700;
+
+            border-radius: 10px;
+
             cursor: pointer;
-            transition: background-color 0.3s;
+
+            transition: all 0.3s ease;
+
+            margin-top: 1rem;
+
+            min-height: 56px;
+
         }
-        
+
+
+
         .payment-button:hover {
-            background-color: #f87171;
+
+            transform: translateY(-2px);
+
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+
         }
-        
-        /* Media Queries for Responsiveness */
-        @media (max-width: 900px) {
-            .hero-title {
-                font-size: 3rem;
+
+
+
+        .payment-button:disabled {
+
+            opacity: 0.5;
+
+            cursor: not-allowed;
+
+        }
+
+
+
+        .features-section {
+
+            padding: 80px 3rem;
+
+            background: rgba(0, 0, 0, 0.3);
+
+        }
+
+
+
+        .features-container {
+
+            max-width: 1200px;
+
+            margin: 0 auto;
+
+        }
+
+
+
+        .features-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+
+            gap: 2rem;
+
+            margin-top: 3rem;
+
+        }
+
+
+
+        .feature-card {
+
+            background: rgba(255, 255, 255, 0.03);
+
+            border: 1px solid rgba(255, 255, 255, 0.08);
+
+            border-radius: 15px;
+
+            padding: 2rem;
+
+            text-align: center;
+
+            transition: all 0.3s ease;
+
+        }
+
+
+
+        .feature-card:hover {
+
+            transform: translateY(-5px);
+
+            border-color: rgba(0, 255, 136, 0.3);
+
+        }
+
+
+
+        .feature-icon {
+
+            font-size: 2.5rem;
+
+            margin-bottom: 1rem;
+
+            display: block;
+
+        }
+
+
+
+        .feature-card h3 {
+
+            color: #00ff88;
+
+            margin-bottom: 1rem;
+
+            font-size: 1.2rem;
+
+            font-weight: 600;
+
+        }
+
+
+
+        .feature-card p {
+
+            color: rgba(255, 255, 255, 0.7);
+
+            line-height: 1.5;
+
+        }
+
+
+
+        @media (max-width: 1200px) {
+
+            .hero-grid {
+
+                grid-template-columns: 1fr;
+
+                gap: 3rem;
+
+                text-align: center;
+
             }
 
-            .hero-subtitle {
-                font-size: 1.3rem;
+            
+
+            .hero-visual {
+
+                height: 400px;
+
             }
+
+            
+
+            .about-container {
+
+                grid-template-columns: 1fr;
+
+                gap: 3rem;
+
+            }
+
+        }
+
+
+
+        @media (max-width: 768px) {
+
+            html, body {
+
+                overflow-x: hidden !important;
+
+                width: 100% !important;
+
+            }
+
+            
+
+            * {
+
+                max-width: 100vw !important;
+
+            }
+
+            
+
+            .nav-container {
+
+                padding: 0 1.5rem;
+
+            }
+
+            
 
             .nav-links {
-                display: none; /* Hide navigation on small screens */
-            }
-        }
 
-        @media (max-width: 600px) {
-            .hero {
-                height: auto;
-                min-height: 100vh;
-                padding-bottom: 50px;
+                display: none;
+
             }
 
-            .hero-title {
-                font-size: 2.5rem;
+            
+
+            .mobile-menu-btn {
+
+                display: block;
+
             }
 
-            .stat-number {
-                font-size: 2rem;
+            
+
+            .hero, .pricing, .about, .free-pick-section, .features-section {
+
+                padding-left: 1.5rem !important;
+
+                padding-right: 1.5rem !important;
+
             }
+
+            
+
+            .hero-content h1 {
+
+                font-size: 2.5rem !important;
+
+                line-height: 1.1 !important;
+
+            }
+
+            
+
+            .hero-stats {
+
+                justify-content: center;
+
+                gap: 1.5rem;
+
+            }
+
+            
+
+            .cta-group {
+
+                flex-direction: column !important;
+
+                width: 100% !important;
+
+                justify-content: center;
+
+            }
+
+            
+
+            .btn-primary, .btn-secondary {
+
+                width: 100% !important;
+
+                margin: 0.5rem 0 !important;
+
+            }
+
+            
 
             .pricing-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .pricing-card.featured {
-                transform: scale(1.0); /* Reset scale on small screens */
-            }
-            
-            .pricing-card.featured:hover {
-                 transform: scale(1.03) translateY(-3px);
+
+                grid-template-columns: 1fr !important;
+
             }
 
-            .form-container {
-                padding: 30px 20px;
+            
+
+            .floating-card {
+
+                display: none !important;
+
             }
+
+
+
+            .email-signup-form {
+
+                flex-direction: column;
+
+                align-items: center;
+
+            }
+
+
+
+            .email-input {
+
+                width: 100%;
+
+                min-width: auto;
+
+            }
+
+
+
+            .features-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+
+            .modal-content {
+
+                margin: 1rem;
+
+                width: calc(100% - 2rem);
+
+                padding: 2rem 1.5rem;
+
+            }
+
         }
+
+
+
+        @media (max-width: 480px) {
+
+            .hero-content h1 {
+
+                font-size: 2rem !important;
+
+            }
+
+            
+
+            .section-title {
+
+                font-size: 1.8rem;
+
+            }
+
+            
+
+            .hero-stats {
+
+                gap: 1rem;
+
+            }
+
+            
+
+            .stat-number {
+
+                font-size: 1.8rem;
+
+            }
+
+        }
+
+
+
+        .btn-primary:focus,
+
+        .btn-secondary:focus,
+
+        .email-input:focus,
+
+        .plan-button:focus,
+
+        .login-btn:focus,
+
+        .mobile-menu-btn:focus {
+
+            outline: 3px solid #00ff88;
+
+            outline-offset: 2px;
+
+        }
+
+
+
+        .loading {
+
+            opacity: 0.7;
+
+            pointer-events: none;
+
+            position: relative;
+
+        }
+
+
+
+        .loading::after {
+
+            content: '';
+
+            position: absolute;
+
+            top: 50%;
+
+            left: 50%;
+
+            transform: translate(-50%, -50%);
+
+            width: 20px;
+
+            height: 20px;
+
+            border: 2px solid #00ff88;
+
+            border-top: 2px solid transparent;
+
+            border-radius: 50%;
+
+            animation: spin 1s linear infinite;
+
+        }
+
+
+
+        @keyframes spin {
+
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+
+        }
+
     </style>
+
 </head>
+
 <body>
 
     <header class="header" id="header">
-        <div class="container nav-container">
-            <div class="logo">YardLineIQ</div>
-            <nav class="nav-links">
-                <a href="#free-pick">Free Pick</a>
-                <a href="#pricing">Pricing</a>
-                <a href="#about">Our Edge</a>
-                <a href="#" onclick="scrollToPricing()">Get Access</a>
-            </nav>
-        </div>
+
+        <nav class="nav-container">
+
+            <div class="logo">YARDLINEIQ</div>
+
+            <ul class="nav-links">
+
+                <li><a href="#home">Home</a></li>
+
+                <li><a href="#free-pick">Free Picks</a></li>
+
+                <li><a href="#pricing">Packages</a></li>
+
+                <li><a href="#about">About</a></li>
+
+                <li><a href="mailto:admin@yardlineiq.com">Contact</a></li>
+
+            </ul>
+
+            <button class="mobile-menu-btn" aria-label="Open mobile menu">☰</button>
+
+            <a href="/picks.html" class="login-btn">Member Login</a>
+
+        </nav>
+
     </header>
 
-    <section class="hero">
-        <div class="container hero-content">
-            <h1 class="hero-title">
-                THE NFL BETTING <span class="highlight">EDGE</span> YOU'VE BEEN MISSING
-            </h1>
-            <p class="hero-subtitle">
-                Stop relying on luck. Access our proprietary data models and picks that boast a proven **61% documented win rate**.
-            </p>
-            <button class="btn-primary" onclick="scrollToPricing()">View Pricing & Packages</button>
 
-            <div class="stats-bar">
-                <div class="stat-item">
-                    <div class="stat-number">61<span style="font-size: 1.5rem;">%</span></div>
-                    <div class="stat-label">Verified Win Rate</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">10+</div>
-                    <div class="stat-label">Years of Data Modeled</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">Picks</div>
-                    <div class="stat-label">Against The Spread</div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <section class="free-pick" id="free-pick">
-        <div class="container">
-            <div class="form-container">
-                <h3>Get Your <span class="highlight">FREE</span> Weekly NFL Pick!</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 25px;">Enter your email to receive this week's highest-confidence free pick, backed by our model.</p>
-                <form id="freePickForm">
-                    <div class="form-group">
-                        <input type="email" id="freeEmail" placeholder="Enter your email address" required>
-                    </div>
-                    <div class="agreement-checkbox">
-                        <input type="checkbox" id="agreementCheckbox">
-                        <label for="agreementCheckbox">I agree to receive communications and confirm I am 18+.</label>
-                    </div>
-                    <button type="submit" id="freePickSubmit" class="btn-primary" disabled style="margin-top: 25px;">
-                        Get Instant Free Pick
-                    </button>
-                </form>
-            </div>
-        </div>
-    </section>
+    <section class="hero" id="home">
 
-    <section class="pricing" id="pricing">
-        <div class="container pricing-container">
-            <div class="section-header">
-                <h2 class="section-title">CHOOSE YOUR EDGE</h2>
-                <p class="section-subtitle">Every package backed by our proven 61% win-rate model</p>
-            </div>
+        <div class="hero-grid">
 
-            <div class="pricing-grid">
-                <div class="pricing-card">
-                    <div class="plan-name">Weekly Pass</div>
-                    <div class="plan-desc">Perfect for testing our NFL picks system</div>
-                    <div class="plan-price">
-                        <span class="price-amount">$29</span>
-                        <span class="price-period">/week</span>
-                    </div>
-                    <ul class="plan-features">
-                        <li>3-5 premium NFL picks weekly</li>
-                        <li>61% win-rate model backing</li>
-                        <li>NFL picks against the spread</li>
-                        <li>Confidence levels included</li>
-                        <li>Members-only dashboard access</li>
-                        <li>Email & SMS notifications</li>
-                    </ul>
-                    <button class="plan-button" onclick="openModal('Weekly Pass', 29, 'week')">Start Weekly Edge</button>
-                </div>
+            <div class="hero-content">
 
-                <div class="pricing-card featured">
-                    <div class="featured-badge">Best Value</div>
-                    <div class="plan-name">Full Season Pass</div>
-                    <div class="plan-desc">Unrestricted access for the entire NFL season (pre-season to Super Bowl).</div>
-                    <div class="plan-price">
-                        <span class="price-amount">$499</span>
-                        <span class="price-period">/season</span>
-                    </div>
-                    <ul class="plan-features">
-                        <li>All premium NFL picks (spread, totals, moneyline)</li>
-                        <li>**Highest Volume Picks** (7-10+ weekly)</li>
-                        <li>Exclusive betting strategy guides</li>
-                        <li>Access to all Playoff Picks</li>
-                        <li>Members-only dashboard access</li>
-                        <li>Dedicated email support</li>
-                    </ul>
-                    <button class="plan-button" onclick="openModal('Full Season Pass', 499, 'season')">Go All-In</button>
-                </div>
+                <h1>
+
+                    FREE NFL PICKS
+
+                    <span class="highlight">THAT WIN</span>
+
+                </h1>
+
+                <p class="hero-subtitle">
+
+                    Get expert NFL predictions against the spread with our proven 61% win rate. 
+
+                    Join smart bettors using decade-refined analytics that actually work.
+
+                </p>
+
                 
-                <div class="pricing-card">
-                    <div class="plan-name">Playoff Package</div>
-                    <div class="plan-desc">Get every pick from the Wild Card round through the Super Bowl.</div>
-                    <div class="plan-price">
-                        <span class="price-amount">$149</span>
-                        <span class="price-period">/playoffs</span>
+
+                <div class="hero-stats">
+
+                    <div class="stat-item">
+
+                        <div class="stat-number">61%</div>
+
+                        <div class="stat-label">Win Rate</div>
+
                     </div>
-                    <ul class="plan-features">
-                        <li>All Playoff & Super Bowl Picks</li>
-                        <li>Advanced data models for elimination games</li>
-                        <li>Prop bet suggestions</li>
-                        <li>Confidence levels included</li>
-                        <li>Members-only dashboard access</li>
-                        <li>Timely pick release alerts</li>
-                    </ul>
-                    <button class="plan-button" onclick="openModal('Playoff Package', 149, 'playoffs')">Grab Playoff Picks</button>
+
+                    <div class="stat-item">
+
+                        <div class="stat-number">10+</div>
+
+                        <div class="stat-label">Years Proven</div>
+
+                    </div>
+
+                    <div class="stat-item">
+
+                        <div class="stat-number">FREE</div>
+
+                        <div class="stat-label">Weekly Pick</div>
+
+                    </div>
+
                 </div>
+
+
+
+                <div class="cta-group">
+
+                    <button class="btn-primary" onclick="scrollToFreePick()">🏈 Get Free NFL Pick</button>
+
+                    <button class="btn-secondary" onclick="scrollToPricing()">View All Packages</button>
+
+                </div>
+
             </div>
+
+
+
+            <div class="hero-visual">
+
+                <div class="floating-card card-1">
+
+                    <div class="win-indicator">W</div>
+
+                    <div class="pick-text">Chiefs -3.5<br>✓ COVERED</div>
+
+                </div>
+
+                <div class="floating-card card-2">
+
+                    <div class="win-indicator">W</div>
+
+                    <div class="pick-text">Bills +7<br>✓ COVERED</div>
+
+                </div>
+
+                <div class="floating-card card-3">
+
+                    <div class="win-indicator">61%</div>
+
+                    <div class="pick-text">Success Rate</div>
+
+                </div>
+
+            </div>
+
         </div>
+
     </section>
 
-    <section class="about" id="about">
-        <div class="container about-container">
-            <div class="about-content">
-                <h2>The Analytical Edge in <span class="highlight">NFL Betting</span></h2>
-                <p>
-                    YardLineIQ was founded on the principle that the sports betting market is beatable through superior data and relentless analysis. Our model processes decades of historical data, team metrics, player efficiency, and situational trends to find value where the public and oddsmakers miss it.
-                </p>
-                <p>
-                    We don't rely on gut feelings or hype. Our **61% documented win rate** speaks to the consistency and reliability of our **expert NFL handicapping**. We provide clear, confident picks, empowering smart bettors to grow their bankroll season after season. Stop guessing and start winning.
-                </p>
-                <button class="btn-primary" onclick="scrollToFreePick()">Get Started with a Free Pick</button>
-            </div>
-            <div class="about-visual">
-                </div>
-        </div>
-    </section>
 
-    <footer class="footer">
-        <div class="container footer-content">
-            <p>&copy; 2025 YardLineIQ. All Rights Reserved. For Entertainment Purposes Only. | <a href="/disclaimer.html" style="color: rgba(255, 255, 255, 0.6);">Disclaimer</a></p>
-        </div>
-    </footer>
 
-    <div id="paymentModal" class="payment-modal">
-        <div class="modal-content">
-            <button class="close-modal" aria-label="Close payment modal" id="closeModalBtn">×</button>
-            <div class="modal-header">
-                <h3 class="modal-title" id="modalPlanName"></h3>
-                <div class="modal-price">
-                    <span class="price-amount" id="modalPriceAmount"></span>
-                    <span class="price-period" id="modalPricePeriod"></span>
-                </div>
-                <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">Enter your payment details below to get instant access.</p>
-            </div>
+    <!-- SEO-optimized features section -->
+
+    <section class="features-section">
+
+        <div class="features-container">
+
+            <h2 class="section-title">Expert NFL Betting Analysis</h2>
+
+            <p class="section-subtitle">Comprehensive NFL predictions and betting tips for the 2025 season</p>
+
             
-            <form id="payment-form">
-                <div id="card-element">
-                    <div style="padding: 10px; text-align: center; color: var(--text-secondary);">
-                        [Placeholder for Card Input - Requires Stripe Integration]
-                    </div>
+
+            <div class="features-grid">
+
+                <div class="feature-card">
+
+                    <span class="feature-icon">🎯</span>
+
+                    <h3>NFL Picks Against the Spread</h3>
+
+                    <p>Weekly ATS picks with detailed analysis and reasoning behind each selection. Our proven system identifies value in NFL spread betting.</p>
+
                 </div>
-                <button id="submitPaymentBtn" class="payment-button">
-                    Securely Pay & Get Picks
-                </button>
-                <div id="card-errors" role="alert" style="color: #fecaca; margin-top: 1rem; text-align: center;"></div>
+
+                <div class="feature-card">
+
+                    <span class="feature-icon">📈</span>
+
+                    <h3>NFL Betting Trends 2025</h3>
+
+                    <p>Track the latest NFL betting patterns and capitalize on market inefficiencies with our data-driven trend analysis.</p>
+
+                </div>
+
+                <div class="feature-card">
+
+                    <span class="feature-icon">🔮</span>
+
+                    <h3>NFL Predictions 2025</h3>
+
+                    <p>Season-long forecasts, NFL futures bets, and playoff predictions backed by 10+ years of analytical refinement.</p>
+
+                </div>
+
+                <div class="feature-card">
+
+                    <span class="feature-icon">⚡</span>
+
+                    <h3>Expert NFL Handicapping</h3>
+
+                    <p>Professional NFL handicapping with mathematical edge. Every pick backed by sophisticated algorithms and expert analysis.</p>
+
+                </div>
+
+                <div class="feature-card">
+
+                    <span class="feature-icon">🏈</span>
+
+                    <h3>Best NFL Picks 2025</h3>
+
+                    <p>Consistently ranked among the best NFL picks services with documented 61% win rate across thousands of selections.</p>
+
+                </div>
+
+                <div class="feature-card">
+
+                    <span class="feature-icon">💰</span>
+
+                    <h3>NFL Betting Tips</h3>
+
+                    <p>Learn profitable NFL betting strategies, bankroll management, and long-term winning approaches from our experts.</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <section class="free-pick-section" id="free-pick">
+
+        <div class="free-pick-container">
+
+            <h2 class="section-title">GET YOUR FREE NFL PICK</h2>
+
+            <p class="section-subtitle">Join smart bettors getting our weekly free expert NFL prediction against the spread</p>
+
+            
+
+            <form class="email-signup-form" id="freePickForm">
+
+                <input type="email" class="email-input" placeholder="Enter your email address" required id="freeEmail" aria-label="Email address for free NFL pick">
+
+                <!-- Legal notice -->
+
+                <div style="background: #fef2f2; border: 2px solid #fecaca; border-radius: 8px; padding: 20px; margin: 20px 0; color: #7f1d1d;">
+
+                    <div style="font-weight: bold; margin-bottom: 10px;">⚠️ Important Legal Notice</div>
+
+                    <div style="font-size: 14px; margin-bottom: 15px;">
+
+                        All picks and analysis are for <strong>entertainment purposes only</strong>. Sports betting involves significant risk, and we make no guarantees of success. You are solely responsible for all betting decisions.
+
+                    </div>
+
+                    
+
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 14px;">
+
+                        <input type="checkbox" id="agreementCheckbox" required style="margin-top: 2px;">
+
+                        <span>
+
+                            I am 18+ and agree to the 
+
+                            <a href="/disclaimer.html" target="_blank" style="color: #dc2626; text-decoration: underline;">Disclaimer</a>. 
+
+                            I understand this is for entertainment only.
+
+                        </span>
+
+                    </label>
+
+                </div>
+
+                <button type="submit" class="btn-primary" id="freePickSubmit" disabled style="opacity: 0.5;">Get Free NFL Pick</button> 
+
             </form>
+
+            
+
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-top: 1rem;">
+
+                No spam. Unsubscribe anytime. Get exclusive NFL betting insights and flash sale alerts.
+
+            </p>
+
         </div>
-    </div>
 
-    <script>
-        // JavaScript to handle interactions, scrolling, form validation, and modal opening
-        document.addEventListener('DOMContentLoaded', () => {
-            const header = document.getElementById('header');
-            const freePickSubmit = document.getElementById('freePickSubmit');
-            const agreementCheckbox = document.getElementById('agreementCheckbox');
-            const paymentModal = document.getElementById('paymentModal');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            
-            // 1. Header scroll effect
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 50) {
-                    header.classList.add('scrolled');
-                } else {
-                    header.classList.remove('scrolled');
-                }
-            });
-
-            // 2. Smooth scrolling utility functions
-            window.scrollToFreePick = () => {
-                document.getElementById('free-pick').scrollIntoView({ behavior: 'smooth' });
-            };
-
-            window.scrollToPricing = () => {
-                document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });
-            };
-            
-            // 3. Free Pick Form Agreement Check (enables submit button)
-            if (agreementCheckbox && freePickSubmit) {
-                // Ensure initial state is disabled if page is cached
-                freePickSubmit.disabled = !agreementCheckbox.checked;
-                freePickSubmit.style.opacity = agreementCheckbox.checked ? 1 : 0.5;
-                
-                agreementCheckbox.addEventListener('change', () => {
-                    freePickSubmit.disabled = !agreementCheckbox.checked;
-                    freePickSubmit.style.opacity = agreementCheckbox.checked ? 1 : 0.5;
-                });
-            }
-
-            // 4. Payment Modal Logic
-            window.openModal = (planName, price, period) => {
-                document.getElementById('modalPlanName').textContent = planName;
-                document.getElementById('modalPriceAmount').textContent = `$${price}`;
-                document.getElementById('modalPricePeriod').textContent = `/${period}`;
-                paymentModal.style.display = 'block';
-                document.body.style.overflow = 'hidden'; // Prevent scrolling underneath
-            };
-
-            const closeModal = () => {
-                paymentModal.style.display = 'none';
-                document.body.style.overflow = '';
-            };
-
-            closeModalBtn.addEventListener('click', closeModal);
-            window.addEventListener('click', (event) => {
-                if (event.target === paymentModal) {
-                    closeModal();
-                }
-            });
-
-            // 5. Basic Stripe Placeholder (Needs backend for real payments)
-            // NOTE: Replace 'YOUR_PUBLISHABLE_KEY' with your actual key
-            if (typeof Stripe !== 'undefined') {
-                const stripe = Stripe('YOUR_PUBLISHABLE_KEY'); 
-                // In a real app, you would initialize elements and mount the Card Element here.
-                
-                document.getElementById('payment-form').addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const submitBtn = document.getElementById('submitPaymentBtn');
-                    // Add loading visual for real API calls
-                    submitBtn.textContent = 'Processing...';
-                    submitBtn.disabled = true;
-                    
-                    // Simulate API call delay
-                    await new Promise(resolve => setTimeout(resolve, 2000)); 
-
-                    // Simulate success message
-                    document.getElementById('card-errors').textContent = 'Payment simulated successfully! Redirecting to dashboard...';
-                    
-                    // Reset button state (optional, if redirecting quickly)
-                    setTimeout(() => {
-                        submitBtn.textContent = 'Securely Pay & Get Picks';
-                        submitBtn.disabled = false;
-                        closeModal();
-                    }, 3000); 
-                });
-            } else {
-                // console.error("Stripe SDK is missing or failed to load. Payment buttons are disabled.");
-                // Since this is a copy-paste script, we rely on the buttons opening the modal
-            }
-
-            // 6. Simple Free Pick Form Submission
-            document.getElementById('freePickForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const email = document.getElementById('freeEmail').value;
-                alert(`Success! Your free NFL pick will be sent to ${email} shortly. Check your inbox!`);
-                
-                // Clear the form and disable the button until the user interacts again
-                document.getElementById('freeEmail').value = '';
-                agreementCheckbox.checked = false;
-                freePickSubmit.disabled = true;
-                freePickSubmit.style.opacity = 0.5;
-            });
-        });
-    </script>
-</body>
-</html>
+    </sect
