@@ -62,6 +62,20 @@
             box-sizing: border-box;
         }
 
+        /* New: Data Grid Background Pattern */
+        .background-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(to right, rgba(0, 255, 136, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(0, 255, 136, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1; /* Keep it behind all content */
+            opacity: 0.15;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: #0a0a0a;
@@ -206,11 +220,18 @@
             line-height: 1.5;
         }
 
-        .hero-stats {
-            display: flex;
-            gap: 2rem;
+        /* NEW: Styling for the cohesive statistics box */
+        .stat-box {
+            display: inline-flex;
+            justify-content: center;
+            gap: 3rem;
             margin-bottom: 3rem;
             flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #00ff88;
+            border-radius: 12px;
+            padding: 1rem 2.5rem;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.1);
         }
 
         .stat-item {
@@ -235,58 +256,7 @@
             letter-spacing: 0.1em;
         }
 
-        .hero-visual {
-            position: relative;
-            height: 600px;
-        }
-
-        .floating-card {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 2rem;
-            backdrop-filter: blur(20px);
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .card-1 {
-            top: 50px;
-            right: 100px;
-            width: 280px;
-            animation-delay: -2s;
-        }
-
-        .card-2 {
-            bottom: 100px;
-            left: 50px;
-            width: 200px;
-            animation-delay: -4s;
-        }
-
-        .card-3 {
-            top: 200px;
-            left: 200px;
-            width: 150px;
-            animation-delay: -1s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(1deg); }
-        }
-
-        .win-indicator {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #00ff88;
-            margin-bottom: 0.5rem;
-        }
-
-        .pick-text {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-        }
+        
 
         .cta-group {
             display: flex;
@@ -877,6 +847,7 @@
     </style>
 </head>
 <body>
+    <div class="background-grid"></div> <header class="header" id="header">
     <header class="header" id="header">
         <nav class="nav-container">
             <div class="logo">YARDLINEIQ</div>
@@ -900,45 +871,33 @@
                     <span class="highlight">THAT WIN</span>
                 </h1>
                 <p class="hero-subtitle">
-                    Get expert NFL predictions against the spread with our proven 61% win rate. 
+                    Get expert NFL predictions against the spread with our proven 61% win rate.
                     Join smart bettors using decade-refined analytics that actually work.
                 </p>
-                
+
                 <div class="hero-stats">
-                    <div class="stat-item">
-                        <div class="stat-number">61%</div>
-                        <div class="stat-label">Win Rate</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">10+</div>
-                        <div class="stat-label">Years Proven</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">FREE</div>
-                        <div class="stat-label">Weekly Pick</div>
+                    <div class="stat-box">
+                        <div class="stat-item">
+                            <div class="stat-number">61%</div>
+                            <div class="stat-label">Win Rate</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">10+</div>
+                            <div class="stat-label">Years Proven</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">FREE</div>
+                            <div class="stat-label">Weekly Pick</div>
+                        </div>
                     </div>
                 </div>
-
                 <div class="cta-group">
                     <button class="btn-primary" onclick="scrollToFreePick()">🏈 Get Free NFL Pick</button>
                     <button class="btn-secondary" onclick="scrollToPricing()">View All Packages</button>
                 </div>
             </div>
 
-            <div class="hero-visual">
-                <div class="floating-card card-1">
-                    <div class="win-indicator">W</div>
-                    <div class="pick-text">Chiefs -3.5<br>✓ COVERED</div>
-                </div>
-                <div class="floating-card card-2">
-                    <div class="win-indicator">W</div>
-                    <div class="pick-text">Bills +7<br>✓ COVERED</div>
-                </div>
-                <div class="floating-card card-3">
-                    <div class="win-indicator">61%</div>
-                    <div class="pick-text">Success Rate</div>
-                </div>
-            </div>
+            
         </div>
     </section>
 
@@ -1593,5 +1552,6 @@
     </script>
 </body>
 </html>
+
 
 
