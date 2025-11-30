@@ -599,22 +599,26 @@
             border-radius: 20px;
             overflow: hidden;
         
-            /* base image */
-            background: url("/images/Gemini_Generated_Image_8aklhs8aklhs8akl.png")
-                        center/cover no-repeat;
+            /* Show your image clearly */
+            background-image: url("/images/Gemini_Generated_Image_8aklhs8aklhs8akl.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
         
-        /* subtle dark overlay on top of the image */
+        /* Optional: a very light overlay so it still feels on-brand,
+           but NOT so dark that it hides the image */
         .about-visual::after {
-            content: '';
+            content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(
-                135deg,
-                rgba(0, 0, 0, 0.35) 0%,
-                rgba(0, 0, 0, 0.75) 100%
-            );
             pointer-events: none;
+            background: radial-gradient(
+                circle at top left,
+                rgba(0, 0, 0, 0.15) 0%,
+                rgba(0, 0, 0, 0.35) 60%,
+                rgba(0, 0, 0, 0.45) 100%
+            );
         }
 
         .footer {
@@ -1618,6 +1622,7 @@
     </script>
 </body>
 </html>
+
 
 
 
