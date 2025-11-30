@@ -598,14 +598,23 @@
             height: 400px;
             border-radius: 20px;
             overflow: hidden;
-            /* image + dark overlay */
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(0, 0, 0, 0.55) 0%,
-                    rgba(0, 0, 0, 0.9) 70%
-                ),
-                url("images/Gemini_Generated_Image_8aklhs8aklhs8akl.png") center/cover no-repeat;
+        
+            /* base image */
+            background: url("images/Gemini_Generated_Image_8aklhs8aklhs8akl.png")
+                        center/cover no-repeat;
+        }
+        
+        /* subtle dark overlay on top of the image */
+        .about-visual::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(0, 0, 0, 0.35) 0%,
+                rgba(0, 0, 0, 0.75) 100%
+            );
+            pointer-events: none;
         }
 
         .footer {
@@ -1609,6 +1618,7 @@
     </script>
 </body>
 </html>
+
 
 
 
