@@ -596,9 +596,25 @@
         .about-visual {
             position: relative;
             height: 400px;
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
             border-radius: 20px;
             overflow: hidden;
+        
+            /* base image – now in the same folder as index.html */
+            background: url("/images/Gemini_Generated_Image_8aklhs8aklhs8akl.png")
+                        center/cover no-repeat;
+        }
+        
+        /* optional dark overlay on top of the image */
+        .about-visual::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(0, 0, 0, 0.35) 0%,
+                rgba(0, 0, 0, 0.75) 100%
+            );
+            pointer-events: none;
         }
         
         .footer {
@@ -1602,6 +1618,7 @@
     </script>
 </body>
 </html>
+
 
 
 
