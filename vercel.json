@@ -7,6 +7,12 @@
     }
   ],
   "routes": [
+    // 1. ADD THIS RULE: Check for static image assets first.
+    { 
+      "src": "/images/(.*)", 
+      "dest": "/images/$1"
+    },
+    // 2. KEEP THIS RULE: Redirect everything else (including your main pages) to server.js.
     {
       "src": "/(.*)",
       "dest": "/server.js"
