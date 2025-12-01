@@ -3,20 +3,10 @@
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node",
-      // ADD THIS CONFIGURATION BLOCK
-      "config": {
-        "includeFiles": ["public/**"]
-      }
+      "use": "@vercel/node"
     }
   ],
   "routes": [
-    // Keep this rule to serve static assets from the public folder
-    { 
-      "src": "/images/(.*)", 
-      "dest": "/public/images/$1" 
-    },
-    // The catch-all rule
     {
       "src": "/(.*)",
       "dest": "/server.js"
