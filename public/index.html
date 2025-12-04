@@ -598,10 +598,15 @@
             height: 400px;
             border-radius: 20px;
             overflow: hidden;
+            
+            /* 🛠️ THE FIX: Use separate, explicit background properties */
+            background-image: url("/images/Gemini_Generated_Image_8aklhs8aklhs8akl.png") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
         
-            /* The root-relative path starts with '/' and is case-sensitive */
-            background: url("/images/Gemini_Generated_Image_8aklhs8aklhs8akl.png")
-                          center/cover no-repeat !important;
+            /* Optional: Set a fallback color that *won't* conflict with the image */
+            background-color: #0a0a0a; 
         }
         
         .footer {
@@ -1605,6 +1610,7 @@
     </script>
 </body>
 </html>
+
 
 
 
