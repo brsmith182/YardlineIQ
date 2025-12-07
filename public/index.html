@@ -596,9 +596,17 @@
         .about-visual {
             position: relative;
             height: 400px;
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
             border-radius: 20px;
             overflow: hidden;
+            
+            /* 🛠️ THE FIX: Use separate, explicit background properties */
+            background-image: url("https://github.com/brsmith182/YardlineIQ/blob/main/public/images/Gemini_Generated_Image_8aklhs8aklhs8akl.png?raw=true") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+        
+            /* Optional: Set a fallback color that *won't* conflict with the image */
+            background-color: #0a0a0a; 
         }
         
         .footer {
@@ -1602,6 +1610,11 @@
     </script>
 </body>
 </html>
+
+
+
+
+
 
 
 
