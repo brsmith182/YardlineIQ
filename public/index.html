@@ -80,9 +80,12 @@
         }
 
         .header.scrolled {
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(20px);
+            background: rgba(8, 10, 12, 0.97);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.12);
+            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
         }
 
         .nav-container {
@@ -166,6 +169,7 @@
             background-color: #05070a;
             overflow: hidden;
         }
+
         
         /* Hex grid + radar glow background layers */
         .hero::before {
@@ -211,10 +215,11 @@
             line-height: 0.9;
             letter-spacing: -0.05em;
             margin-bottom: 2rem;
-            background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.4) 100%);
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            filter: drop-shadow(0 2px 24px rgba(0,0,0,0.6));
         }
 
         .hero-content .highlight {
@@ -364,8 +369,20 @@
         }
 
         .free-pick-section {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(160deg, #0d1117 0%, #111827 50%, #0d1117 100%);
             padding: 80px 3rem;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .free-pick-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(0, 255, 136, 0.08) 0%, transparent 65%);
+            pointer-events: none;
         }
 
         .free-pick-container {
@@ -417,17 +434,47 @@
 
         .pricing {
             padding: 120px 3rem;
-            background: linear-gradient(180deg, transparent 0%, rgba(139, 92, 246, 0.05) 100%);
+            background:
+                radial-gradient(ellipse at 50% 100%, rgba(0, 255, 136, 0.06) 0%, transparent 60%),
+                linear-gradient(180deg, #070a0d 0%, #0a0f14 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle dot grid for pricing section */
+        .pricing::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.4;
+            background-image: radial-gradient(circle, rgba(0,255,136,0.12) 1px, transparent 1px);
+            background-size: 36px 36px;
         }
 
         .pricing-container {
             max-width: 1400px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         .section-header {
             text-align: center;
-            margin-bottom: 6rem;
+            margin-bottom: 5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-header::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            margin: 1.5rem auto 0;
+            border-radius: 2px;
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.5);
         }
 
         .section-subtitle {
@@ -440,43 +487,66 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
+            align-items: start;
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
         }
 
         .pricing-card {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.025);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px;
             padding: 3rem 2.5rem;
             position: relative;
             transition: all 0.4s ease;
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            will-change: transform;
         }
 
         .pricing-card:hover {
             transform: translateY(-10px);
             border-color: rgba(0, 255, 136, 0.3);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 255, 136, 0.1);
         }
 
         .pricing-card.featured {
-            border-color: #00ff88;
-            background: rgba(0, 255, 136, 0.05);
-            transform: scale(1.02);
+            border: 1px solid rgba(0, 255, 136, 0.55);
+            background: linear-gradient(160deg, rgba(0, 255, 136, 0.07) 0%, rgba(0, 204, 255, 0.03) 100%);
+            transform: scale(1.06);
+            box-shadow:
+                0 0 0 1px rgba(0, 255, 136, 0.35),
+                0 0 50px rgba(0, 255, 136, 0.14),
+                0 40px 80px rgba(0, 0, 0, 0.55);
+            z-index: 2;
+        }
+
+        .pricing-card.featured:hover {
+            transform: scale(1.06) translateY(-10px);
+            box-shadow:
+                0 0 0 1px rgba(0, 255, 136, 0.6),
+                0 0 70px rgba(0, 255, 136, 0.22),
+                0 50px 100px rgba(0, 0, 0, 0.55);
         }
 
         .featured-badge {
             position: absolute;
-            top: -12px;
+            top: -15px;
             left: 50%;
             transform: translateX(-50%);
             background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
             color: #000;
-            padding: 0.5rem 1.5rem;
+            padding: 0.45rem 1.6rem;
             border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
+            font-size: 0.75rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.45), 0 0 0 3px rgba(7, 10, 13, 1);
+            white-space: nowrap;
         }
 
         .plan-name {
@@ -494,7 +564,28 @@
         }
 
         .plan-price {
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .savings-callout {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            padding: 0.35rem 0.9rem;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+        }
+
+        .savings-callout::before {
+            content: '↓';
+            font-size: 0.75rem;
         }
 
         .price-amount {
@@ -566,7 +657,10 @@
 
         .about {
             padding: 120px 3rem;
-            background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.05) 0%, transparent 70%);
+            background:
+                radial-gradient(ellipse at 30% 50%, rgba(0, 255, 136, 0.04) 0%, transparent 55%),
+                radial-gradient(ellipse at 70% 50%, rgba(0, 204, 255, 0.04) 0%, transparent 55%),
+                #070a0d;
         }
 
         .about-container {
@@ -612,9 +706,9 @@
         }
         
         .footer {
-            background: rgba(0, 0, 0, 0.5);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 2rem 3rem;
+            background: #040608;
+            border-top: 1px solid rgba(0, 255, 136, 0.1);
+            padding: 2.5rem 3rem;
             text-align: center;
             color: rgba(255, 255, 255, 0.4);
             font-size: 0.9rem;
@@ -712,8 +806,19 @@
         }
 
         .features-section {
-            padding: 80px 3rem;
-            background: rgba(0, 0, 0, 0.3);
+            padding: 100px 3rem;
+            background: linear-gradient(180deg, #070a0d 0%, #0a0d10 100%);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            position: relative;
+        }
+
+        .features-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(ellipse at 100% 50%, rgba(0, 204, 255, 0.04) 0%, transparent 55%),
+                         radial-gradient(ellipse at 0% 50%, rgba(0, 255, 136, 0.03) 0%, transparent 55%);
         }
 
         .features-container {
@@ -729,23 +834,47 @@
         }
 
         .feature-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-left: 3px solid rgba(0, 255, 136, 0.35);
+            border-radius: 16px;
             padding: 2rem;
-            text-align: center;
-            transition: all 0.3s ease;
+            text-align: left;
+            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+            position: relative;
+            overflow: hidden;
+            will-change: transform;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top left, rgba(0, 255, 136, 0.04) 0%, transparent 60%);
+            pointer-events: none;
         }
 
         .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(0, 255, 136, 0.3);
+            transform: translateY(-6px);
+            border-left-color: #00ff88;
+            border-color: rgba(0, 255, 136, 0.2);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 255, 136, 0.08);
         }
 
         .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            display: block;
+            font-size: 1.6rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 255, 136, 0.07);
+            border-radius: 12px;
+            margin-bottom: 1.2rem;
+            border: 1px solid rgba(0, 255, 136, 0.14);
+            flex-shrink: 0;
+            line-height: 1;
         }
 
         .feature-card h3 {
@@ -760,13 +889,163 @@
             line-height: 1.5;
         }
 
+        /* ── Performance Chart ─────────────────────── */
+
+        .hero-chart {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 20px;
+            padding: 1.8rem 2rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 255, 136, 0.07);
+            position: relative;
+            z-index: 1;
+        }
+
+        .chart-season-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            margin-bottom: 0.75rem;
+        }
+
+        .chart-heading {
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1.6rem;
+            letter-spacing: -0.01em;
+        }
+
+        .chart-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+        }
+
+        .chart-row-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.45rem;
+        }
+
+        .chart-tier-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .chart-record {
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 500;
+        }
+
+        .chart-bar-track {
+            width: 100%;
+            height: 9px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            position: relative;
+            margin-bottom: 0.4rem;
+            overflow: hidden;
+        }
+
+        /* 52.38% breakeven marker (-110 vig) */
+        .chart-bar-track::before {
+            content: '';
+            position: absolute;
+            left: 52.38%;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.25);
+            z-index: 1;
+        }
+
+        @keyframes barGrow {
+            from { width: 0; }
+            to   { width: var(--fill-width); }
+        }
+
+        .chart-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #00ff88 0%, #00ccff 100%);
+            width: var(--fill-width);
+            animation: barGrow 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s both;
+        }
+
+        .chart-row-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-pct {
+            font-size: 0.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .chart-roi {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(0, 255, 136, 0.65);
+        }
+
+        .chart-footer {
+            margin-top: 1.4rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chart-breakeven-label {
+            font-size: 0.68rem;
+            color: rgba(255, 255, 255, 0.28);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .chart-picks-note {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.22);
+            text-align: right;
+            line-height: 1.4;
+        }
+
+        /* ── End Performance Chart ──────────────────── */
+
         @media (max-width: 1200px) {
             .hero-grid {
                 grid-template-columns: 1fr;
                 gap: 3rem;
                 text-align: center;
             }
-            
+
+            .hero-chart {
+                text-align: left;
+                max-width: 560px;
+                margin: 0 auto;
+            }
+
             .hero-visual {
                 height: 400px;
             }
@@ -827,6 +1106,18 @@
             
             .pricing-grid {
                 grid-template-columns: 1fr !important;
+            }
+
+            .pricing-card.featured {
+                transform: none !important;
+                box-shadow:
+                    0 0 0 1px rgba(0, 255, 136, 0.45),
+                    0 0 30px rgba(0, 255, 136, 0.12),
+                    0 20px 48px rgba(0, 0, 0, 0.5) !important;
+            }
+
+            .pricing-card.featured:hover {
+                transform: translateY(-6px) !important;
             }
             
             .floating-card {
@@ -925,7 +1216,7 @@
     </header>
 
     <section class="hero" id="home">
-        <div class="hero-grid">
+<div class="hero-grid">
             <div class="hero-content">
                 <h1>
                     EXPERT NFL PICKS<br>
@@ -958,6 +1249,65 @@
                     <button class="btn-secondary" onclick="scrollToPricing()">View All Packages</button>
                 </div>
             </div>
+
+            <!-- Performance Chart -->
+            <div class="hero-chart">
+                <div class="chart-season-badge">2025–26 Season</div>
+                <div class="chart-heading">Verified ATS Performance</div>
+
+                <div class="chart-rows">
+
+                    <div class="chart-row">
+                        <div class="chart-row-meta">
+                            <span class="chart-tier-name">VIP Picks</span>
+                            <span class="chart-record">48–24 &nbsp;·&nbsp; 72 picks</span>
+                        </div>
+                        <div class="chart-bar-track">
+                            <div class="chart-bar-fill" style="--fill-width: 66.67%"></div>
+                        </div>
+                        <div class="chart-row-footer">
+                            <span class="chart-pct">66.67% ATS</span>
+                            <span class="chart-roi">+27.27% ROI</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-row">
+                        <div class="chart-row-meta">
+                            <span class="chart-tier-name">Free Picks</span>
+                            <span class="chart-record">11–7 &nbsp;·&nbsp; 18 picks</span>
+                        </div>
+                        <div class="chart-bar-track">
+                            <div class="chart-bar-fill" style="--fill-width: 61.11%"></div>
+                        </div>
+                        <div class="chart-row-footer">
+                            <span class="chart-pct">61.11% ATS</span>
+                            <span class="chart-roi">+16.67% ROI</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-row">
+                        <div class="chart-row-meta">
+                            <span class="chart-tier-name">Full Season</span>
+                            <span class="chart-record">153–119 &nbsp;·&nbsp; 272 picks</span>
+                        </div>
+                        <div class="chart-bar-track">
+                            <div class="chart-bar-fill" style="--fill-width: 56.25%"></div>
+                        </div>
+                        <div class="chart-row-footer">
+                            <span class="chart-pct">56.25% ATS</span>
+                            <span class="chart-roi">+7.39% ROI</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="chart-footer">
+                    <span class="chart-breakeven-label">▏ 52.38% breakeven (-110)</span>
+                    <span class="chart-picks-note">Recorded at standard -110 vig</span>
+                </div>
+            </div>
+            <!-- End Performance Chart -->
+
         </div>
     </section>
 
@@ -1060,24 +1410,6 @@
                     <button class="plan-button" onclick="openPaymentModal('weekly', 29, 'Weekly Pass')">Start Weekly</button>
                 </div>
 
-                <div class="pricing-card">
-                    <div class="plan-name">Monthly Pass</div>
-                    <div class="plan-desc">Great value for consistent NFL betting wins</div>
-                    <div class="plan-price">
-                        <span class="price-amount">$89</span>
-                        <span class="price-period">/month</span>
-                    </div>
-                    <ul class="plan-features">
-                        <li>All weekly pass benefits</li>
-                        <li>Save $27 vs weekly pricing</li>
-                        <li>Monthly NFL strategy reports</li>
-                        <li>Priority email support</li>
-                        <li>Advanced analytics access</li>
-                        <li>NFL betting trends analysis</li>
-                    </ul>
-                    <button class="plan-button" onclick="openPaymentModal('monthly', 89, 'Monthly Pass')">Go Monthly</button>
-                </div>
-
                 <div class="pricing-card featured">
                     <div class="featured-badge">Best Value</div>
                     <div class="plan-name">Full Season</div>
@@ -1086,15 +1418,33 @@
                         <span class="price-amount">$199</span>
                         <span class="price-period">one-time</span>
                     </div>
+                    <div class="savings-callout">Save $323 vs weekly</div>
                     <ul class="plan-features">
                         <li>Every NFL pick Week 1 to Super Bowl</li>
                         <li>Playoffs + Championship picks</li>
-                        <li>Save $294 vs weekly pricing</li>
                         <li>Exclusive season-long strategy</li>
                         <li>VIP email support priority</li>
                         <li>NFL futures betting guidance</li>
                     </ul>
                     <button class="plan-button" onclick="openPaymentModal('season', 199, 'Full Season Pass')">Get Full Season</button>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="plan-name">Monthly Pass</div>
+                    <div class="plan-desc">Great value for consistent NFL betting wins</div>
+                    <div class="plan-price">
+                        <span class="price-amount">$89</span>
+                        <span class="price-period">/month</span>
+                    </div>
+                    <div class="savings-callout">Save $77 vs weekly</div>
+                    <ul class="plan-features">
+                        <li>All weekly pass benefits</li>
+                        <li>Monthly NFL strategy reports</li>
+                        <li>Priority email support</li>
+                        <li>Advanced analytics access</li>
+                        <li>NFL betting trends analysis</li>
+                    </ul>
+                    <button class="plan-button" onclick="openPaymentModal('monthly', 89, 'Monthly Pass')">Go Monthly</button>
                 </div>
             </div>
         </div>
@@ -1104,9 +1454,9 @@
         <div class="about-container">
             <div class="about-content">
                 <h2>BUILT ON A DECADE OF NFL SUCCESS</h2>
-                <p>Our proprietary NFL predictive analytics model has been refined through 10+ years of comprehensive data analysis. We don't chase trends or rely on hunches - every NFL pick is mathematically driven.</p>
-                <p>Every NFL prediction is backed by sophisticated algorithms that consistently identify value against the spread. Join a growing community of smart bettors who understand that consistent NFL betting profits come from disciplined, data-driven analysis.</p>
-                <p>Our documented 61% win rate across thousands of NFL picks speaks for itself. This isn't luck - it's mathematical edge applied to professional NFL handicapping.</p>
+                <p>Our model has been built and refined over 10+ years — not on gut feel or narrative, but on play-by-play data, situational trends, and line movement analysis. Every pick is mathematically driven before a line is ever set.</p>
+                <p>VIP subscribers see the sharpest edge because the model is tiered by confidence — only the highest-conviction plays make the VIP list. Every pick is logged before kickoff, not after, so the record stands on its own.</p>
+                <p>We publish the losses alongside the wins. That transparency is intentional — serious bettors don't want cherry-picked records, they want a verified edge. That's what we build for.</p>
             </div>
             <div class="about-visual"></div>
         </div>
