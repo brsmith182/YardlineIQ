@@ -239,62 +239,35 @@
             line-height: 1.5;
         }
 
-        .hero-stats {
+        .hero-stats-row {
             display: flex;
-            gap: 2rem;
-            margin-bottom: 3rem;
+            gap: 0.75rem;
+            margin: 2rem 0 0.75rem;
             flex-wrap: wrap;
         }
 
-        .stat-item {
-            text-align: left;
+        .hero-stat-badge {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 14px;
+            padding: 1rem 1.4rem;
+            min-width: 110px;
         }
 
-        /* pill-style card around the hero stats */
-        .hero-stats-card {
-            display: inline-flex;
-            padding: 1.4rem 2.4rem;
-            border-radius: 999px;
-            border: 1px solid rgba(0, 255, 136, 0.55);
-            background: radial-gradient(circle at top left, rgba(0, 255, 136, 0.16), rgba(0, 0, 0, 0.92));
-            box-shadow:
-                0 0 0 1px rgba(0, 0, 0, 0.9),
-                0 18px 45px rgba(0, 0, 0, 0.85);
-            margin: 2rem 0 2.5rem 0;
+        .stat-dagger {
+            font-size: 0.55em;
+            vertical-align: super;
+            line-height: 0;
+            -webkit-text-fill-color: rgba(255, 255, 255, 0.35);
+            color: rgba(255, 255, 255, 0.35);
         }
-        
-        .hero-stats {
-            display: flex;
-            gap: 2.5rem;
-            flex-wrap: nowrap;
-            align-items: center;
-            margin: 0; /* moved spacing to .hero-stats-card */
-        }
-        
-        .stat-item + .stat-item {
-            border-left: 1px solid rgba(255, 255, 255, 0.18);
-            padding-left: 2.2rem;
-        }
-        
-        /* mobile adjustments for the stats card */
-        @media (max-width: 768px) {
-            .hero-stats-card {
-                width: 100%;
-                border-radius: 24px;
-                padding: 1.2rem 1.5rem;
-                justify-content: center;
-            }
-        
-            .hero-stats {
-                flex-wrap: wrap;
-                justify-content: space-between;
-                gap: 1.5rem;
-            }
-        
-            .stat-item + .stat-item {
-                border-left: none;
-                padding-left: 0;
-            }
+
+        .stat-footnote {
+            font-size: 0.68rem;
+            color: rgba(255, 255, 255, 0.28);
+            margin-bottom: 2rem;
+            letter-spacing: 0.01em;
+            line-height: 1.5;
         }
 
         .stat-number {
@@ -322,9 +295,9 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
-            color: #000;
-            border: none;
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            border: 1.5px solid rgba(0, 255, 136, 0.5);
             padding: 1.2rem 2.5rem;
             font-size: 1rem;
             font-weight: 700;
@@ -338,17 +311,20 @@
             min-height: 56px;
             justify-content: center;
             text-align: center;
+            letter-spacing: 0.03em;
         }
 
         .btn-primary:hover {
+            background: rgba(0, 255, 136, 0.18);
+            border-color: #00ff88;
             transform: translateY(-2px);
-            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.3);
+            box-shadow: 0 12px 32px rgba(0, 255, 136, 0.2);
         }
 
         .btn-secondary {
             background: transparent;
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.55);
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
             padding: 1.2rem 2.5rem;
             font-size: 1rem;
             font-weight: 600;
@@ -360,10 +336,11 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            letter-spacing: 0.03em;
         }
 
         .btn-secondary:hover {
-            border-color: #00ff88;
+            border-color: rgba(0, 255, 136, 0.35);
             color: #00ff88;
             transform: translateY(-2px);
         }
@@ -1227,29 +1204,27 @@
                     <span class="highlight">THAT WIN</span>
                 </h1>
                 <p class="hero-subtitle">
-                    Get expert NFL predictions against the spread with our proven 61% win rate. 
-                    Join smart bettors using decade-refined analytics that actually work.
+                    Expert NFL predictions against the spread, built on a decade of model refinement and 61%+ historical ATS performance.
                 </p>
-                
-                <div class="hero-stats-card">
-                    <div class="hero-stats">
-                        <div class="stat-item">
-                            <div class="stat-number">61%</div>
-                            <div class="stat-label">Win Rate</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">10+</div>
-                            <div class="stat-label">Years Proven</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">FREE</div>
-                            <div class="stat-label">Weekly Pick</div>
-                        </div>
+
+                <div class="hero-stats-row">
+                    <div class="hero-stat-badge">
+                        <div class="stat-number">61%<span class="stat-dagger">†</span></div>
+                        <div class="stat-label">Hist. ATS Rate</div>
+                    </div>
+                    <div class="hero-stat-badge">
+                        <div class="stat-number">10+</div>
+                        <div class="stat-label">Years Refined</div>
+                    </div>
+                    <div class="hero-stat-badge">
+                        <div class="stat-number">FREE</div>
+                        <div class="stat-label">Weekly Pick</div>
                     </div>
                 </div>
+                <p class="stat-footnote">† Historical average across multiple seasons and model iterations. Past results do not guarantee future performance.</p>
 
                 <div class="cta-group">
-                    <button class="btn-primary" onclick="scrollToFreePick()">🏈 Get Free NFL Pick</button>
+                    <button class="btn-primary" onclick="scrollToFreePick()">Get Free Pick</button>
                     <button class="btn-secondary" onclick="scrollToPricing()">View All Packages</button>
                 </div>
             </div>
@@ -1345,7 +1320,7 @@
                 <div class="feature-card">
                     <span class="feature-icon">🏈</span>
                     <h3>Best NFL Picks 2025</h3>
-                    <p>Consistently ranked among the best NFL picks services with documented 61% win rate across thousands of selections.</p>
+                    <p>A picks service built on documented 61%+ historical ATS performance across multiple seasons and model iterations.</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">💰</span>
@@ -1364,17 +1339,16 @@
             <form class="email-signup-form" id="freePickForm">
                 <input type="email" class="email-input" placeholder="Enter your email address" required id="freeEmail" aria-label="Email address for free NFL pick">
                 <!-- Legal notice -->
-                <div style="background: #fef2f2; border: 2px solid #fecaca; border-radius: 8px; padding: 20px; margin: 20px 0; color: #7f1d1d;">
-                    <div style="font-weight: bold; margin-bottom: 10px;">⚠️ Important Legal Notice</div>
-                    <div style="font-size: 14px; margin-bottom: 15px;">
-                        All picks and analysis are for <strong>entertainment purposes only</strong>. Sports betting involves significant risk, and we make no guarantees of success. You are solely responsible for all betting decisions.
+                <div style="background: rgba(255,170,0,0.05); border: 1px solid rgba(255,170,0,0.18); border-radius: 12px; padding: 1.5rem 1.8rem; margin: 1.25rem 0; color: rgba(255,255,255,0.65);">
+                    <div style="font-weight: 700; margin-bottom: 0.65rem; color: rgba(255,200,50,0.8); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em;">Important Notice</div>
+                    <div style="font-size: 0.875rem; margin-bottom: 1rem; line-height: 1.6;">
+                        All picks and analysis are for <strong style="color: rgba(255,255,255,0.85);">entertainment purposes only</strong>. Sports betting involves significant risk, and we make no guarantees of success. You are solely responsible for all betting decisions.
                     </div>
-                    
-                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 14px;">
-                        <input type="checkbox" id="agreementCheckbox" required style="margin-top: 2px;">
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 0.875rem; color: rgba(255,255,255,0.6);">
+                        <input type="checkbox" id="agreementCheckbox" required style="margin-top: 2px; accent-color: #00ff88;">
                         <span>
-                            I am 18+ and agree to the 
-                            <a href="/disclaimer.html" target="_blank" style="color: #dc2626; text-decoration: underline;">Disclaimer</a>. 
+                            I am 21+ and agree to the
+                            <a href="/disclaimer.html" target="_blank" style="color: #00ff88; text-decoration: none; border-bottom: 1px solid rgba(0,255,136,0.3);">Disclaimer</a>.
                             I understand this is for entertainment only.
                         </span>
                     </label>
@@ -1392,7 +1366,7 @@
         <div class="pricing-container">
             <div class="section-header">
                 <h2 class="section-title">CHOOSE YOUR EDGE</h2>
-                <p class="section-subtitle">Every package backed by our proven 61% win-rate model</p>
+                <p class="section-subtitle">Every package backed by our decade-refined, 61%+ historical ATS model</p>
             </div>
 
             <div class="pricing-grid">
@@ -1405,13 +1379,31 @@
                     </div>
                     <ul class="plan-features">
                         <li>3-5 premium NFL picks weekly</li>
-                        <li>61% win-rate model backing</li>
+                        <li>61%+ historical ATS model backing</li>
                         <li>NFL picks against the spread</li>
                         <li>Confidence levels included</li>
                         <li>Members-only dashboard access</li>
                         <li>Email & SMS notifications</li>
                     </ul>
                     <button class="plan-button" onclick="openPaymentModal('weekly', 29, 'Weekly Pass')">Start Weekly</button>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="plan-name">Monthly Pass</div>
+                    <div class="plan-desc">Great value for consistent NFL betting wins</div>
+                    <div class="plan-price">
+                        <span class="price-amount">$89</span>
+                        <span class="price-period">/month</span>
+                    </div>
+                    <div class="savings-callout">Save $77/mo over the season vs weekly</div>
+                    <ul class="plan-features">
+                        <li>All weekly pass benefits</li>
+                        <li>Monthly NFL strategy reports</li>
+                        <li>Priority email support</li>
+                        <li>Advanced analytics access</li>
+                        <li>NFL betting trends analysis</li>
+                    </ul>
+                    <button class="plan-button" onclick="openPaymentModal('monthly', 89, 'Monthly Pass')">Go Monthly</button>
                 </div>
 
                 <div class="pricing-card featured">
@@ -1422,7 +1414,7 @@
                         <span class="price-amount">$199</span>
                         <span class="price-period">one-time</span>
                     </div>
-                    <div class="savings-callout">Save $323 vs weekly</div>
+                    <div class="savings-callout">Save $323 vs weekly all season</div>
                     <ul class="plan-features">
                         <li>Every NFL pick Week 1 to Super Bowl</li>
                         <li>Playoffs + Championship picks</li>
@@ -1431,24 +1423,6 @@
                         <li>NFL futures betting guidance</li>
                     </ul>
                     <button class="plan-button" onclick="openPaymentModal('season', 199, 'Full Season Pass')">Get Full Season</button>
-                </div>
-
-                <div class="pricing-card">
-                    <div class="plan-name">Monthly Pass</div>
-                    <div class="plan-desc">Great value for consistent NFL betting wins</div>
-                    <div class="plan-price">
-                        <span class="price-amount">$89</span>
-                        <span class="price-period">/month</span>
-                    </div>
-                    <div class="savings-callout">Save $77 vs weekly</div>
-                    <ul class="plan-features">
-                        <li>All weekly pass benefits</li>
-                        <li>Monthly NFL strategy reports</li>
-                        <li>Priority email support</li>
-                        <li>Advanced analytics access</li>
-                        <li>NFL betting trends analysis</li>
-                    </ul>
-                    <button class="plan-button" onclick="openPaymentModal('monthly', 89, 'Monthly Pass')">Go Monthly</button>
                 </div>
             </div>
         </div>
@@ -1477,20 +1451,18 @@
                     <div class="modal-price" id="modalPrice">$29</div>
                 </div>
                 
-                <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin: 20px 0; color: #374151;">
-                    <div style="font-weight: bold; margin-bottom: 10px;">📝 Customer Information</div>
-                    <div style="font-size: 14px; margin-bottom: 15px;">
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem; margin: 1.25rem 0; color: rgba(255,255,255,0.7);">
+                    <div style="font-weight: 700; margin-bottom: 0.75rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.45);">Customer Information</div>
+                    <div style="font-size: 0.85rem; margin-bottom: 1rem; color: rgba(255,255,255,0.5);">
                         We need your information to create your account and send your NFL picks.
                     </div>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; font-weight: 500; margin-bottom: 5px; color: #374151;">Full Name *</label>
-                        <input type="text" id="customerName" required style="width: 100%; padding: 10px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 16px; background: white;" placeholder="Enter your full name">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.85rem; color: rgba(255,255,255,0.6);">Full Name *</label>
+                        <input type="text" id="customerName" required style="width: 100%; padding: 10px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 15px; background: rgba(255,255,255,0.05); color: white; outline: none;" placeholder="Enter your full name">
                     </div>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; font-weight: 500; margin-bottom: 5px; color: #374151;">Email Address *</label>
-                        <input type="email" id="customerEmail" required style="width: 100%; padding: 10px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 16px; background: white;" placeholder="Enter your email address">
+                    <div style="margin-bottom: 0.25rem;">
+                        <label style="display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.85rem; color: rgba(255,255,255,0.6);">Email Address *</label>
+                        <input type="email" id="customerEmail" required style="width: 100%; padding: 10px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 15px; background: rgba(255,255,255,0.05); color: white; outline: none;" placeholder="Enter your email address">
                     </div>
                 </div>
                 
@@ -1507,36 +1479,30 @@
                 </div>
                 
                 <!-- Customer Summary -->
-                <div style="background: #f3f4f6; border-radius: 8px; padding: 15px; margin: 20px 0; color: #374151;">
-                    <div style="font-weight: bold; margin-bottom: 10px;">📋 Order Summary</div>
-                    <div id="customerSummary" style="font-size: 14px;">
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.5rem; margin: 1.25rem 0; color: rgba(255,255,255,0.7);">
+                    <div style="font-weight: 700; margin-bottom: 0.6rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.4);">Order Summary</div>
+                    <div id="customerSummary" style="font-size: 0.875rem; color: rgba(255,255,255,0.6);">
                         <!-- Will be populated with customer info -->
                     </div>
                 </div>
-                
-                <div style="background: #fef2f2; border: 2px solid #fecaca; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                    <div style="color: #dc2626; font-weight: bold; font-size: 18px; margin-bottom: 15px;">
-                        ⚠️ Required Legal Agreements
-                    </div>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; cursor: pointer; font-size: 14px; color: #7f1d1d;">
-                            <input type="checkbox" class="payment-agreement" data-type="age" required>
-                            <span>I am 18+ and sports betting is legal where I live</span>
+
+                <div style="background: rgba(255,170,0,0.05); border: 1px solid rgba(255,170,0,0.18); border-radius: 12px; padding: 1.5rem; margin: 1.25rem 0;">
+                    <div style="color: rgba(255,200,50,0.8); font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem;">Required Agreements</div>
+                    <div style="margin-bottom: 0.25rem;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 0.75rem; cursor: pointer; font-size: 0.875rem; color: rgba(255,255,255,0.6);">
+                            <input type="checkbox" class="payment-agreement" data-type="age" required style="margin-top: 2px; accent-color: #00ff88;">
+                            <span>I am 21+ and sports betting is legal where I live</span>
                         </label>
-                        
-                        <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; cursor: pointer; font-size: 14px; color: #7f1d1d;">
-                            <input type="checkbox" class="payment-agreement" data-type="disclaimer" required>
-                            <span>I agree to the <a href="/disclaimer.html" target="_blank" style="color: #dc2626;">Disclaimer</a> and understand this is entertainment only</span>
+                        <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 0.75rem; cursor: pointer; font-size: 0.875rem; color: rgba(255,255,255,0.6);">
+                            <input type="checkbox" class="payment-agreement" data-type="disclaimer" required style="margin-top: 2px; accent-color: #00ff88;">
+                            <span>I agree to the <a href="/disclaimer.html" target="_blank" style="color: #00ff88; text-decoration: none; border-bottom: 1px solid rgba(0,255,136,0.3);">Disclaimer</a> and understand this is entertainment only</span>
                         </label>
-                        
-                        <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; cursor: pointer; font-size: 14px; color: #7f1d1d;">
-                            <input type="checkbox" class="payment-agreement" data-type="responsibility" required>
+                        <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 0.75rem; cursor: pointer; font-size: 0.875rem; color: rgba(255,255,255,0.6);">
+                            <input type="checkbox" class="payment-agreement" data-type="responsibility" required style="margin-top: 2px; accent-color: #00ff88;">
                             <span>I take full responsibility for any betting decisions</span>
                         </label>
-                        
-                        <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; cursor: pointer; font-size: 14px; color: #7f1d1d;">
-                            <input type="checkbox" class="payment-agreement" data-type="terms" required>
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 0.875rem; color: rgba(255,255,255,0.6);">
+                            <input type="checkbox" class="payment-agreement" data-type="terms" required style="margin-top: 2px; accent-color: #00ff88;">
                             <span>I agree to the Terms of Service and refund policy</span>
                         </label>
                     </div>
