@@ -622,14 +622,17 @@
         }
 
         .featured .plan-button {
-            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
-            color: #000;
-            border: none;
+            background: rgba(0, 255, 136, 0.12);
+            color: #00ff88;
+            border: 1.5px solid rgba(0, 255, 136, 0.6);
+            box-shadow: 0 0 18px rgba(0, 255, 136, 0.15);
         }
 
         .featured .plan-button:hover {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 28px rgba(0, 255, 136, 0.28), 0 10px 30px rgba(0, 0, 0, 0.4);
         }
 
         .about {
@@ -673,7 +676,7 @@
             overflow: hidden;
             
             /* 🛠️ THE FIX: Use separate, explicit background properties */
-            background-image: url("https://github.com/brsmith182/YardlineIQ/blob/main/public/images/Gemini_Generated_Image_8aklhs8aklhs8akl.png?raw=true") !important;
+            background-image: url("/images/Gemini_Generated_Image_8aklhs8aklhs8akl.png") !important;
             background-size: cover !important;
             background-position: center !important;
             background-repeat: no-repeat !important;
@@ -1525,7 +1528,7 @@
     </div>
 
     <footer class="footer">
-        <p>&copy; 2025 YardLineIQ. All rights reserved. | Please bet responsibly. Must be 21+.</p>
+        <p>&copy; 2026 YardLineIQ. All rights reserved. | Please bet responsibly. Must be 21+.</p>
         
         <!-- Add disclaimer links here -->
         <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
@@ -1535,9 +1538,13 @@
             <a href="mailto:admin@yardlineiq.com" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Contact</a>
         </div>
         
-        <div style="margin-top: 1rem;">
-            <a href="https://www.facebook.com/profile.php?id=61579269900093" target="_blank" style="color: inherit; margin: 0 1rem; text-decoration: none;">📘 Facebook</a>
-            <a href="https://www.instagram.com/yardlineiq/" target="_blank" style="color: inherit; margin: 0 1rem; text-decoration: none;">📷 Instagram</a>
+        <div style="margin-top: 1.25rem; display: flex; justify-content: center; gap: 1.25rem;">
+            <a href="https://www.facebook.com/profile.php?id=61579269900093" target="_blank" aria-label="YardlineIQ on Facebook" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.45); text-decoration: none; transition: border-color 0.25s, color 0.25s;" onmouseover="this.style.borderColor='rgba(0,255,136,0.4)';this.style.color='#00ff88'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)';this.style.color='rgba(255,255,255,0.45)'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/yardlineiq/" target="_blank" aria-label="YardlineIQ on Instagram" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.45); text-decoration: none; transition: border-color 0.25s, color 0.25s;" onmouseover="this.style.borderColor='rgba(0,255,136,0.4)';this.style.color='#00ff88'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)';this.style.color='rgba(255,255,255,0.45)'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+            </a>
         </div>
     </footer>
 
