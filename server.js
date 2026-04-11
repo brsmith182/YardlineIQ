@@ -1,6 +1,7 @@
 const express = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { createClient } = require('redis');
+const crypto = require('crypto');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -298,38 +299,74 @@ app.get('/api/payments/customers', requireAuth, async (req, res) => {
   }
 });
 
-// Member authentication - Redis version
+// Member authentication
 app.post('/api/member/login', async (req, res) => {
   try {
     const { email } = req.body;
-    
-    if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    const client = await getRedisClient();
+    const emailLower = email.toLowerCase().trim();
+
+    // Only paid customers get access
+    const customerData = await client.get(`customer:${emailLower}`);
+
+    if (!customerData) {
+      const freeData = await client.get(`email:${emailLower}`);
+      if (freeData) {
+        return res.status(403).json({
+          error: 'paid_required',
+          message: 'A paid subscription is required to access picks. Visit our packages page to get started.'
+        });
+      }
+      return res.status(401).json({ error: 'Email not found. Please check your email or purchase a subscription.' });
     }
-    
-    // Get users from Redis
-    const emails = await getAllEmailsFromRedis();
-    const customers = await getAllCustomersFromRedis();
-    const allUsers = [...emails, ...customers];
-    
-    const user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-    
-    if (user) {
-      res.json({ 
-        success: true, 
-        user: {
-          email: user.email,
-          name: user.name || 'User',
-          type: user.type,
-          packageType: user.packageType
-        }
+
+    const customer = JSON.parse(customerData);
+    const now = Date.now();
+    const subEnd = new Date(customer.subscriptionEnd).getTime();
+
+    if (subEnd <= now) {
+      return res.status(403).json({
+        error: 'subscription_expired',
+        message: 'Your subscription has expired. Purchase a new package to regain access.'
       });
-    } else {
-      res.status(401).json({ error: 'Email not found. Please sign up first.' });
     }
+
+    // Issue a session token that expires when the subscription does
+    const token = crypto.randomBytes(32).toString('hex');
+    const ttlSeconds = Math.floor((subEnd - now) / 1000);
+    await client.set(`session:${token}`, emailLower, { EX: ttlSeconds });
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        email: customer.email,
+        name: customer.name || '',
+        packageType: customer.packageType,
+        subscriptionEnd: customer.subscriptionEnd
+      }
+    });
+
   } catch (error) {
     console.error('Member login error:', error);
     res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Member logout — invalidates session token
+app.post('/api/member/logout', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.slice(7);
+      const client = await getRedisClient();
+      await client.del(`session:${token}`);
+    }
+    res.json({ success: true });
+  } catch (error) {
+    res.json({ success: true }); // always succeed
   }
 });
 
@@ -370,22 +407,31 @@ app.post('/api/picks', requireAuth, async (req, res) => {
   }
 });
 
-// Get picks for members (public access)
+// Get picks — requires valid member session token
 app.get('/api/picks', async (req, res) => {
   try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const token = authHeader.slice(7);
     const client = await getRedisClient();
+    const email = await client.get(`session:${token}`);
+
+    if (!email) {
+      return res.status(401).json({ error: 'Session expired. Please log in again.' });
+    }
+
     const ids = await client.sMembers('all_picks');
     const picks = [];
-
     for (const id of ids) {
       const data = await client.get(`pick:${id}`);
       if (data) picks.push(JSON.parse(data));
     }
-
-    // Most recent first
     picks.sort((a, b) => b.id - a.id);
 
-    console.log('Picks requested, returning', picks.length, 'picks from Redis');
+    console.log('Picks requested by', email, '— returning', picks.length, 'picks');
     res.json(picks);
   } catch (error) {
     console.error('Error fetching picks:', error);
