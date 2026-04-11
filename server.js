@@ -36,8 +36,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Simple storage for picks (can be moved to Redis later if needed)
-let picks = [];
 
 // Admin authentication
 app.post('/api/admin/login', (req, res) => {
@@ -336,16 +334,16 @@ app.post('/api/member/login', async (req, res) => {
 });
 
 // Post new pick (protected)
-app.post('/api/picks', requireAuth, (req, res) => {
+app.post('/api/picks', requireAuth, async (req, res) => {
   try {
     console.log('Pick submission:', req.body);
-    
+
     const { week, game, time, pick, confidence, reasoning } = req.body;
-    
+
     if (!week || !game || !pick) {
       return res.status(400).json({ error: 'Week, game, and pick are required' });
     }
-    
+
     const newPick = {
       id: Date.now().toString(),
       week: week.toString().trim(),
@@ -357,13 +355,15 @@ app.post('/api/picks', requireAuth, (req, res) => {
       datePosted: new Date().toISOString(),
       result: 'pending'
     };
-    
-    picks.push(newPick);
-    
-    console.log('Pick added successfully:', newPick);
-    
+
+    const client = await getRedisClient();
+    await client.set(`pick:${newPick.id}`, JSON.stringify(newPick));
+    await client.sAdd('all_picks', newPick.id);
+
+    console.log('Pick saved to Redis:', newPick.id);
+
     res.json({ success: true, message: 'Pick posted successfully!', pick: newPick });
-    
+
   } catch (error) {
     console.error('Error adding pick:', error);
     res.status(500).json({ error: 'Failed to post pick' });
@@ -371,9 +371,21 @@ app.post('/api/picks', requireAuth, (req, res) => {
 });
 
 // Get picks for members (public access)
-app.get('/api/picks', (req, res) => {
+app.get('/api/picks', async (req, res) => {
   try {
-    console.log('Picks requested, returning', picks.length, 'picks');
+    const client = await getRedisClient();
+    const ids = await client.sMembers('all_picks');
+    const picks = [];
+
+    for (const id of ids) {
+      const data = await client.get(`pick:${id}`);
+      if (data) picks.push(JSON.parse(data));
+    }
+
+    // Most recent first
+    picks.sort((a, b) => b.id - a.id);
+
+    console.log('Picks requested, returning', picks.length, 'picks from Redis');
     res.json(picks);
   } catch (error) {
     console.error('Error fetching picks:', error);
@@ -387,11 +399,14 @@ app.get('/api/admin/stats', requireAuth, async (req, res) => {
     const emails = await getAllEmailsFromRedis();
     const customers = await getAllCustomersFromRedis();
     
+    const client = await getRedisClient();
+    const pickIds = await client.sMembers('all_picks');
+
     const stats = {
       totalUsers: emails.length + customers.length,
       emailSignups: emails.length,
       paidSubscribers: customers.length,
-      totalPicks: picks.length,
+      totalPicks: pickIds.length,
       overallWinRate: 61
     };
     
