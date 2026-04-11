@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L6R1V0FNXH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-L6R1V0FNXH');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFL Kelly Criterion Calculator | YardlineIQ</title>
+    <meta name="description" content="Free NFL Kelly Criterion wager optimizer. Distribute your weekly bankroll across your slate using full, half, or quarter Kelly sizing with normalized or raw allocation.">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+
+        /* ── Header ── */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 2rem 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .header.scrolled {
+            background: rgba(8, 10, 12, 0.97);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.12);
+            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 3rem;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 3rem;
+        }
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+            letter-spacing: 0.02em;
+        }
+        .nav-links a:hover,
+        .nav-links a.active { color: #00ff88; }
+        .login-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+        }
+        .login-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        /* ── Page layout ── */
+        .page-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 120px 2rem 4rem;
+        }
+
+        /* ── Breadcrumb ── */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.28);
+            margin-bottom: 1.5rem;
+        }
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.38);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .breadcrumb a:hover { color: #00ff88; }
+
+        .page-header { margin-bottom: 2.5rem; }
+        .page-header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        .page-header p {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 0.95rem;
+        }
+
+        /* ── Top controls (3-col grid) ── */
+        .top-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .control-group label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.35);
+        }
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-prefix {
+            position: absolute;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 13px;
+            pointer-events: none;
+        }
+        .calc-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 0.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            padding: 9px 12px;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .calc-input:focus { border-color: rgba(0, 255, 136, 0.4); }
+        .calc-input.has-prefix { padding-left: 22px; }
+        select.calc-input {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.3)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 28px;
+        }
+        select.calc-input option { background: #1a1a1a; color: white; }
+
+        /* ── Allocation toggle ── */
+        .alloc-toggle {
+            display: flex;
+            margin-bottom: 1.25rem;
+            border: 0.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            overflow: hidden;
+            width: fit-content;
+        }
+        .alloc-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.45);
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 8px 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.02em;
+        }
+        .alloc-btn.active {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+        }
+        .alloc-btn:not(.active):hover { color: rgba(255, 255, 255, 0.75); }
+
+        /* ── Slate table ── */
+        .slate-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+
+        table.slate-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .slate-table thead th {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: rgba(255, 255, 255, 0.3);
+            padding: 0 8px 10px;
+            text-align: left;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+            white-space: nowrap;
+        }
+        .slate-table thead th.right { text-align: right; }
+        .slate-table tbody tr {
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.05);
+            transition: opacity 0.2s;
+        }
+        .slate-table tbody tr.no-edge { opacity: 0.45; }
+        .slate-table tbody tr td { padding: 6px 8px; vertical-align: middle; }
+
+        td.row-num {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 11px;
+            width: 24px;
+            padding-right: 4px;
+        }
+        td input.slate-input {
+            background: rgba(255, 255, 255, 0.04);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            padding: 5px 8px;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+        td input.slate-input:focus { border-color: rgba(0, 255, 136, 0.35); }
+        td input.matchup-input { width: 120px; }
+        td input.prob-input  { width: 54px; text-align: right; }
+        td input.odds-input  { width: 68px; text-align: right; }
+
+        td.kelly-f {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 12px;
+            text-align: right;
+            white-space: nowrap;
+            min-width: 56px;
+        }
+        td.wager-val {
+            font-weight: 700;
+            font-size: 13px;
+            text-align: right;
+            white-space: nowrap;
+            color: #00ff88;
+            min-width: 70px;
+        }
+        td.wager-val.zero {
+            color: rgba(255, 255, 255, 0.2);
+            font-weight: 400;
+        }
+
+        td.bar-cell { width: 90px; padding-left: 10px; }
+        .mini-bar-track {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .mini-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            border-radius: 2px;
+            transition: width 0.25s ease;
+        }
+
+        td.remove-cell { width: 28px; text-align: center; }
+        .remove-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.18);
+            cursor: pointer;
+            font-size: 13px;
+            padding: 3px 5px;
+            transition: color 0.2s;
+            border-radius: 4px;
+            line-height: 1;
+        }
+        .remove-btn:hover { color: #ff6b6b; }
+
+        /* ── Add row button ── */
+        .add-row-btn {
+            background: transparent;
+            border: 0.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.4);
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.02em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .add-row-btn:hover {
+            border-color: rgba(0, 255, 136, 0.35);
+            color: #00ff88;
+        }
+
+        /* ── Summary grid ── */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .summary-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+        }
+        .summary-card-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 0.4rem;
+        }
+        .summary-card-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+        }
+        .summary-card-value.green {
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── Editorial content ── */
+        .editorial {
+            margin-top: 3.5rem;
+            padding-top: 3rem;
+            border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+        }
+        .editorial-section { margin-bottom: 2.75rem; }
+        .editorial-section h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        .editorial-section p {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.75;
+            margin-bottom: 0.9rem;
+            max-width: 760px;
+        }
+        .editorial-section p:last-child { margin-bottom: 0; }
+        .editorial-section ol {
+            padding-left: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+        .editorial-section li {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.7;
+            max-width: 760px;
+        }
+        .editorial-section li strong {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 600;
+        }
+        .inline-highlight {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            margin-top: 4rem;
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 900px) {
+            .summary-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .nav-container { padding: 0 1.5rem; }
+            .top-controls { grid-template-columns: 1fr 1fr; }
+            .top-controls .control-group:last-child { grid-column: span 2; }
+            td input.matchup-input { width: 90px; }
+            td.bar-cell { display: none; }
+        }
+        @media (max-width: 480px) {
+            .top-controls { grid-template-columns: 1fr; }
+            .top-controls .control-group:last-child { grid-column: span 1; }
+            .summary-grid { grid-template-columns: 1fr 1fr; }
+            .page-wrapper { padding: 100px 1.25rem 3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header" id="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">YARDLINEIQ</a>
+            <ul class="nav-links">
+                <li><a href="/#home">Home</a></li>
+                <li><a href="/#free-pick">Free Picks</a></li>
+                <li><a href="/#pricing">Packages</a></li>
+                <li><a href="/resources.html" class="active">Resources</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="mailto:admin@yardlineiq.com">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-btn" aria-label="Open mobile menu">☰</button>
+            <a href="/picks.html" class="login-btn">Member Login</a>
+        </nav>
+    </header>
+
+    <main class="page-wrapper">
+
+        <div class="breadcrumb">
+            <a href="/resources.html">Resources</a>
+            <span>›</span>
+            <span>Kelly Calculator</span>
+        </div>
+
+        <div class="page-header">
+            <h1>NFL Weekly Slate Kelly Calculator</h1>
+            <p>Distribute your weekly bankroll across positive-edge games using the Kelly Criterion</p>
+        </div>
+
+        <div class="kelly-calculator">
+
+            <div class="top-controls">
+                <div class="control-group">
+                    <label>Weekly Bankroll</label>
+                    <div class="input-wrap">
+                        <span class="input-prefix">$</span>
+                        <input type="number" class="calc-input has-prefix" id="bankroll" value="1600" min="100" step="100">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Default Odds (American)</label>
+                    <input type="number" class="calc-input" id="defaultOdds" value="-110" step="5">
+                </div>
+                <div class="control-group">
+                    <label>Kelly Fraction</label>
+                    <select class="calc-input" id="kellyFraction">
+                        <option value="1">Full Kelly</option>
+                        <option value="0.5" selected>½ Kelly</option>
+                        <option value="0.25">¼ Kelly</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="alloc-toggle">
+                <button class="alloc-btn active" data-method="normalized" onclick="setMethod('normalized')">Normalized (full bankroll)</button>
+                <button class="alloc-btn" data-method="raw" onclick="setMethod('raw')">Raw Kelly</button>
+            </div>
+
+            <div class="slate-table-wrap">
+                <table class="slate-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Matchup</th>
+                            <th class="right">Win prob</th>
+                            <th class="right">Odds</th>
+                            <th class="right">Kelly f*</th>
+                            <th class="right">Wager</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="slateBody"></tbody>
+                </table>
+            </div>
+
+            <button class="add-row-btn" onclick="addRow(55, null)">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Add game
+            </button>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-card-label">Total Wagered</div>
+                    <div class="summary-card-value green" id="sumTotal">$0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">Avg Kelly f*</div>
+                    <div class="summary-card-value" id="sumAvgKelly">0.00%</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">Games with Edge</div>
+                    <div class="summary-card-value" id="sumEdgeGames">0 / 0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">Max Single Wager</div>
+                    <div class="summary-card-value" id="sumMaxWager">$0</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="editorial">
+
+            <div class="editorial-section">
+                <h2>What is the Kelly Criterion?</h2>
+                <p>The Kelly Criterion is a mathematically derived formula for determining the optimal fraction of your bankroll to wager on a given bet. Developed by Bell Labs scientist John L. Kelly Jr. in 1956, it solves a specific problem: given a known edge, how much should you bet to maximize long-run growth without risking ruin?</p>
+                <p>The core formula is straightforward. If <span class="inline-highlight">p</span> is your probability of winning, <span class="inline-highlight">q = 1 – p</span> is the probability of losing, and <span class="inline-highlight">b</span> is the net decimal odds (e.g. –110 American odds converts to b ≈ 0.909), then the Kelly fraction is: <span class="inline-highlight">f* = (b × p – q) / b</span>. The result tells you what percentage of your bankroll to risk on that game.</p>
+                <p>What makes Kelly powerful is that it's both aggressive and self-correcting. Bet more when your edge is large, less when it's thin, and nothing when there's no edge at all. Over a long series of bets, full Kelly sizing produces the maximum possible geometric growth rate — no fixed-unit or percentage system can match it in theory. In practice, most serious bettors use a fractional variant to smooth out the variance.</p>
+            </div>
+
+            <div class="editorial-section">
+                <h2>Full Kelly, Half Kelly, and Quarter Kelly</h2>
+                <p>Full Kelly is mathematically optimal but brutal in practice. The swings can be severe enough to cause most bettors to abandon the system mid-drawdown — at exactly the wrong time. It also assumes your probability estimates are perfectly accurate, which they never are.</p>
+                <p>Half Kelly (multiply f* by 0.5) cuts the volatility significantly while preserving roughly 75% of the long-run growth rate. It's the most widely recommended approach among quantitative bettors and is the default in this calculator. Quarter Kelly further reduces variance and is appropriate when you have meaningful uncertainty about your edge estimates — which, if you're honest, is most of the time.</p>
+                <p>A useful rule of thumb: the more uncertain you are about your probability estimates, the more you should shade toward fractional Kelly. Overconfident Kelly sizing is one of the most common ways disciplined bettors blow up their bankrolls.</p>
+            </div>
+
+            <div class="editorial-section">
+                <h2>How to Use This Calculator</h2>
+                <ol>
+                    <li><strong>Set your weekly bankroll.</strong> This is the total amount you've allocated for the week — not your lifetime bankroll. The default is $1,600, which corresponds to 16 games at $100 per unit. Adjust it to match your actual weekly allocation.</li>
+                    <li><strong>Set your default odds.</strong> For standard NFL ATS bets, –110 is correct and applies to every row. If you're shopping lines and have a game at a different number (e.g. –105 or –115), edit that row's odds individually after loading.</li>
+                    <li><strong>Choose your Kelly fraction.</strong> Start with ½ Kelly unless you have a strong reason to do otherwise. Full Kelly is only appropriate if you have high confidence in your probability estimates.</li>
+                    <li><strong>Choose your allocation method.</strong> <strong>Normalized</strong> distributes your entire bankroll proportionally across all positive-edge games — the wager column will always sum to your full bankroll. <strong>Raw Kelly</strong> sizes each bet independently as a percentage of bankroll, so the total deployed can be more or less than your full amount. Normalized is the practical choice for weekly slate betting; Raw Kelly is better for evaluating individual bets in isolation.</li>
+                    <li><strong>Enter your cover probabilities.</strong> Each row takes a win probability between 1 and 99. These should come from your own model or handicapping process — the calculator doesn't generate them. Games with a probability at or below 50% have no positive edge at standard odds and will automatically show $0 and dim in the table.</li>
+                    <li><strong>Read the output.</strong> The <strong>Kelly f*</strong> column shows the adjusted fraction (after applying your chosen multiplier). The <strong>Wager</strong> column shows the dollar amount to bet on that game. The summary row at the bottom shows your total deployment, average edge across the slate, and your largest single bet.</li>
+                    <li><strong>Add or remove games.</strong> Use <em>+ Add game</em> to extend the slate beyond 16 games or build a partial week. Use the ✕ button to remove any game you're skipping. The calculator recalculates instantly on every change.</li>
+                </ol>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 YardLineIQ. All rights reserved. | Please bet responsibly. Must be 21+.</p>
+        <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+            <a href="/disclaimer.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Disclaimer</a>
+            <a href="/terms.html"      style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Terms</a>
+            <a href="/privacy-policy.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Privacy</a>
+            <a href="mailto:admin@yardlineiq.com" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        let method = 'normalized';
+        let rowCounter = 0;
+
+        const MATCHUPS = [
+            'KC @ BUF','PHI @ DAL','SF @ DEN','LAR @ SEA',
+            'BAL @ CLE','MIA @ NE','MIN @ GB','NYG @ WAS',
+            'ATL @ TB','CAR @ NO','CIN @ PIT','JAX @ IND',
+            'LV @ LAC','DET @ CHI','TEN @ HOU','NYJ @ ARI'
+        ];
+        const DEFAULT_PROBS = [63,61,60,59,58,57,57,56,56,55,55,54,54,53,53,53];
+
+        function americanToB(odds) {
+            return odds > 0 ? odds / 100 : 100 / Math.abs(odds);
+        }
+
+        function kellyF(p, b) {
+            return (b * p - (1 - p)) / b;
+        }
+
+        function recalc() {
+            const bankroll = parseFloat(document.getElementById('bankroll').value) || 1600;
+            const kMult    = parseFloat(document.getElementById('kellyFraction').value);
+            const rows     = Array.from(document.querySelectorAll('#slateBody tr'));
+
+            const data = rows.map(row => {
+                const p    = parseFloat(row.querySelector('.prob-input').value) / 100;
+                const odds = parseFloat(row.querySelector('.odds-input').value);
+                const b    = americanToB(odds);
+                const adjF = kellyF(p, b) * kMult;
+                return { row, adjF };
+            });
+
+            const positiveRows = data.filter(d => d.adjF > 0);
+            const sumPositiveF = positiveRows.reduce((s, d) => s + d.adjF, 0);
+            let totalWagered = 0, maxWager = 0;
+
+            data.forEach(({ row, adjF }) => {
+                const kellyCell = row.querySelector('.kelly-f');
+                const wagerCell = row.querySelector('.wager-val');
+                const barFill   = row.querySelector('.mini-bar-fill');
+
+                let wager = 0;
+                if (adjF > 0) {
+                    wager = method === 'normalized'
+                        ? (adjF / sumPositiveF) * bankroll
+                        : adjF * bankroll;
+                }
+
+                kellyCell.textContent = adjF > 0 ? (adjF * 100).toFixed(2) + '%' : '—';
+                wagerCell.textContent = wager > 0 ? '$' + wager.toFixed(2) : '$0';
+                wagerCell.classList.toggle('zero', wager <= 0);
+                if (barFill) barFill.style.width = Math.min(wager / (bankroll * 0.3) * 100, 100) + '%';
+                row.classList.toggle('no-edge', adjF <= 0);
+
+                totalWagered += wager;
+                if (wager > maxWager) maxWager = wager;
+            });
+
+            document.getElementById('sumTotal').textContent     = '$' + totalWagered.toFixed(2);
+            document.getElementById('sumMaxWager').textContent  = maxWager > 0 ? '$' + maxWager.toFixed(2) : '$0';
+            document.getElementById('sumEdgeGames').textContent = positiveRows.length + ' / ' + data.length;
+            document.getElementById('sumAvgKelly').textContent  = positiveRows.length > 0
+                ? (sumPositiveF / positiveRows.length * 100).toFixed(2) + '%'
+                : '0.00%';
+        }
+
+        function addRow(prob, matchup) {
+            rowCounter++;
+            const id    = rowCounter;
+            const odds  = document.getElementById('defaultOdds').value || '-110';
+            const label = matchup !== null ? matchup : 'Game ' + id;
+
+            const tr = document.createElement('tr');
+            tr.dataset.id = id;
+            tr.innerHTML = `
+                <td class="row-num">${id}</td>
+                <td><input type="text"   class="slate-input matchup-input" value="${label}" placeholder="Matchup" oninput="recalc()"></td>
+                <td><input type="number" class="slate-input prob-input"    value="${prob}" min="1" max="99" step="1" oninput="recalc()"></td>
+                <td><input type="number" class="slate-input odds-input"    value="${odds}" step="5" oninput="recalc()"></td>
+                <td class="kelly-f">—</td>
+                <td class="wager-val zero">$0</td>
+                <td class="bar-cell"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:0%"></div></div></td>
+                <td class="remove-cell"><button class="remove-btn" onclick="removeRow(${id})" title="Remove row">✕</button></td>
+            `;
+            document.getElementById('slateBody').appendChild(tr);
+            recalc();
+        }
+
+        function removeRow(id) {
+            const row = document.querySelector(`#slateBody tr[data-id="${id}"]`);
+            if (row) { row.remove(); recalc(); }
+        }
+
+        function setMethod(m) {
+            method = m;
+            document.querySelectorAll('.alloc-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.method === m);
+            });
+            recalc();
+        }
+
+        function applyDefaultOdds() {
+            const val = document.getElementById('defaultOdds').value;
+            document.querySelectorAll('.odds-input').forEach(input => { input.value = val; });
+            recalc();
+        }
+
+        document.getElementById('bankroll').addEventListener('input', recalc);
+        document.getElementById('defaultOdds').addEventListener('change', applyDefaultOdds);
+        document.getElementById('kellyFraction').addEventListener('change', recalc);
+
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 100);
+        });
+
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function () {
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+            } else {
+                Object.assign(navLinks.style, {
+                    display: 'flex', flexDirection: 'column', position: 'absolute',
+                    top: '100%', left: '0', right: '0',
+                    background: 'rgba(10, 10, 10, 0.95)', padding: '2rem', backdropFilter: 'blur(20px)'
+                });
+            }
+        });
+
+        MATCHUPS.forEach((m, i) => addRow(DEFAULT_PROBS[i], m));
+    </script>
+
+</body>
+</html>

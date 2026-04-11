@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L6R1V0FNXH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-L6R1V0FNXH');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Betting Resources, Tools & Strategy Guides | YardlineIQ</title>
+    <meta name="description" content="Free NFL betting tools and strategy guides for serious bettors. Kelly Criterion calculator, vig calculator, hedging calculator, and in-depth guides on value betting, CLV, line shopping, and bankroll management.">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+
+        /* ── Header ── */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 2rem 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .header.scrolled {
+            background: rgba(8, 10, 12, 0.97);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.12);
+            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 3rem;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 3rem;
+        }
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+            letter-spacing: 0.02em;
+        }
+        .nav-links a:hover,
+        .nav-links a.active { color: #00ff88; }
+        .login-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+        }
+        .login-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        /* ── Page layout ── */
+        .page-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 120px 2rem 5rem;
+        }
+
+        /* ── Page header ── */
+        .page-header {
+            margin-bottom: 3.5rem;
+        }
+        .page-header h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.6rem;
+        }
+        .page-header p {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 1rem;
+            max-width: 520px;
+        }
+
+        /* ── Section headers ── */
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        .section-header h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: white;
+        }
+        .section-header .section-count {
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.25);
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Tool cards ── */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            transition: border-color 0.2s, background 0.2s;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+        }
+        .tool-card.live:hover {
+            border-color: rgba(0, 255, 136, 0.25);
+            background: rgba(0, 255, 136, 0.03);
+        }
+        .tool-card.coming-soon {
+            cursor: default;
+        }
+
+        .tool-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .tool-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 255, 136, 0.08);
+            border: 0.5px solid rgba(0, 255, 136, 0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00ff88;
+            flex-shrink: 0;
+        }
+        .tool-card.coming-soon .tool-icon {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .status-badge {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+        .status-badge.live {
+            background: rgba(0, 255, 136, 0.1);
+            border: 0.5px solid rgba(0, 255, 136, 0.25);
+            color: #00ff88;
+        }
+        .status-badge.soon {
+            background: rgba(255, 255, 255, 0.04);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .tool-card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.4rem;
+            letter-spacing: -0.01em;
+        }
+        .tool-card.coming-soon h3 {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .tool-card p {
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.38);
+            line-height: 1.55;
+            flex: 1;
+            margin-bottom: 1.25rem;
+        }
+
+        .tool-card-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: #00ff88;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            letter-spacing: 0.01em;
+            margin-top: auto;
+        }
+        .tool-card-link svg {
+            transition: transform 0.2s;
+        }
+        .tool-card.live:hover .tool-card-link svg {
+            transform: translateX(3px);
+        }
+
+        /* ── Divider ── */
+        .section-divider {
+            border: none;
+            border-top: 0.5px solid rgba(255, 255, 255, 0.07);
+            margin: 0 0 3rem;
+        }
+
+        /* ── Guide cards ── */
+        .guides-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .guide-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 0.5px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 1.1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .guide-category {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: rgba(255, 255, 255, 0.22);
+            margin-bottom: 0.1rem;
+        }
+        .guide-card h3 {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: -0.01em;
+            line-height: 1.3;
+        }
+        .guide-card p {
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.28);
+            line-height: 1.5;
+            margin-top: 0.15rem;
+        }
+        .guide-coming-soon {
+            font-size: 10px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.05em;
+            margin-top: 0.4rem;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            margin-top: 4rem;
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 900px) {
+            .tools-grid  { grid-template-columns: 1fr 1fr; }
+            .guides-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .nav-container { padding: 0 1.5rem; }
+        }
+        @media (max-width: 560px) {
+            .tools-grid  { grid-template-columns: 1fr; }
+            .guides-grid { grid-template-columns: 1fr; }
+            .page-wrapper { padding: 100px 1.25rem 3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header" id="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">YARDLINEIQ</a>
+            <ul class="nav-links">
+                <li><a href="/#home">Home</a></li>
+                <li><a href="/#free-pick">Free Picks</a></li>
+                <li><a href="/#pricing">Packages</a></li>
+                <li><a href="/resources.html" class="active">Resources</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="mailto:admin@yardlineiq.com">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-btn" aria-label="Open mobile menu">☰</button>
+            <a href="/picks.html" class="login-btn">Member Login</a>
+        </nav>
+    </header>
+
+    <main class="page-wrapper">
+
+        <div class="page-header">
+            <h1>Resources</h1>
+            <p>Tools and strategy guides for bettors who take the math seriously.</p>
+        </div>
+
+        <!-- ── Tools ── -->
+        <div class="section-header">
+            <h2>Calculators &amp; Tools</h2>
+            <span class="section-count">3 tools &nbsp;·&nbsp; 1 live</span>
+        </div>
+
+        <div class="tools-grid">
+
+            <!-- Kelly Calculator — Live -->
+            <a href="/kelly-calculator.html" class="tool-card live">
+                <div class="tool-card-top">
+                    <div class="tool-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                    </div>
+                    <span class="status-badge live">Live</span>
+                </div>
+                <h3>Kelly Criterion Calculator</h3>
+                <p>Distribute your weekly bankroll across positive-edge games using full, half, or quarter Kelly sizing. Normalized or raw allocation.</p>
+                <span class="tool-card-link">
+                    Open calculator
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M7 3l3.5 3.5L7 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+            </a>
+
+            <!-- Vig / No-Vig — Coming Soon -->
+            <div class="tool-card coming-soon">
+                <div class="tool-card-top">
+                    <div class="tool-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="14.31" y1="8" x2="20.05" y2="17.94"/>
+                            <line x1="9.69" y1="8" x2="21.17" y2="8"/>
+                            <line x1="7.38" y1="12" x2="13.12" y2="2.06"/>
+                            <line x1="9.69" y1="16" x2="3.95" y2="6.06"/>
+                            <line x1="14.31" y1="16" x2="2.83" y2="16"/>
+                            <line x1="16.62" y1="12" x2="10.88" y2="21.94"/>
+                        </svg>
+                    </div>
+                    <span class="status-badge soon">Coming Soon</span>
+                </div>
+                <h3>Vig / No-Vig Calculator</h3>
+                <p>Strip the sportsbook's juice to see the true implied probability on each side. Know exactly what fair odds look like before you bet.</p>
+            </div>
+
+            <!-- Hedging — Coming Soon -->
+            <div class="tool-card coming-soon">
+                <div class="tool-card-top">
+                    <div class="tool-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <span class="status-badge soon">Coming Soon</span>
+                </div>
+                <h3>Hedging Calculator</h3>
+                <p>Calculate the optimal hedge amount to lock in a guaranteed profit or minimize loss on an open position when the line moves in your favor.</p>
+            </div>
+
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ── Guides ── -->
+        <div class="section-header">
+            <h2>Strategy Guides</h2>
+            <span class="section-count">7 guides &nbsp;·&nbsp; coming soon</span>
+        </div>
+
+        <div class="guides-grid">
+
+            <div class="guide-card">
+                <div class="guide-category">Foundation</div>
+                <h3>Value Betting</h3>
+                <p>What edge actually means, how to identify it, and why it's the only thing that matters long-term.</p>
+                <div class="guide-coming-soon">Coming soon</div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-category">Strategy</div>
+                <h3>Line Shopping</h3>
+                <p>Why getting –105 instead of –110 consistently is worth more than a 1% improvement in win rate.</p>
+                <div class="guide-coming-soon">Coming soon</div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-category">Analytics</div>
+                <h3>Vig &amp; Juice Explained</h3>
+                <p>Understanding the true cost of betting and how to calculate fair odds from any line.</p>
+                <div class="guide-coming-soon">Coming soon</div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-category">Bankroll</div>
+                <h3>Fixed Unit vs. Kelly Criterion</h3>
+                <p>The tradeoffs between flat betting and Kelly sizing — and which approach fits your risk tolerance.</p>
+                <div class="guide-coming-soon">Coming soon</div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-category">Analytics</div>
+                <h3>Closing Line Value (CLV)</h3>
+                <p>The single best metric for evaluating whether your betting process is profitable over the long run.</p>
+                <div class="guide-coming-soon">Coming soon</div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-category">Advanced</div>
+                <h3>Middling &amp; Arbitrage</h3>
+                <p>How to exploit line movement across books to create guaranteed profit windows or two-way opportunities.</p>
+                <div class="guide-coming-soon">Coming soon</div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-category">Strategy</div>
+                <h3>Hedging: When to Take Chips Off the Table</h3>
+                <p>The math behind hedging, when locking profit makes sense, and when it's just fear costing you EV.</p>
+                <div class="guide-coming-soon">Coming soon</div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 YardLineIQ. All rights reserved. | Please bet responsibly. Must be 21+.</p>
+        <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+            <a href="/disclaimer.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Disclaimer</a>
+            <a href="/terms.html"      style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Terms</a>
+            <a href="/privacy-policy.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Privacy</a>
+            <a href="mailto:admin@yardlineiq.com" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 100);
+        });
+
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function () {
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+            } else {
+                Object.assign(navLinks.style, {
+                    display: 'flex', flexDirection: 'column', position: 'absolute',
+                    top: '100%', left: '0', right: '0',
+                    background: 'rgba(10, 10, 10, 0.95)', padding: '2rem', backdropFilter: 'blur(20px)'
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
