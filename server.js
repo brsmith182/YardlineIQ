@@ -489,6 +489,14 @@ app.get('/picks.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'picks.html'));
 });
 
+app.get('/resources.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'resources.html'));
+});
+
+app.get('/kelly-calculator.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'kelly-calculator.html'));
+});
+
 // Serve main page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
