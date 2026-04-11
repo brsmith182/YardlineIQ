@@ -611,12 +611,6 @@
         let method = 'normalized';
         let rowCounter = 0;
 
-        const MATCHUPS = [
-            'KC @ BUF','PHI @ DAL','SF @ DEN','LAR @ SEA',
-            'BAL @ CLE','MIA @ NE','MIN @ GB','NYG @ WAS',
-            'ATL @ TB','CAR @ NO','CIN @ PIT','JAX @ IND',
-            'LV @ LAC','DET @ CHI','TEN @ HOU','NYJ @ ARI'
-        ];
         const DEFAULT_PROBS = [63,61,60,59,58,57,57,56,56,55,55,54,54,53,53,53];
 
         function americanToB(odds) {
@@ -736,7 +730,7 @@
             }
         });
 
-        MATCHUPS.forEach((m, i) => addRow(DEFAULT_PROBS[i], m));
+        DEFAULT_PROBS.forEach((prob, i) => addRow(prob, null));
     </script>
 
 </body>
