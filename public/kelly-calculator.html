@@ -237,6 +237,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
+            table-layout: fixed;
         }
         .slate-table thead th {
             font-size: 11px;
@@ -248,8 +249,23 @@
             text-align: left;
             border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
             white-space: nowrap;
+            overflow: hidden;
         }
         .slate-table thead th.right { text-align: right; }
+
+        /* ── % suffix on probability input ── */
+        .prob-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        .prob-suffix {
+            position: absolute;
+            right: 8px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 12px;
+            pointer-events: none;
+        }
         .slate-table tbody tr {
             border-bottom: 0.5px solid rgba(255, 255, 255, 0.05);
             transition: opacity 0.2s;
@@ -277,7 +293,7 @@
         }
         td input.slate-input:focus { border-color: rgba(0, 255, 136, 0.35); }
         td input.matchup-input { width: 120px; }
-        td input.prob-input  { width: 54px; text-align: right; }
+        td input.prob-input  { width: 68px; text-align: right; padding-right: 20px; }
         td input.odds-input  { width: 68px; text-align: right; }
 
         td.kelly-f {
@@ -522,14 +538,14 @@
                 <table class="slate-table">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th style="width:28px">#</th>
                             <th>Matchup</th>
-                            <th class="right">Win prob</th>
-                            <th class="right">Odds</th>
-                            <th class="right">Kelly f*</th>
-                            <th class="right">Wager</th>
-                            <th></th>
-                            <th></th>
+                            <th class="right" style="width:92px">Win prob</th>
+                            <th class="right" style="width:86px">Odds</th>
+                            <th class="right" style="width:76px">Kelly f*</th>
+                            <th class="right" style="width:90px">Wager</th>
+                            <th style="width:90px"></th>
+                            <th style="width:32px"></th>
                         </tr>
                     </thead>
                     <tbody id="slateBody"></tbody>
@@ -679,7 +695,7 @@
             tr.innerHTML = `
                 <td class="row-num">${id}</td>
                 <td><input type="text"   class="slate-input matchup-input" value="${label}" placeholder="Matchup" oninput="recalc()"></td>
-                <td><input type="number" class="slate-input prob-input"    value="${prob}" min="1" max="99" step="1" oninput="recalc()"></td>
+                <td><div class="prob-wrap"><input type="number" class="slate-input prob-input" value="${prob}" min="1" max="99" step="1" oninput="recalc()"><span class="prob-suffix">%</span></div></td>
                 <td><input type="number" class="slate-input odds-input"    value="${odds}" step="5" oninput="recalc()"></td>
                 <td class="kelly-f">—</td>
                 <td class="wager-val zero">$0</td>
