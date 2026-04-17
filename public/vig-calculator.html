@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L6R1V0FNXH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-L6R1V0FNXH');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vig / No-Vig Calculator | YardlineIQ</title>
+    <meta name="description" content="Free vig calculator for sports bettors. Strip the sportsbook's juice to see the true implied probability and fair odds on each side of any two-sided market.">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+
+        /* ── Header ── */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 2rem 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .header.scrolled {
+            background: rgba(8, 10, 12, 0.97);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.12);
+            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 3rem;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 3rem;
+        }
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+            letter-spacing: 0.02em;
+        }
+        .nav-links a:hover,
+        .nav-links a.active { color: #00ff88; }
+        .login-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+        }
+        .login-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        /* ── Page layout ── */
+        .page-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 120px 2rem 4rem;
+        }
+
+        /* ── Breadcrumb ── */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.28);
+            margin-bottom: 1.5rem;
+        }
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.38);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .breadcrumb a:hover { color: #00ff88; }
+
+        .page-header { margin-bottom: 2.5rem; }
+        .page-header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        .page-header p {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 0.95rem;
+        }
+
+        /* ── Format toggle ── */
+        .fmt-toggle {
+            display: flex;
+            margin-bottom: 1.25rem;
+            border: 0.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            overflow: hidden;
+            width: fit-content;
+        }
+        .fmt-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.45);
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 8px 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.02em;
+        }
+        .fmt-btn.active {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+        }
+        .fmt-btn:not(.active):hover { color: rgba(255, 255, 255, 0.75); }
+
+        /* ── Slate table ── */
+        .slate-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+
+        table.slate-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            table-layout: fixed;
+        }
+        .slate-table thead th {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: rgba(255, 255, 255, 0.3);
+            padding: 0 8px 10px;
+            text-align: left;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .slate-table thead th.right { text-align: right; }
+
+        .slate-table tbody tr {
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+        .slate-table tbody tr td { padding: 6px 8px; vertical-align: middle; }
+
+        td.row-num {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 11px;
+            width: 28px;
+            padding-right: 4px;
+        }
+        td input.slate-input {
+            background: rgba(255, 255, 255, 0.04);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            padding: 5px 8px;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+        td input.slate-input:focus { border-color: rgba(0, 255, 136, 0.35); }
+        td input.matchup-input { width: 100%; }
+        td input.odds-a-input,
+        td input.odds-b-input { text-align: right; }
+
+        td.odds-cell { width: 82px; text-align: right; }
+
+        td.output-cell {
+            font-size: 13px;
+            text-align: right;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.55);
+            width: 75px;
+        }
+        td.vig-pct {
+            font-weight: 600;
+            font-size: 13px;
+            text-align: right;
+            white-space: nowrap;
+            width: 70px;
+        }
+        td.fair-a,
+        td.fair-b {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 12px;
+            width: 75px;
+        }
+
+        td.remove-cell { width: 32px; text-align: center; }
+        .remove-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.18);
+            cursor: pointer;
+            font-size: 13px;
+            padding: 3px 5px;
+            transition: color 0.2s;
+            border-radius: 4px;
+            line-height: 1;
+        }
+        .remove-btn:hover { color: #ff6b6b; }
+
+        /* ── Add row button ── */
+        .add-row-btn {
+            background: transparent;
+            border: 0.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.4);
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.02em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .add-row-btn:hover {
+            border-color: rgba(0, 255, 136, 0.35);
+            color: #00ff88;
+        }
+
+        /* ── Summary grid ── */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .summary-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+        }
+        .summary-card-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 0.4rem;
+        }
+        .summary-card-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+        }
+        .summary-card-value.green {
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── Editorial content ── */
+        .editorial {
+            margin-top: 3.5rem;
+            padding-top: 3rem;
+            border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+        }
+        .editorial-section { margin-bottom: 2.75rem; }
+        .editorial-section h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        .editorial-section p {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.75;
+            margin-bottom: 0.9rem;
+            max-width: 760px;
+        }
+        .editorial-section p:last-child { margin-bottom: 0; }
+        .editorial-section ol {
+            padding-left: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+        .editorial-section li {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.7;
+            max-width: 760px;
+        }
+        .editorial-section li strong {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 600;
+        }
+        .inline-highlight { color: #00ff88; font-weight: 600; }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            margin-top: 4rem;
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 900px) {
+            .summary-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .nav-container { padding: 0 1.5rem; }
+            td.fair-a, td.fair-b { display: none; }
+        }
+        @media (max-width: 480px) {
+            td.vig-pct { display: none; }
+            .summary-grid { grid-template-columns: 1fr 1fr; }
+            .page-wrapper { padding: 100px 1.25rem 3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header" id="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">YARDLINEIQ</a>
+            <ul class="nav-links">
+                <li><a href="/#home">Home</a></li>
+                <li><a href="/#free-pick">Free Picks</a></li>
+                <li><a href="/#pricing">Packages</a></li>
+                <li><a href="/resources.html" class="active">Resources</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="mailto:admin@yardlineiq.com">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-btn" aria-label="Open mobile menu">☰</button>
+            <a href="/picks.html" class="login-btn">Member Login</a>
+        </nav>
+    </header>
+
+    <main class="page-wrapper">
+
+        <div class="breadcrumb">
+            <a href="/resources.html">Resources</a>
+            <span>›</span>
+            <span>Vig Calculator</span>
+        </div>
+
+        <div class="page-header">
+            <h1>Vig / No-Vig Calculator</h1>
+            <p>Strip the sportsbook's juice to see the true implied probability and fair odds on each side</p>
+        </div>
+
+        <div class="vig-calculator">
+
+            <div class="fmt-toggle">
+                <button class="fmt-btn active" data-fmt="american" onclick="setFormat('american')">American</button>
+                <button class="fmt-btn" data-fmt="decimal" onclick="setFormat('decimal')">Decimal</button>
+            </div>
+
+            <div class="slate-table-wrap">
+                <table class="slate-table">
+                    <thead>
+                        <tr>
+                            <th style="width:28px">#</th>
+                            <th style="width:140px">Matchup</th>
+                            <th class="right" style="width:82px">Odds A</th>
+                            <th class="right" style="width:82px">Odds B</th>
+                            <th class="right" style="width:70px">Vig %</th>
+                            <th class="right" style="width:75px">Prob A</th>
+                            <th class="right" style="width:75px">Prob B</th>
+                            <th class="right" style="width:75px">Fair A</th>
+                            <th class="right" style="width:75px">Fair B</th>
+                            <th style="width:32px"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="vigBody"></tbody>
+                </table>
+            </div>
+
+            <button class="add-row-btn" onclick="addRow('-110', '-110', null)">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Add line
+            </button>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-card-label">Avg Vig</div>
+                    <div class="summary-card-value green" id="sumAvgVig">—</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">Highest Vig</div>
+                    <div class="summary-card-value" id="sumHighVig">—</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">Lowest Vig</div>
+                    <div class="summary-card-value" id="sumLowVig">—</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">Total Lines</div>
+                    <div class="summary-card-value" id="sumTotalLines">0</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="editorial">
+
+            <div class="editorial-section">
+                <h2>What is vig (juice)?</h2>
+                <p>Vig — short for vigorish, also called juice — is the commission a sportsbook charges for taking your action. It's baked into every line you see. On a standard NFL ATS bet, both sides are priced at <span class="inline-highlight">–110</span>, meaning you risk $110 to win $100. If the implied probabilities on each side were fair, they'd sum to exactly 100%. At –110/–110, they sum to about <span class="inline-highlight">104.76%</span>. That extra 4.76% is the book's built-in edge — it's what ensures they profit over the long run regardless of outcome.</p>
+                <p>Understanding the vig on any given line is the first step in evaluating whether a price represents genuine value. A line with 8% juice built in starts you at a significant disadvantage before the game even kicks off.</p>
+            </div>
+
+            <div class="editorial-section">
+                <h2>How to use this calculator</h2>
+                <ol>
+                    <li><strong>Choose your odds format.</strong> Toggle between American (e.g. –110) and Decimal (e.g. 1.909) depending on the format your book displays. Switching format converts all existing row values automatically.</li>
+                    <li><strong>Enter the odds for both sides.</strong> Type in the line for Side A and Side B as listed at your sportsbook. For a standard ATS game this is typically –110 on each side, but any line works.</li>
+                    <li><strong>Read the outputs.</strong> <strong>Vig %</strong> shows the book's margin on that game. <strong>Prob A / Prob B</strong> show the true implied probabilities after removing the juice — these sum to exactly 100%. <strong>Fair A / Fair B</strong> show what the odds would be at zero vig.</li>
+                    <li><strong>Add multiple lines.</strong> Use <em>+ Add line</em> to compare vig across your full slate or across multiple books offering the same game. The summary row shows your average, highest, and lowest vig across all entries.</li>
+                    <li><strong>Use the fair odds for line shopping.</strong> If your book has Side A at –115 but the no-vig fair odds are –106, you're paying extra juice. Finding the same side at –108 at another book means you're closer to fair value.</li>
+                </ol>
+            </div>
+
+            <div class="editorial-section">
+                <h2>Why no-vig odds matter</h2>
+                <p>The fair odds this calculator produces are the starting point for evaluating closing line value (CLV). If you consistently bet sides at prices better than the no-vig closing line, you're demonstrating a genuine process edge — not just running hot. Conversely, if you're always paying above fair odds, the vig alone is enough to grind your bankroll down over time regardless of your pick accuracy.</p>
+                <p>No-vig odds are also useful for line shopping. When you know the fair price on a side is <span class="inline-highlight">–106</span>, getting it at –108 is a meaningful improvement even if –108 still looks like "you're paying juice." Relative to the fair line, you're 2 cents better off — and those 2 cents compound significantly over hundreds of bets.</p>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 YardLineIQ. All rights reserved. | Please bet responsibly. Must be 21+.</p>
+        <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+            <a href="/disclaimer.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Disclaimer</a>
+            <a href="/terms.html"      style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Terms</a>
+            <a href="/privacy-policy.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Privacy</a>
+            <a href="mailto:admin@yardlineiq.com" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        // JS added in Task 2
+    </script>
+
+</body>
+</html>
