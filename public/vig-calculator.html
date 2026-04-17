@@ -450,7 +450,7 @@
                 </table>
             </div>
 
-            <button class="add-row-btn" onclick="addRow('-110', '-110', null)">
+            <button class="add-row-btn">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
@@ -538,6 +538,7 @@
         }
 
         function vigColor(pct) {
+            if (pct < 0) return '#00ccff';
             if (pct <= 4) return '#00ff88';
             if (pct <= 6) return '#ffcc00';
             return '#ff6b6b';
@@ -582,7 +583,7 @@
                 const total  = impliedA + impliedB;
                 const noVigA = impliedA / total;
                 const noVigB = impliedB / total;
-                const vig    = (total - 1) / total * 100;
+                const vig    = (total - 1) * 100;
 
                 vigCell.textContent  = vig.toFixed(2) + '%';
                 vigCell.style.color  = vigColor(vig);
@@ -642,7 +643,7 @@
             tr.dataset.id = id;
             tr.innerHTML = `
                 <td class="row-num">${id}</td>
-                <td><input type="text" class="slate-input matchup-input" value="${lbl}" placeholder="Matchup" oninput="recalc()"></td>
+                <td><input type="text" class="slate-input matchup-input" placeholder="Matchup" oninput="recalc()"></td>
                 <td class="odds-cell"><input type="number" class="slate-input odds-a-input" value="${oddsA}" step="${step}" placeholder="${ph}" oninput="recalc()"></td>
                 <td class="odds-cell"><input type="number" class="slate-input odds-b-input" value="${oddsB}" step="${step}" placeholder="${ph}" oninput="recalc()"></td>
                 <td class="vig-pct output-cell">—</td>
@@ -653,6 +654,7 @@
                 <td class="remove-cell"><button class="remove-btn" onclick="removeRow(${id})" title="Remove">✕</button></td>
             `;
             document.getElementById('vigBody').appendChild(tr);
+            tr.querySelector('.matchup-input').value = lbl;
             recalc();
         }
 
