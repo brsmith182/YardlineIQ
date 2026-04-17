@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L6R1V0FNXH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-L6R1V0FNXH');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hedge Bet Calculator | YardlineIQ</title>
+    <meta name="description" content="Free hedging calculator for sports bettors. Enter your original bet and current hedge odds to instantly see the exact amount to wager, your guaranteed profit, and a full scenario breakdown.">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+
+        /* ── Header ── */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 2rem 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .header.scrolled {
+            background: rgba(8, 10, 12, 0.97);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.12);
+            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 3rem;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 3rem;
+        }
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+            letter-spacing: 0.02em;
+        }
+        .nav-links a:hover,
+        .nav-links a.active { color: #00ff88; }
+        .login-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+        }
+        .login-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        /* ── Page layout ── */
+        .page-wrapper {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 120px 2rem 4rem;
+        }
+
+        /* ── Breadcrumb ── */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.28);
+            margin-bottom: 1.5rem;
+        }
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.38);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .breadcrumb a:hover { color: #00ff88; }
+
+        .page-header { margin-bottom: 2.5rem; }
+        .page-header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        .page-header p {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 0.95rem;
+        }
+
+        /* ── Calculator card ── */
+        .calc-card {
+            background: rgba(255, 255, 255, 0.025);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        /* ── Section label ── */
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: rgba(255, 255, 255, 0.28);
+            margin-bottom: 0.9rem;
+        }
+
+        /* ── Inputs grid ── */
+        .inputs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .control-group label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.35);
+        }
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-prefix {
+            position: absolute;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 13px;
+            pointer-events: none;
+        }
+        .calc-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 0.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            padding: 10px 12px;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .calc-input:focus { border-color: rgba(0, 255, 136, 0.4); }
+        .calc-input.has-prefix { padding-left: 22px; }
+
+        /* ── Mode toggle ── */
+        .mode-toggle {
+            display: flex;
+            margin-bottom: 1.75rem;
+            border: 0.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            overflow: hidden;
+            width: fit-content;
+        }
+        .mode-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.45);
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 8px 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.02em;
+        }
+        .mode-btn.active {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+        }
+        .mode-btn:not(.active):hover { color: rgba(255, 255, 255, 0.75); }
+
+        /* ── Custom hedge input (shown in custom mode) ── */
+        .custom-hedge-wrap {
+            display: none;
+            margin-bottom: 1.75rem;
+        }
+        .custom-hedge-wrap.visible { display: block; }
+        .custom-hedge-wrap .control-group { max-width: 220px; }
+
+        /* ── Divider ── */
+        .calc-divider {
+            height: 0.5px;
+            background: rgba(255, 255, 255, 0.07);
+            margin: 1.75rem 0;
+        }
+
+        /* ── Result cards ── */
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.75rem;
+        }
+        .result-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+        }
+        .result-card.highlight {
+            background: rgba(0, 255, 136, 0.05);
+            border-color: rgba(0, 255, 136, 0.2);
+        }
+        .result-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 0.4rem;
+        }
+        .result-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+        }
+        .result-value.green {
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .result-value.red { color: #ff6b6b; }
+        .result-value.dim { color: rgba(255, 255, 255, 0.3); }
+        .result-sub {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.28);
+            margin-top: 0.25rem;
+        }
+
+        /* ── Scenario table ── */
+        .scenario-section { margin-top: 0; }
+        table.scenario-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .scenario-table thead th {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: rgba(255, 255, 255, 0.3);
+            padding: 0 10px 10px;
+            text-align: left;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+        }
+        .scenario-table thead th.right { text-align: right; }
+        .scenario-table tbody tr {
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+        .scenario-table tbody tr:last-child { border-bottom: none; }
+        .scenario-table tbody td {
+            padding: 10px 10px;
+            vertical-align: middle;
+        }
+        .scenario-table td.right { text-align: right; }
+        .outcome-label {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.75);
+        }
+        .outcome-sub {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 2px;
+        }
+        .profit-cell {
+            font-weight: 600;
+            font-size: 13px;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .profit-cell.pos { color: #00ff88; }
+        .profit-cell.neg { color: #ff6b6b; }
+        .profit-cell.zero { color: rgba(255, 255, 255, 0.3); }
+        .profit-cell.dim { color: rgba(255, 255, 255, 0.3); font-weight: 400; }
+
+        /* ── No-hedge warning ── */
+        .hedge-note {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 204, 0, 0.07);
+            border: 0.5px solid rgba(255, 204, 0, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+            color: rgba(255, 204, 0, 0.85);
+            line-height: 1.5;
+        }
+        .hedge-note.visible { display: block; }
+
+        /* ── Editorial ── */
+        .editorial {
+            margin-top: 3.5rem;
+            padding-top: 3rem;
+            border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+        }
+        .editorial-section { margin-bottom: 2.75rem; }
+        .editorial-section h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        .editorial-section p {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.75;
+            margin-bottom: 0.9rem;
+            max-width: 760px;
+        }
+        .editorial-section p:last-child { margin-bottom: 0; }
+        .editorial-section ol {
+            padding-left: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+        .editorial-section li {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.7;
+            max-width: 760px;
+        }
+        .editorial-section li strong {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 600;
+        }
+        .inline-highlight { color: #00ff88; font-weight: 600; }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            margin-top: 4rem;
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .nav-container { padding: 0 1.5rem; }
+            .inputs-grid { grid-template-columns: 1fr 1fr; }
+            .result-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+            .inputs-grid { grid-template-columns: 1fr; }
+            .result-grid { grid-template-columns: 1fr 1fr; }
+            .page-wrapper { padding: 100px 1.25rem 3rem; }
+            .calc-card { padding: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header" id="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">YARDLINEIQ</a>
+            <ul class="nav-links">
+                <li><a href="/#home">Home</a></li>
+                <li><a href="/#free-pick">Free Picks</a></li>
+                <li><a href="/#pricing">Packages</a></li>
+                <li><a href="/resources.html" class="active">Resources</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="mailto:admin@yardlineiq.com">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-btn" aria-label="Open mobile menu">☰</button>
+            <a href="/picks.html" class="login-btn">Member Login</a>
+        </nav>
+    </header>
+
+    <main class="page-wrapper">
+
+        <div class="breadcrumb">
+            <a href="/resources.html">Resources</a>
+            <span>›</span>
+            <span>Hedge Calculator</span>
+        </div>
+
+        <div class="page-header">
+            <h1>Hedge Bet Calculator</h1>
+            <p>Lock guaranteed profit on a live bet — or stress-test any hedge amount before you place it</p>
+        </div>
+
+        <div class="calc-card">
+
+            <p class="section-label">Original Bet</p>
+
+            <div class="inputs-grid">
+                <div class="control-group">
+                    <label>Original Stake</label>
+                    <div class="input-wrap">
+                        <span class="input-prefix">$</span>
+                        <input type="number" class="calc-input has-prefix" id="origStake" value="100" min="1" step="10">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Original Odds (American)</label>
+                    <input type="number" class="calc-input" id="origOdds" value="+400" step="5">
+                </div>
+                <div class="control-group">
+                    <label>Hedge Odds (American)</label>
+                    <input type="number" class="calc-input" id="hedgeOdds" value="-200" step="5">
+                </div>
+            </div>
+
+            <div class="mode-toggle">
+                <button class="mode-btn active" data-mode="lock" onclick="setMode('lock')">Lock Equal Profit</button>
+                <button class="mode-btn" data-mode="custom" onclick="setMode('custom')">Custom Hedge Amount</button>
+            </div>
+
+            <div class="custom-hedge-wrap" id="customWrap">
+                <div class="control-group">
+                    <label>Hedge Stake</label>
+                    <div class="input-wrap">
+                        <span class="input-prefix">$</span>
+                        <input type="number" class="calc-input has-prefix" id="customHedge" value="200" min="0" step="10">
+                    </div>
+                </div>
+            </div>
+
+            <div class="calc-divider"></div>
+
+            <p class="section-label">Results</p>
+
+            <div class="result-grid">
+                <div class="result-card highlight">
+                    <div class="result-label">Hedge Stake</div>
+                    <div class="result-value green" id="resHedgeStake">—</div>
+                    <div class="result-sub" id="resHedgeStakeSub"></div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Guaranteed Profit</div>
+                    <div class="result-value" id="resGuaranteed">—</div>
+                    <div class="result-sub" id="resGuaranteedSub"></div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Max Win (No Hedge)</div>
+                    <div class="result-value" id="resNoHedgeWin">—</div>
+                    <div class="result-sub">if original wins</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">Return on Risk</div>
+                    <div class="result-value" id="resROR">—</div>
+                    <div class="result-sub" id="resRORSub"></div>
+                </div>
+            </div>
+
+            <div class="scenario-section">
+                <p class="section-label">Scenario Breakdown</p>
+                <table class="scenario-table">
+                    <thead>
+                        <tr>
+                            <th style="width:220px">Outcome</th>
+                            <th class="right">No Hedge</th>
+                            <th class="right">With Hedge</th>
+                            <th class="right" style="width:90px">Difference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="outcome-label">Original wins</div>
+                                <div class="outcome-sub">Hedge bet loses</div>
+                            </td>
+                            <td class="profit-cell" id="scNoHedgeWin">—</td>
+                            <td class="profit-cell" id="scWithHedgeWin">—</td>
+                            <td class="profit-cell dim" id="scDiffWin">—</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="outcome-label">Original loses</div>
+                                <div class="outcome-sub">Hedge bet wins</div>
+                            </td>
+                            <td class="profit-cell" id="scNoHedgeLose">—</td>
+                            <td class="profit-cell" id="scWithHedgeLose">—</td>
+                            <td class="profit-cell dim" id="scDiffLose">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="hedge-note" id="hedgeNote"></div>
+
+        </div>
+
+        <div class="editorial">
+
+            <div class="editorial-section">
+                <h2>What is a hedge bet?</h2>
+                <p>Hedging is the practice of placing a second bet on the opposite side of an existing position in order to reduce or eliminate risk. The most common scenario: you placed a futures bet at long odds — say, a team to win the Super Bowl at <span class="inline-highlight">+800</span> — and that team has now made the championship game. The line on the opponent might be <span class="inline-highlight">–200</span>. You now have a live decision: let the original ride for the full payout, or place a calculated hedge to lock in some amount of profit regardless of outcome.</p>
+                <p>Hedging is also used on parlays. If you've hit the first four legs of a five-leg parlay and the final game is about to kick off, you can bet against your parlay's remaining side to guarantee a profit no matter what happens in the last game. The same math applies — the hedge amount is a function of your payout-to-risk ratio and the current odds available.</p>
+            </div>
+
+            <div class="editorial-section">
+                <h2>How to use this calculator</h2>
+                <ol>
+                    <li><strong>Enter your original stake and odds.</strong> Use American format. For a futures bet that started at +800, enter +800. For a parlay, enter the total parlay payout odds as American (e.g. if your parlay pays $1,200 profit on a $100 stake, enter +1200).</li>
+                    <li><strong>Enter the current hedge odds.</strong> This is the price you can get on the opposite side right now. For a championship game futures hedge, this is the opponent's current moneyline. For a parlay, this is the odds on the side opposite your final leg.</li>
+                    <li><strong>Choose your mode.</strong> <strong>Lock Equal Profit</strong> calculates the exact hedge stake that produces the same profit whether your original wins or loses — the mathematically optimal hedge if your goal is to guarantee a fixed return. <strong>Custom Hedge Amount</strong> lets you enter any stake and immediately see both outcome scenarios, so you can stress-test partial hedges or find the right balance between guaranteed profit and upside.</li>
+                    <li><strong>Read the scenario table.</strong> The table shows net profit (positive) or net loss (negative) in both outcome scenarios — with and without the hedge. The "Difference" column shows what the hedge costs you in the winning scenario, which helps you weigh the trade-off.</li>
+                </ol>
+            </div>
+
+            <div class="editorial-section">
+                <h2>When does hedging make sense?</h2>
+                <p>Hedging is a purely personal decision driven by your risk tolerance, not by some universal rule of optimal play. The math is straightforward: a perfect hedge converts expected value into certainty. Whether that trade is worth making depends entirely on your situation.</p>
+                <p>Hedging makes practical sense when the guaranteed profit represents a meaningful amount relative to your bankroll, when the original bet was a large outright position taken at long odds, or when you're on a parlay and one remaining leg is a significant underdog. It also makes sense when life circumstances change — if you've had a rough month and a guaranteed return offers real relief, that context is legitimate even if it's not "pure" EV thinking.</p>
+                <p>Where bettors go wrong is hedging reflexively to avoid loss rather than thinking clearly about the trade-off. If your original bet still has strong positive expected value and the guaranteed profit is trivially small relative to your bankroll, hedging may just be anxiety management dressed up as strategy. This calculator gives you the numbers — but the decision is yours.</p>
+            </div>
+
+            <div class="editorial-section">
+                <h2>The math behind the Lock Equal Profit hedge</h2>
+                <p>The formula is simpler than it looks. If your original bet pays a total return of <span class="inline-highlight">R</span> when it wins (stake plus profit), and the hedge is available at decimal odds of <span class="inline-highlight">d</span>, then the hedge stake that equalizes both outcomes is: <span class="inline-highlight">H = R / d</span>. At that hedge stake, both outcomes return the same net profit: <span class="inline-highlight">R − S − H</span>, where S is your original stake.</p>
+                <p>This works because when the original wins, you collect R but forfeit H. When the hedge wins, you collect H × d = R but forfeit your original stake S. Set those two expressions equal and solve for H — it reduces directly to R / d. The calculator handles the American-to-decimal conversion automatically, so you can work entirely in the odds format your book displays.</p>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 YardLineIQ. All rights reserved. | Please bet responsibly. Must be 21+.</p>
+        <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+            <a href="/disclaimer.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Disclaimer</a>
+            <a href="/terms.html"      style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Terms</a>
+            <a href="/privacy-policy.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Privacy</a>
+            <a href="mailto:admin@yardlineiq.com" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        let mode = 'lock';
+
+        function toDecimal(american) {
+            const o = parseFloat(american);
+            if (isNaN(o) || o === 0) return null;
+            return o > 0 ? o / 100 + 1 : 100 / Math.abs(o) + 1;
+        }
+
+        function fmtMoney(val) {
+            const abs = Math.abs(val);
+            const str = abs < 10 ? abs.toFixed(2) : abs.toFixed(0);
+            return (val < 0 ? '-' : '+') + '$' + str;
+        }
+
+        function profitClass(val) {
+            if (val > 0.005) return 'pos';
+            if (val < -0.005) return 'neg';
+            return 'zero';
+        }
+
+        function recalc() {
+            const stake      = parseFloat(document.getElementById('origStake').value);
+            const origOdds   = parseFloat(document.getElementById('origOdds').value);
+            const hedgeOdds  = parseFloat(document.getElementById('hedgeOdds').value);
+
+            const origDec  = toDecimal(origOdds);
+            const hedgeDec = toDecimal(hedgeOdds);
+
+            if (!stake || stake <= 0 || !origDec || !hedgeDec) {
+                clearOutputs();
+                return;
+            }
+
+            const origReturn = stake * origDec;
+            const origProfit = origReturn - stake;
+
+            let hedgeStake;
+            if (mode === 'lock') {
+                hedgeStake = origReturn / hedgeDec;
+            } else {
+                hedgeStake = parseFloat(document.getElementById('customHedge').value) || 0;
+            }
+
+            const hedgeReturn = hedgeStake * hedgeDec;
+
+            const profitIfOrigWins  = origReturn - stake - hedgeStake;
+            const profitIfOrigLoses = hedgeReturn - stake - hedgeStake;
+
+            const guaranteedMin = Math.min(profitIfOrigWins, profitIfOrigLoses);
+            const guaranteedMax = Math.max(profitIfOrigWins, profitIfOrigLoses);
+            const isLocked = Math.abs(profitIfOrigWins - profitIfOrigLoses) < 0.01;
+
+            const ror = hedgeStake > 0 ? (guaranteedMin / (stake + hedgeStake)) * 100 : null;
+            const noHedgeRor = (origProfit / stake) * 100;
+
+            // Hedge stake card
+            const stakeEl = document.getElementById('resHedgeStake');
+            stakeEl.textContent = hedgeStake > 0 ? '$' + hedgeStake.toFixed(2) : '$0';
+            stakeEl.className = 'result-value ' + (hedgeStake > 0 ? 'green' : 'dim');
+            document.getElementById('resHedgeStakeSub').textContent =
+                mode === 'lock' ? 'to lock equal profit' : 'custom amount';
+
+            // Guaranteed profit card
+            const guarEl = document.getElementById('resGuaranteed');
+            if (hedgeStake > 0) {
+                if (isLocked) {
+                    guarEl.textContent = '$' + Math.abs(guaranteedMin).toFixed(2);
+                    guarEl.className   = 'result-value ' + (guaranteedMin >= 0 ? 'green' : 'red');
+                    document.getElementById('resGuaranteedSub').textContent = 'guaranteed either way';
+                } else {
+                    const lo = Math.min(profitIfOrigWins, profitIfOrigLoses);
+                    const hi = Math.max(profitIfOrigWins, profitIfOrigLoses);
+                    guarEl.textContent = '$' + Math.abs(lo).toFixed(0) + ' – $' + Math.abs(hi).toFixed(0);
+                    guarEl.className   = 'result-value ' + (lo >= 0 ? 'green' : 'red');
+                    document.getElementById('resGuaranteedSub').textContent = 'range across outcomes';
+                }
+            } else {
+                guarEl.textContent = '—';
+                guarEl.className = 'result-value dim';
+                document.getElementById('resGuaranteedSub').textContent = '';
+            }
+
+            // No-hedge win card
+            const noHedgeEl = document.getElementById('resNoHedgeWin');
+            noHedgeEl.textContent = '+$' + origProfit.toFixed(2);
+            noHedgeEl.className = 'result-value green';
+
+            // ROR card
+            const rorEl = document.getElementById('resROR');
+            if (ror !== null && hedgeStake > 0) {
+                rorEl.textContent = (ror >= 0 ? '+' : '') + ror.toFixed(1) + '%';
+                rorEl.className   = 'result-value ' + (ror >= 0 ? 'green' : 'red');
+                document.getElementById('resRORSub').textContent = 'on total risk (hedged)';
+            } else {
+                rorEl.textContent = '+' + noHedgeRor.toFixed(1) + '%';
+                rorEl.className = 'result-value';
+                document.getElementById('resRORSub').textContent = 'on stake (no hedge)';
+            }
+
+            // Scenario table
+            const noWin   = origProfit;
+            const noLose  = -stake;
+
+            setScenarioCell('scNoHedgeWin',    noWin);
+            setScenarioCell('scNoHedgeLose',   noLose);
+            setScenarioCell('scWithHedgeWin',  profitIfOrigWins);
+            setScenarioCell('scWithHedgeLose', profitIfOrigLoses);
+
+            const diffWin  = profitIfOrigWins  - noWin;
+            const diffLose = profitIfOrigLoses - noLose;
+            setScenarioCell('scDiffWin',  diffWin,  true);
+            setScenarioCell('scDiffLose', diffLose, true);
+
+            // Advisory note
+            const noteEl = document.getElementById('hedgeNote');
+            if (mode === 'custom' && hedgeStake > 0) {
+                if (profitIfOrigLoses < 0 && profitIfOrigWins > 0) {
+                    noteEl.textContent = 'This hedge reduces but does not eliminate loss risk. To fully lock a profit, switch to Lock Equal Profit mode.';
+                    noteEl.classList.add('visible');
+                } else if (profitIfOrigWins < profitIfOrigLoses - 0.5) {
+                    noteEl.textContent = 'You\'re over-hedging relative to the locked amount — the hedge side now pays more than the original. Reducing the hedge stake will improve your worst-case outcome.';
+                    noteEl.classList.add('visible');
+                } else {
+                    noteEl.classList.remove('visible');
+                }
+            } else {
+                noteEl.classList.remove('visible');
+            }
+        }
+
+        function setScenarioCell(id, val, isDiff) {
+            const el = document.getElementById(id);
+            el.textContent = fmtMoney(val);
+            if (isDiff) {
+                el.className = 'profit-cell dim';
+            } else {
+                el.className = 'profit-cell ' + profitClass(val);
+            }
+        }
+
+        function clearOutputs() {
+            ['resHedgeStake','resGuaranteed','resNoHedgeWin','resROR',
+             'scNoHedgeWin','scNoHedgeLose','scWithHedgeWin','scWithHedgeLose','scDiffWin','scDiffLose']
+                .forEach(id => {
+                    const el = document.getElementById(id);
+                    el.textContent = '—';
+                    el.className = el.className.replace(/\b(pos|neg|zero|green|red|dim)\b/g, '').trim();
+                });
+        }
+
+        function setMode(m) {
+            mode = m;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === m);
+            });
+            document.getElementById('customWrap').classList.toggle('visible', m === 'custom');
+            recalc();
+        }
+
+        document.getElementById('origStake').addEventListener('input', recalc);
+        document.getElementById('origOdds').addEventListener('input', recalc);
+        document.getElementById('hedgeOdds').addEventListener('input', recalc);
+        document.getElementById('customHedge').addEventListener('input', recalc);
+
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 100);
+        });
+
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function () {
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+            } else {
+                Object.assign(navLinks.style, {
+                    display: 'flex', flexDirection: 'column', position: 'absolute',
+                    top: '100%', left: '0', right: '0',
+                    background: 'rgba(10, 10, 10, 0.95)', padding: '2rem', backdropFilter: 'blur(20px)'
+                });
+            }
+        });
+
+        recalc();
+    </script>
+
+</body>
+</html>
