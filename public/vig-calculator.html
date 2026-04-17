@@ -518,7 +518,172 @@
     </footer>
 
     <script>
-        // JS added in Task 2
+        let format = 'american';
+        let rowCounter = 0;
+
+        function toImplied(odds, fmt) {
+            if (fmt === 'decimal') {
+                const d = parseFloat(odds);
+                return isNaN(d) || d <= 1 ? null : 1 / d;
+            }
+            const o = parseFloat(odds);
+            if (isNaN(o) || o === 0) return null;
+            return o > 0 ? 100 / (o + 100) : Math.abs(o) / (Math.abs(o) + 100);
+        }
+
+        function toFairOdds(prob, fmt) {
+            if (fmt === 'decimal') return (1 / prob).toFixed(3);
+            if (prob >= 0.5) return Math.round(-(prob / (1 - prob)) * 100).toString();
+            return '+' + Math.round(((1 - prob) / prob) * 100);
+        }
+
+        function vigColor(pct) {
+            if (pct <= 4) return '#00ff88';
+            if (pct <= 6) return '#ffcc00';
+            return '#ff6b6b';
+        }
+
+        function americanToDecimal(american) {
+            const o = parseFloat(american);
+            if (isNaN(o) || o === 0) return '';
+            return o > 0 ? (o / 100 + 1).toFixed(3) : (100 / Math.abs(o) + 1).toFixed(3);
+        }
+
+        function decimalToAmerican(decimal) {
+            const d = parseFloat(decimal);
+            if (isNaN(d) || d <= 1) return '';
+            if (d >= 2) return '+' + Math.round((d - 1) * 100);
+            return Math.round(-100 / (d - 1)).toString();
+        }
+
+        function recalc() {
+            const rows = Array.from(document.querySelectorAll('#vigBody tr'));
+            let totalVig = 0, maxVig = -Infinity, minVig = Infinity, validCount = 0;
+
+            rows.forEach(row => {
+                const impliedA = toImplied(row.querySelector('.odds-a-input').value, format);
+                const impliedB = toImplied(row.querySelector('.odds-b-input').value, format);
+                const vigCell  = row.querySelector('.vig-pct');
+                const probACell = row.querySelector('.prob-a');
+                const probBCell = row.querySelector('.prob-b');
+                const fairACell = row.querySelector('.fair-a');
+                const fairBCell = row.querySelector('.fair-b');
+
+                if (!impliedA || !impliedB || impliedA <= 0 || impliedB <= 0) {
+                    vigCell.textContent = '—';
+                    vigCell.style.color = 'rgba(255,255,255,0.3)';
+                    probACell.textContent = '—';
+                    probBCell.textContent = '—';
+                    fairACell.textContent = '—';
+                    fairBCell.textContent = '—';
+                    return;
+                }
+
+                const total  = impliedA + impliedB;
+                const noVigA = impliedA / total;
+                const noVigB = impliedB / total;
+                const vig    = (total - 1) / total * 100;
+
+                vigCell.textContent  = vig.toFixed(2) + '%';
+                vigCell.style.color  = vigColor(vig);
+                probACell.textContent = (noVigA * 100).toFixed(1) + '%';
+                probBCell.textContent = (noVigB * 100).toFixed(1) + '%';
+                fairACell.textContent = toFairOdds(noVigA, format);
+                fairBCell.textContent = toFairOdds(noVigB, format);
+
+                totalVig += vig;
+                if (vig > maxVig) maxVig = vig;
+                if (vig < minVig) minVig = vig;
+                validCount++;
+            });
+
+            document.getElementById('sumAvgVig').textContent    = validCount > 0 ? (totalVig / validCount).toFixed(2) + '%' : '—';
+            document.getElementById('sumHighVig').textContent   = validCount > 0 ? maxVig.toFixed(2) + '%' : '—';
+            document.getElementById('sumLowVig').textContent    = validCount > 0 ? minVig.toFixed(2) + '%' : '—';
+            document.getElementById('sumTotalLines').textContent = validCount;
+        }
+
+        function setFormat(fmt) {
+            if (fmt === format) return;
+            document.querySelectorAll('#vigBody tr').forEach(row => {
+                const aInput = row.querySelector('.odds-a-input');
+                const bInput = row.querySelector('.odds-b-input');
+                if (fmt === 'decimal') {
+                    aInput.value = americanToDecimal(aInput.value);
+                    bInput.value = americanToDecimal(bInput.value);
+                    aInput.step  = '0.001';
+                    bInput.step  = '0.001';
+                    aInput.placeholder = '1.909';
+                    bInput.placeholder = '1.909';
+                } else {
+                    aInput.value = decimalToAmerican(aInput.value);
+                    bInput.value = decimalToAmerican(bInput.value);
+                    aInput.step  = '5';
+                    bInput.step  = '5';
+                    aInput.placeholder = '-110';
+                    bInput.placeholder = '-110';
+                }
+            });
+            format = fmt;
+            document.querySelectorAll('.fmt-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.fmt === fmt);
+            });
+            recalc();
+        }
+
+        function addRow(oddsA, oddsB, label) {
+            rowCounter++;
+            const id  = rowCounter;
+            const lbl = label !== null ? label : 'Game ' + id;
+            const step = format === 'decimal' ? '0.001' : '5';
+            const ph   = format === 'decimal' ? '1.909' : '-110';
+
+            const tr = document.createElement('tr');
+            tr.dataset.id = id;
+            tr.innerHTML = `
+                <td class="row-num">${id}</td>
+                <td><input type="text" class="slate-input matchup-input" value="${lbl}" placeholder="Matchup" oninput="recalc()"></td>
+                <td class="odds-cell"><input type="number" class="slate-input odds-a-input" value="${oddsA}" step="${step}" placeholder="${ph}" oninput="recalc()"></td>
+                <td class="odds-cell"><input type="number" class="slate-input odds-b-input" value="${oddsB}" step="${step}" placeholder="${ph}" oninput="recalc()"></td>
+                <td class="vig-pct output-cell">—</td>
+                <td class="prob-a output-cell">—</td>
+                <td class="prob-b output-cell">—</td>
+                <td class="fair-a output-cell">—</td>
+                <td class="fair-b output-cell">—</td>
+                <td class="remove-cell"><button class="remove-btn" onclick="removeRow(${id})" title="Remove">✕</button></td>
+            `;
+            document.getElementById('vigBody').appendChild(tr);
+            recalc();
+        }
+
+        function removeRow(id) {
+            const row = document.querySelector(`#vigBody tr[data-id="${id}"]`);
+            if (row) { row.remove(); recalc(); }
+        }
+
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 100);
+        });
+
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function () {
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+            } else {
+                Object.assign(navLinks.style, {
+                    display: 'flex', flexDirection: 'column', position: 'absolute',
+                    top: '100%', left: '0', right: '0',
+                    background: 'rgba(10, 10, 10, 0.95)', padding: '2rem', backdropFilter: 'blur(20px)'
+                });
+            }
+        });
+
+        document.querySelector('.add-row-btn').onclick = function () {
+            const defaults = format === 'decimal' ? ['1.909', '1.909'] : ['-110', '-110'];
+            addRow(defaults[0], defaults[1], null);
+        };
+
+        for (let i = 0; i < 5; i++) addRow('-110', '-110', null);
     </script>
 
 </body>
