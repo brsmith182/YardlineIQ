@@ -54,7 +54,7 @@
     <script src="https://js.stripe.com/v3/"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
         
         * {
             margin: 0;
@@ -210,10 +210,11 @@
         }
 
         .hero-content h1 {
-            font-size: clamp(3rem, 6vw, 8rem);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: clamp(3.5rem, 7vw, 9rem);
             font-weight: 900;
-            line-height: 0.9;
-            letter-spacing: -0.05em;
+            line-height: 0.88;
+            letter-spacing: -0.01em;
             margin-bottom: 2rem;
             background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%);
             -webkit-background-clip: text;
@@ -369,10 +370,12 @@
         }
 
         .section-title {
-            font-size: clamp(2rem, 5vw, 3rem);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
             font-weight: 900;
             margin-bottom: 1rem;
             color: #ffffff;
+            letter-spacing: 0.01em;
         }
 
         .email-signup-form {
@@ -650,11 +653,12 @@
         }
 
         .about-content h2 {
-            font-size: clamp(2rem, 4vw, 4rem);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: clamp(2.2rem, 4vw, 4.5rem);
             font-weight: 900;
-            line-height: 1.1;
+            line-height: 1.0;
             margin-bottom: 2rem;
-            letter-spacing: -0.02em;
+            letter-spacing: 0.01em;
         }
 
         .about-content p {
@@ -1074,8 +1078,8 @@
             }
             
             .hero-content h1 {
-                font-size: 2.5rem !important;
-                line-height: 1.1 !important;
+                font-size: 3rem !important;
+                line-height: 0.92 !important;
             }
             
             .hero-stats {
@@ -1137,7 +1141,7 @@
 
         @media (max-width: 480px) {
             .hero-content h1 {
-                font-size: 2rem !important;
+                font-size: 2.6rem !important;
             }
             
             .section-title {
@@ -1923,13 +1927,16 @@
             });
         }, observerOptions);
 
-        // Observe feature cards for scroll animations
+        // Observe feature cards and pricing cards with staggered reveals
         document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.feature-card, .pricing-card').forEach(card => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                observer.observe(card);
+            document.querySelectorAll('.features-grid, .pricing-grid').forEach(grid => {
+                const cards = grid.querySelectorAll('.feature-card, .pricing-card');
+                cards.forEach((card, i) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(28px)';
+                    card.style.transition = `opacity 0.55s ease ${i * 90}ms, transform 0.55s ease ${i * 90}ms`;
+                    observer.observe(card);
+                });
             });
         });
 
