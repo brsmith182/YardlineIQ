@@ -114,6 +114,57 @@ async function saveCustomerToRedis(customerData) {
   }
 }
 
+async function savePurchaseToRedis(purchaseData) {
+  try {
+    const client = await getRedisClient();
+    const email = purchaseData.email.toLowerCase();
+    const pid = purchaseData.paymentIntentId;
+
+    const record = {
+      ...purchaseData,
+      email,
+      timestamp: Date.now(),
+      purchaseDate: new Date().toISOString()
+    };
+
+    // Individual purchase record keyed by Stripe payment intent ID
+    await client.set(`purchase:${pid}`, JSON.stringify(record));
+
+    // Per-customer purchase index
+    await client.sAdd(`purchases:${email}`, pid);
+
+    // Global purchase index for revenue calculations
+    await client.sAdd('all_purchases', pid);
+
+    // Running revenue total
+    await client.incrByFloat('total_revenue', purchaseData.amount || 0);
+
+    console.log(`Purchase saved: ${pid} for ${email} — $${purchaseData.amount}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Redis purchase save error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+async function getPurchasesByEmail(email) {
+  try {
+    const client = await getRedisClient();
+    const emailLower = email.toLowerCase();
+    const ids = await client.sMembers(`purchases:${emailLower}`);
+    const purchases = [];
+    for (const id of ids) {
+      const data = await client.get(`purchase:${id}`);
+      if (data) purchases.push(JSON.parse(data));
+    }
+    purchases.sort((a, b) => b.timestamp - a.timestamp);
+    return purchases;
+  } catch (error) {
+    console.error('Redis purchase retrieval error:', error);
+    return [];
+  }
+}
+
 async function getAllEmailsFromRedis() {
   try {
     const client = await getRedisClient();
@@ -258,12 +309,20 @@ app.post('/api/payments/payment-success', async (req, res) => {
         status: 'active'
       };
       
-      // Save customer to Redis
+      // Save/update customer subscription record
       const result = await saveCustomerToRedis(customer);
-      
       if (!result.success) {
         console.error('Failed to save customer to Redis:', result.error);
       }
+
+      // Save individual purchase record for history and revenue tracking
+      await savePurchaseToRedis({
+        paymentIntentId: paymentIntentId,
+        email: customerInfo.email,
+        name: customerInfo.name,
+        packageType: packageType,
+        amount: paymentIntent.amount / 100
+      });
 
       // Send notification email
       await sendNotificationEmail('payment', {
@@ -292,7 +351,12 @@ app.post('/api/payments/payment-success', async (req, res) => {
 app.get('/api/payments/customers', requireAuth, async (req, res) => {
   try {
     const customers = await getAllCustomersFromRedis();
-    res.json({ customers: customers.reverse() });
+    const enriched = await Promise.all(customers.map(async (c) => {
+      const purchases = await getPurchasesByEmail(c.email);
+      const totalSpent = purchases.reduce((sum, p) => sum + (p.amount || 0), 0);
+      return { ...c, purchases, totalSpent: totalSpent.toFixed(2) };
+    }));
+    res.json({ customers: enriched.reverse() });
   } catch (error) {
     console.error('Get customers error:', error);
     res.status(500).json({ error: error.message });
@@ -448,11 +512,16 @@ app.get('/api/admin/stats', requireAuth, async (req, res) => {
     const client = await getRedisClient();
     const pickIds = await client.sMembers('all_picks');
 
+    const totalRevenue = parseFloat(await client.get('total_revenue') || '0');
+    const allPurchaseIds = await client.sMembers('all_purchases');
+
     const stats = {
       totalUsers: emails.length + customers.length,
       emailSignups: emails.length,
       paidSubscribers: customers.length,
       totalPicks: pickIds.length,
+      totalPurchases: allPurchaseIds.length,
+      totalRevenue: totalRevenue.toFixed(2),
       overallWinRate: 61
     };
     
@@ -487,19 +556,24 @@ app.get('/api/export/users', requireAuth, async (req, res) => {
     const allUsers = [...emails, ...customers];
     
     const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-    const csvHeader = 'Email,Name,Signup Date,Type,Package Type,Status\n';
-    const csvRows = allUsers.map(user => {
+    const csvHeader = 'Email,Name,Signup Date,Type,Package Type,Status,Total Purchases,Total Spent\n';
+    const csvRows = await Promise.all(allUsers.map(async (user) => {
       const email = user.email || '';
       const name = (user.name || '').replace(/,/g, ';');
       const date = user.signupDate || user.date || '';
       const type = user.type || 'email_signup';
       const packageType = user.packageType || '';
       const status = user.status || 'active';
-      
-      return `"${email}","${name}","${date}","${type}","${packageType}","${status}"`;
-    }).join('\n');
-    
-    const csvContent = csvHeader + csvRows;
+      let purchaseCount = 0;
+      let totalSpent = '0.00';
+      if (type === 'paid_subscriber') {
+        const purchases = await getPurchasesByEmail(email);
+        purchaseCount = purchases.length;
+        totalSpent = purchases.reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2);
+      }
+      return `"${email}","${name}","${date}","${type}","${packageType}","${status}","${purchaseCount}","${totalSpent}"`;
+    }));
+    const csvContent = csvHeader + csvRows.join('\n');
     
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename=yardlineiq-backup-${timestamp}.csv`);
