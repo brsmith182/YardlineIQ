@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neural Football — Mockup</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #05070a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const SIZE = Math.min(window.innerWidth, window.innerHeight, 520);
+canvas.width = SIZE;
+canvas.height = SIZE;
+const cx = SIZE / 2, cy = SIZE / 2;
+const A = SIZE * 0.33; // long axis (z)
+const B = SIZE * 0.21; // short axis (x, y)
+
+// ── 3D rotation + projection ──────────────────────────────────
+function rotateY(x, y, z, a) {
+  return { x: x * Math.cos(a) - z * Math.sin(a), y, z: x * Math.sin(a) + z * Math.cos(a) };
+}
+function rotateX(x, y, z, a) {
+  return { x, y: y * Math.cos(a) - z * Math.sin(a), z: y * Math.sin(a) + z * Math.cos(a) };
+}
+function project(x, y, z) {
+  const fov = SIZE * 2.2;
+  const s = fov / (fov + z);
+  return { sx: cx + x * s, sy: cy + y * s, z, s };
+}
+function transform(px, py, pz, ry, rx) {
+  let p = rotateY(px, py, pz, ry);
+  p = rotateX(p.x, p.y, p.z, rx);
+  return project(p.x, p.y, p.z);
+}
+
+// ── Spheroid surface point ───────────────────────────────────
+// lat: -PI/2 to PI/2, lon: 0 to 2PI
+function spt(lat, lon) {
+  return {
+    x: B * Math.cos(lat) * Math.cos(lon),
+    y: B * Math.cos(lat) * Math.sin(lon),
+    z: A * Math.sin(lat)
+  };
+}
+
+// ── Football body — filled silhouette slices ─────────────────
+function buildLatRings(nLat = 28, nLon = 60) {
+  const rings = [];
+  for (let i = 0; i <= nLat; i++) {
+    const lat = -Math.PI / 2 + (Math.PI * i) / nLat;
+    const pts = [];
+    for (let j = 0; j <= nLon; j++) {
+      const lon = (j / nLon) * Math.PI * 2;
+      pts.push(spt(lat, lon));
+    }
+    rings.push(pts);
+  }
+  return rings;
+}
+const latRings = buildLatRings();
+
+// ── Seam arcs ────────────────────────────────────────────────
+function seamArc(lonFixed, n = 48) {
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const lat = -Math.PI / 2 + (Math.PI * i) / n;
+    pts.push(spt(lat, lonFixed));
+  }
+  return pts;
+}
+const seams = [0, Math.PI / 2, Math.PI, Math.PI * 1.5].map(seamArc);
+
+// ── Laces ────────────────────────────────────────────────────
+const laceData = [];
+for (let i = 0; i < 5; i++) {
+  const lat = (i - 2) * 0.1;
+  const pts = [];
+  for (let t = 0; t <= 1; t += 0.1) {
+    const lon = (t - 0.5) * 0.18;
+    pts.push(spt(lat, lon));
+  }
+  laceData.push(pts);
+}
+// center spine connecting laces
+const laceSpine = laceData.map(l => l[Math.floor(l.length / 2)]);
+
+// ── Neural network nodes — evenly spread both hemispheres ───
+// Fibonacci sphere distribution across full surface
+function fibonacciSphere(n) {
+  const pts = [];
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < n; i++) {
+    const lat = Math.asin(2 * i / (n - 1) - 1);
+    const lon = golden * i;
+    pts.push(spt(lat, lon));
+  }
+  return pts;
+}
+const nodePositions3D = fibonacciSphere(22);
+
+// Build edges: connect each node to its 2-3 nearest neighbors
+function dist3(a, b) {
+  return Math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2 + (a.z-b.z)**2);
+}
+const edges = [];
+for (let i = 0; i < nodePositions3D.length; i++) {
+  const dists = nodePositions3D.map((p, j) => ({ j, d: dist3(nodePositions3D[i], p) }))
+    .filter(d => d.j !== i)
+    .sort((a, b) => a.d - b.d);
+  for (const nb of dists.slice(0, 3)) {
+    if (nb.j > i) edges.push([i, nb.j]);
+  }
+}
+
+// ── Particles along edges ────────────────────────────────────
+const particles = edges.map(e => ({
+  edge: e,
+  t: Math.random(),
+  speed: 0.004 + Math.random() * 0.005,
+  dir: Math.random() > 0.5 ? 1 : -1,
+}));
+
+let ry = 0;
+const rx = 0.28;
+let last = 0;
+
+function drawPolyline(pts3, ry, rx, style, lw, alpha) {
+  if (pts3.length < 2) return;
+  ctx.beginPath();
+  const p0 = transform(pts3[0].x, pts3[0].y, pts3[0].z, ry, rx);
+  ctx.moveTo(p0.sx, p0.sy);
+  for (let i = 1; i < pts3.length; i++) {
+    const p = transform(pts3[i].x, pts3[i].y, pts3[i].z, ry, rx);
+    ctx.lineTo(p.sx, p.sy);
+  }
+  ctx.strokeStyle = style;
+  ctx.lineWidth = lw;
+  ctx.globalAlpha = alpha;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
+function draw(ts) {
+  requestAnimationFrame(draw);
+  const dt = Math.min(ts - last, 50);
+  last = ts;
+  ry += dt * 0.00045;
+
+  ctx.clearRect(0, 0, SIZE, SIZE);
+
+  // ── Outer glow ───────────────────────────────────────────
+  const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, A * 1.3);
+  glow.addColorStop(0, 'rgba(0,255,136,0.09)');
+  glow.addColorStop(0.5, 'rgba(0,255,136,0.03)');
+  glow.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(cx, cy, A * 1.3, 0, Math.PI * 2); ctx.fill();
+
+  // ── Draw football body using outline silhouette ──────────
+  const topPole = transform(0, 0, A, ry, rx);
+  const botPole = transform(0, 0, -A, ry, rx);
+
+  // Build left and right edges of silhouette
+  const leftEdge = [], rightEdge = [];
+  for (let i = 0; i <= 60; i++) {
+    const lat = Math.PI / 2 - (Math.PI * i) / 60;
+    const lon1 = Math.PI / 2, lon2 = -Math.PI / 2;
+    const p1 = transform(spt(lat, lon1).x, spt(lat, lon1).y, spt(lat, lon1).z, ry, rx);
+    const p2 = transform(spt(lat, lon2).x, spt(lat, lon2).y, spt(lat, lon2).z, ry, rx);
+    leftEdge.push(p1.sx < p2.sx ? p1 : p2);
+    rightEdge.push(p1.sx >= p2.sx ? p1 : p2);
+  }
+
+  // Draw filled body
+  ctx.beginPath();
+  ctx.moveTo(topPole.sx, topPole.sy);
+  for (const p of rightEdge) ctx.lineTo(p.sx, p.sy);
+  ctx.lineTo(botPole.sx, botPole.sy);
+  for (let i = leftEdge.length - 1; i >= 0; i--) ctx.lineTo(leftEdge[i].sx, leftEdge[i].sy);
+  ctx.closePath();
+
+  // Fill with dark gradient
+  const bodyGrad = ctx.createRadialGradient(cx, cy - SIZE * 0.05, SIZE * 0.05, cx, cy, A);
+  bodyGrad.addColorStop(0, 'rgba(12,22,16,0.97)');
+  bodyGrad.addColorStop(0.6, 'rgba(6,14,10,0.97)');
+  bodyGrad.addColorStop(1, 'rgba(2,8,5,0.97)');
+  ctx.fillStyle = bodyGrad;
+  ctx.fill();
+
+  // Stroke the silhouette edge
+  ctx.strokeStyle = 'rgba(0,255,136,0.55)';
+  ctx.lineWidth = 1.8;
+  ctx.stroke();
+
+  // ── Seam lines ───────────────────────────────────────────
+  for (const seam of seams) {
+    ctx.beginPath();
+    let started = false;
+    for (const p3 of seam) {
+      const p = transform(p3.x, p3.y, p3.z, ry, rx);
+      if (!started) { ctx.moveTo(p.sx, p.sy); started = true; }
+      else ctx.lineTo(p.sx, p.sy);
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.13)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // ── Laces ────────────────────────────────────────────────
+  const laceMidPts = laceData.map(l => {
+    const mid = l[Math.floor(l.length / 2)];
+    return transform(mid.x, mid.y, mid.z, ry, rx);
+  });
+  const laceVisible = laceMidPts[2].z > 0;
+  if (laceVisible) {
+    for (const lace of laceData) {
+      drawPolyline(lace, ry, rx, 'rgba(255,255,255,0.7)', 2, 1);
+    }
+    // spine
+    ctx.beginPath();
+    laceMidPts.forEach((p, i) => i === 0 ? ctx.moveTo(p.sx, p.sy) : ctx.lineTo(p.sx, p.sy));
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // ── Project nodes ─────────────────────────────────────────
+  const nodes = nodePositions3D.map(p => transform(p.x, p.y, p.z, ry, rx));
+
+  // ── Edges ────────────────────────────────────────────────
+  for (const [i, j] of edges) {
+    const n0 = nodes[i], n1 = nodes[j];
+    const avgZ = (n0.z + n1.z) / 2;
+    const alpha = 0.12 + 0.45 * ((avgZ + A) / (2 * A));
+    ctx.beginPath();
+    ctx.moveTo(n0.sx, n0.sy);
+    ctx.lineTo(n1.sx, n1.sy);
+    ctx.strokeStyle = `rgba(0,255,136,${alpha.toFixed(2)})`;
+    ctx.lineWidth = avgZ > 0 ? 1.0 : 0.6;
+    ctx.stroke();
+  }
+
+  // ── Particles ────────────────────────────────────────────
+  for (const par of particles) {
+    par.t = (par.t + par.speed * par.dir + 1) % 1;
+    const [i, j] = par.edge;
+    const p0 = nodePositions3D[i], p1 = nodePositions3D[j];
+    const t = par.t;
+    const ix = p0.x + (p1.x - p0.x) * t;
+    const iy = p0.y + (p1.y - p0.y) * t;
+    const iz = p0.z + (p1.z - p0.z) * t;
+    const pp = transform(ix, iy, iz, ry, rx);
+    const depthAlpha = 0.2 + 0.8 * ((pp.z + A) / (2 * A));
+    const pr = 2.5 + 1.5 * ((pp.z + A) / (2 * A));
+
+    // glow
+    const pg = ctx.createRadialGradient(pp.sx, pp.sy, 0, pp.sx, pp.sy, pr * 4);
+    pg.addColorStop(0, `rgba(0,255,136,${(depthAlpha * 0.5).toFixed(2)})`);
+    pg.addColorStop(1, 'rgba(0,255,136,0)');
+    ctx.fillStyle = pg;
+    ctx.beginPath(); ctx.arc(pp.sx, pp.sy, pr * 4, 0, Math.PI * 2); ctx.fill();
+
+    ctx.beginPath(); ctx.arc(pp.sx, pp.sy, pr, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,255,136,${depthAlpha.toFixed(2)})`;
+    ctx.fill();
+  }
+
+  // ── Nodes ────────────────────────────────────────────────
+  const sortedNodes = nodes.map((n, i) => ({ n, i })).sort((a, b) => a.n.z - b.n.z);
+  for (const { n, i } of sortedNodes) {
+    const depthAlpha = 0.15 + 0.85 * ((n.z + A) / (2 * A));
+    const nr = 3.5 + 2.5 * ((n.z + A) / (2 * A));
+    const front = n.z > 0;
+
+    if (front) {
+      const ng = ctx.createRadialGradient(n.sx, n.sy, 0, n.sx, n.sy, nr * 5);
+      ng.addColorStop(0, `rgba(0,255,136,0.35)`);
+      ng.addColorStop(1, 'rgba(0,255,136,0)');
+      ctx.fillStyle = ng;
+      ctx.beginPath(); ctx.arc(n.sx, n.sy, nr * 5, 0, Math.PI * 2); ctx.fill();
+    }
+
+    ctx.beginPath(); ctx.arc(n.sx, n.sy, nr, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,255,136,${depthAlpha.toFixed(2)})`;
+    ctx.fill();
+    if (front) {
+      ctx.strokeStyle = 'rgba(200,255,230,0.7)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+  }
+
+  // ── Meridian ring at lace longitude (lon=0 / lon=PI) ─────
+  const laceN = 120;
+  for (let i = 0; i < laceN; i++) {
+    let p3a, p3b;
+    if (i < laceN / 2) {
+      // Front arc: lon=0, lat south→north
+      const lat0 = -Math.PI / 2 + (Math.PI * i) / (laceN / 2);
+      const lat1 = -Math.PI / 2 + (Math.PI * (i + 1)) / (laceN / 2);
+      p3a = spt(lat0, 0);
+      p3b = spt(lat1, 0);
+    } else {
+      // Back arc: lon=PI, lat north→south
+      const j = i - laceN / 2;
+      const lat0 = Math.PI / 2 - (Math.PI * j) / (laceN / 2);
+      const lat1 = Math.PI / 2 - (Math.PI * (j + 1)) / (laceN / 2);
+      p3a = spt(lat0, Math.PI);
+      p3b = spt(lat1, Math.PI);
+    }
+    const pa = transform(p3a.x, p3a.y, p3a.z, ry, rx);
+    const pb = transform(p3b.x, p3b.y, p3b.z, ry, rx);
+    const depthT = Math.max(0, Math.min(1, (pa.z + A) / (2 * A)));
+    const alpha = 0.12 + 0.55 * depthT;
+    const lw = 0.8 + 1.4 * depthT;
+    ctx.beginPath();
+    ctx.moveTo(pa.sx, pa.sy);
+    ctx.lineTo(pb.sx, pb.sy);
+    ctx.strokeStyle = `rgba(0,255,136,${alpha.toFixed(2)})`;
+    ctx.lineWidth = lw;
+    ctx.stroke();
+  }
+
+  // ── Equatorial wrap ring (3D depth cue) ──────────────────
+  const wrapLat = 0.0;
+  const wrapN = 120;
+  for (let i = 0; i < wrapN; i++) {
+    const lon0 = (i / wrapN) * Math.PI * 2;
+    const lon1 = ((i + 1) / wrapN) * Math.PI * 2;
+    const p3a = spt(wrapLat, lon0);
+    const p3b = spt(wrapLat, lon1);
+    const pa = transform(p3a.x, p3a.y, p3a.z, ry, rx);
+    const pb = transform(p3b.x, p3b.y, p3b.z, ry, rx);
+    const depthT = Math.max(0, Math.min(1, (pa.z + B) / (2 * B)));
+    const alpha = 0.12 + 0.55 * depthT;
+    const lw = 0.8 + 1.4 * depthT;
+    ctx.beginPath();
+    ctx.moveTo(pa.sx, pa.sy);
+    ctx.lineTo(pb.sx, pb.sy);
+    ctx.strokeStyle = `rgba(0,255,136,${alpha.toFixed(2)})`;
+    ctx.lineWidth = lw;
+    ctx.stroke();
+  }
+
+  // ── Specular highlight ───────────────────────────────────
+  const spec = ctx.createRadialGradient(cx - B * 0.35, cy - A * 0.3, 0, cx, cy, A * 0.9);
+  spec.addColorStop(0, 'rgba(0,255,136,0.07)');
+  spec.addColorStop(0.4, 'rgba(0,255,136,0.02)');
+  spec.addColorStop(1, 'transparent');
+  ctx.fillStyle = spec;
+  ctx.beginPath(); ctx.arc(cx, cy, A, 0, Math.PI * 2); ctx.fill();
+}
+
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
