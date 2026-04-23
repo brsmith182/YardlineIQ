@@ -632,6 +632,14 @@ app.get('/kelly-calculator.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'kelly-calculator.html'));
 });
 
+app.get('/vig-calculator.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'vig-calculator.html'));
+});
+
+app.get('/hedge-calculator.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'hedge-calculator.html'));
+});
+
 // Serve main page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
