@@ -480,8 +480,28 @@ app.get('/api/picks', async (req, res) => {
     }
 
     const token = authHeader.slice(7);
+
+    // Allow admin token to bypass member session check
+    const isAdmin = authHeader === 'Bearer admin-authenticated';
+
+    // --- DEV STUB: return hardcoded pick when Redis is unavailable ---
+    if (!process.env.REDIS_URL) {
+      if (!isAdmin) return res.status(401).json({ error: 'Authentication required' });
+      return res.json([{
+        id: 1,
+        week: 'Super Bowl LX',
+        game: 'New England Patriots vs Seattle Seahawks',
+        time: 'February 8, 2026 · 6:30 PM ET',
+        pick: 'Seattle Seahawks -4.5',
+        confidence: 'High',
+        reasoning: 'Seahawks cover because their defense creates negative plays and turnovers, their special teams win hidden yardage, and their offense does enough without giving the Patriots short fields.',
+        result: 'Win'
+      }]);
+    }
+    // ----------------------------------------------------------------
+
     const client = await getRedisClient();
-    const email = await client.get(`session:${token}`);
+    const email = isAdmin ? 'admin' : await client.get(`session:${token}`);
 
     if (!email) {
       return res.status(401).json({ error: 'Session expired. Please log in again.' });

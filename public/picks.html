@@ -272,6 +272,27 @@
             align-items: flex-start;
             margin-bottom: 1rem;
         }
+
+        /* Team logos */
+        .pick-teams {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.65rem;
+        }
+        .team-logo {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+        }
+        .pick-teams-vs {
+            font-size: 10px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.05em;
+        }
+
         .pick-game {
             font-size: 1rem;
             font-weight: 700;
@@ -619,6 +640,52 @@
             container.innerHTML = html;
         }
 
+        const NFL_LOGOS = {
+            'patriots': 'ne', 'new england patriots': 'ne',
+            'seahawks': 'sea', 'seattle seahawks': 'sea',
+            'chiefs': 'kc', 'kansas city chiefs': 'kc',
+            'eagles': 'phi', 'philadelphia eagles': 'phi',
+            '49ers': 'sf', 'san francisco 49ers': 'sf',
+            'bills': 'buf', 'buffalo bills': 'buf',
+            'ravens': 'bal', 'baltimore ravens': 'bal',
+            'bengals': 'cin', 'cincinnati bengals': 'cin',
+            'browns': 'cle', 'cleveland browns': 'cle',
+            'steelers': 'pit', 'pittsburgh steelers': 'pit',
+            'texans': 'hou', 'houston texans': 'hou',
+            'colts': 'ind', 'indianapolis colts': 'ind',
+            'jaguars': 'jac', 'jacksonville jaguars': 'jac',
+            'titans': 'ten', 'tennessee titans': 'ten',
+            'broncos': 'den', 'denver broncos': 'den',
+            'raiders': 'lv', 'las vegas raiders': 'lv',
+            'chargers': 'lac', 'los angeles chargers': 'lac',
+            'cowboys': 'dal', 'dallas cowboys': 'dal',
+            'giants': 'nyg', 'new york giants': 'nyg',
+            'jets': 'nyj', 'new york jets': 'nyj',
+            'commanders': 'wsh', 'washington commanders': 'wsh',
+            'bears': 'chi', 'chicago bears': 'chi',
+            'lions': 'det', 'detroit lions': 'det',
+            'packers': 'gb', 'green bay packers': 'gb',
+            'vikings': 'min', 'minnesota vikings': 'min',
+            'falcons': 'atl', 'atlanta falcons': 'atl',
+            'panthers': 'car', 'carolina panthers': 'car',
+            'saints': 'no', 'new orleans saints': 'no',
+            'buccaneers': 'tb', 'tampa bay buccaneers': 'tb',
+            'cardinals': 'ari', 'arizona cardinals': 'ari',
+            'rams': 'lar', 'los angeles rams': 'lar',
+            'dolphins': 'mia', 'miami dolphins': 'mia',
+        };
+
+        function teamLogoUrl(name) {
+            const abbr = NFL_LOGOS[name.toLowerCase().trim()];
+            return abbr ? `https://a.espncdn.com/i/teamlogos/nfl/500/${abbr}.png` : null;
+        }
+
+        function parseTeams(game) {
+            const parts = game.split(/\s+vs\.?\s+/i);
+            if (parts.length !== 2) return null;
+            return { away: parts[0].trim(), home: parts[1].trim() };
+        }
+
         function renderPickCard(p) {
             const result    = (p.result || 'pending').toLowerCase();
             const conf      = (p.confidence || '').toLowerCase();
@@ -639,10 +706,25 @@
                 ? `<div class="pick-reasoning">${escHtml(p.reasoning)}</div>`
                 : '';
 
+            const teams = parseTeams(p.game);
+            let logosHtml = '';
+            if (teams) {
+                const awayLogo = teamLogoUrl(teams.away);
+                const homeLogo = teamLogoUrl(teams.home);
+                if (awayLogo || homeLogo) {
+                    logosHtml = `<div class="pick-teams">
+                        ${awayLogo ? `<img class="team-logo" src="${awayLogo}" alt="${escHtml(teams.away)}">` : ''}
+                        <span class="pick-teams-vs">vs</span>
+                        ${homeLogo ? `<img class="team-logo" src="${homeLogo}" alt="${escHtml(teams.home)}">` : ''}
+                    </div>`;
+                }
+            }
+
             return `
                 <div class="pick-card ${cardClass}">
                     <div class="pick-card-top">
                         <div>
+                            ${logosHtml}
                             <div class="pick-game">${escHtml(p.game)}</div>
                             ${p.time ? `<div class="pick-time">${escHtml(p.time)}</div>` : ''}
                         </div>
@@ -665,6 +747,17 @@
         // ── Init ──────────────────────────────────────────────────
 
         window.addEventListener('load', () => {
+            const params = new URLSearchParams(window.location.search);
+            const adminToken = params.get('admin');
+            if (adminToken) {
+                const adminUser = { email: 'admin', packageType: 'admin', subscriptionEnd: null };
+                saveSession(adminToken, adminUser);
+                history.replaceState(null, '', window.location.pathname);
+                showPicksScreen(adminUser);
+                loadPicks(adminToken);
+                return;
+            }
+
             const session = loadSession();
             if (session && session.token && session.user) {
                 showPicksScreen(session.user);
