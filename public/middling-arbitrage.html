@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L6R1V0FNXH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-L6R1V0FNXH');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Middling &amp; Arbitrage: Exploiting Market Imbalances | YardlineIQ</title>
+    <meta name="description" content="How to spot and exploit middles and arbitrage opportunities across sportsbooks. The math, the practical limits, and when these advanced techniques actually move the needle on your bottom line.">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: white; overflow-x: hidden; line-height: 1.4; }
+
+        .header { position: fixed; top: 0; width: 100%; padding: 2rem 0; z-index: 1000; transition: all 0.3s ease; }
+        .header.scrolled { background: rgba(8, 10, 12, 0.97); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 1rem 0; border-bottom: 1px solid rgba(0, 255, 136, 0.12); box-shadow: 0 4px 32px rgba(0, 0, 0, 0.6); }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 3rem; }
+        .logo { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
+        .nav-links { display: flex; list-style: none; gap: 3rem; }
+        .nav-links a { color: rgba(255, 255, 255, 0.7); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.3s ease; letter-spacing: 0.02em; }
+        .nav-links a:hover, .nav-links a.active { color: #00ff88; }
+        .login-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 0.8rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; min-height: 44px; min-width: 44px; display: flex; align-items: center; }
+        .login-btn:hover { background: rgba(0, 255, 136, 0.2); border-color: #00ff88; color: #00ff88; }
+        .mobile-menu-btn { display: none; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 8px; min-height: 44px; min-width: 44px; }
+
+        .page-wrapper { max-width: 820px; margin: 0 auto; padding: 120px 2rem 4rem; }
+
+        .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 12px; color: rgba(255, 255, 255, 0.28); margin-bottom: 1.5rem; }
+        .breadcrumb a { color: rgba(255, 255, 255, 0.45); text-decoration: none; transition: color 0.2s; }
+        .breadcrumb a:hover { color: #00ff88; }
+
+        .read-meta { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.1rem; }
+        .read-cat { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #00ff88; }
+        .read-time { font-size: 11px; color: rgba(255, 255, 255, 0.32); letter-spacing: 0.04em; }
+
+        .page-header { margin-bottom: 1.5rem; }
+        .page-header h1 { font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 800; letter-spacing: -0.035em; background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.05; margin-bottom: 1rem; }
+        .page-header .lede { font-size: 1.1rem; color: rgba(255, 255, 255, 0.62); line-height: 1.6; max-width: 680px; }
+
+        .toc { background: rgba(255, 255, 255, 0.025); border: 0.5px solid rgba(255, 255, 255, 0.07); border-radius: 12px; padding: 1.1rem 1.35rem; margin: 2.5rem 0 3rem; }
+        .toc-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); margin-bottom: 0.8rem; }
+        .toc ol { list-style: none; counter-reset: toc; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+        .toc li { counter-increment: toc; }
+        .toc a { color: rgba(255, 255, 255, 0.68); font-size: 0.92rem; text-decoration: none; display: flex; gap: 0.85rem; transition: color 0.2s; }
+        .toc a::before { content: counter(toc, decimal-leading-zero); color: rgba(255, 255, 255, 0.25); font-weight: 600; font-size: 0.78rem; min-width: 22px; font-family: 'JetBrains Mono', monospace; }
+        .toc a:hover { color: #00ff88; }
+
+        .editorial-section { margin-bottom: 2.75rem; scroll-margin-top: 100px; }
+        .editorial-section h2 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.025em; color: white; margin-bottom: 1rem; line-height: 1.25; }
+        .editorial-section h3 { font-size: 1rem; font-weight: 700; color: rgba(255, 255, 255, 0.88); letter-spacing: -0.01em; margin: 1.5rem 0 0.6rem; }
+        .editorial-section p { font-size: 0.97rem; color: rgba(255, 255, 255, 0.62); line-height: 1.75; margin-bottom: 1rem; }
+        .editorial-section p:last-child { margin-bottom: 0; }
+        .editorial-section ol, .editorial-section ul { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1rem; }
+        .editorial-section li { font-size: 0.97rem; color: rgba(255, 255, 255, 0.62); line-height: 1.7; }
+        .editorial-section li strong, .editorial-section p strong { color: rgba(255, 255, 255, 0.92); font-weight: 600; }
+        .inline-highlight { color: #00ff88; font-weight: 600; }
+
+        .callout { background: rgba(0, 255, 136, 0.04); border: 0.5px solid rgba(0, 255, 136, 0.18); border-left: 2px solid rgba(0, 255, 136, 0.6); border-radius: 10px; padding: 1.15rem 1.35rem; margin: 1.4rem 0; }
+        .callout-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #00ff88; margin-bottom: 0.45rem; }
+        .callout p { color: rgba(255, 255, 255, 0.72); font-size: 0.93rem; line-height: 1.65; margin: 0; }
+        .callout.warn { background: rgba(255, 107, 107, 0.04); border-color: rgba(255, 107, 107, 0.18); border-left-color: rgba(255, 107, 107, 0.55); }
+        .callout.warn .callout-label { color: #ff6b6b; }
+        .callout.neutral { background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.08); border-left-color: rgba(255, 255, 255, 0.3); }
+        .callout.neutral .callout-label { color: rgba(255,255,255,0.55); }
+
+        .formula { font-family: 'JetBrains Mono', monospace; background: rgba(255, 255, 255, 0.03); border: 0.5px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.95rem 1.15rem; color: rgba(255, 255, 255, 0.82); font-size: 0.86rem; line-height: 1.65; margin: 1.2rem 0; overflow-x: auto; }
+        .formula .accent { color: #00ff88; font-weight: 600; }
+        .formula .label { color: rgba(255,255,255,0.4); }
+        .formula .num { color: #00ccff; }
+
+        .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin: 1.5rem 0; }
+        .stat { background: rgba(255, 255, 255, 0.03); border: 0.5px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 1rem 1.1rem; }
+        .stat .num { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.1; }
+        .stat .lbl { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.4); margin-top: 0.4rem; font-weight: 600; }
+
+        .compare-table { width: 100%; border-collapse: collapse; margin: 1.4rem 0; font-size: 0.9rem; }
+        .compare-table th, .compare-table td { padding: 12px 14px; text-align: left; border-bottom: 0.5px solid rgba(255, 255, 255, 0.06); vertical-align: top; }
+        .compare-table th { font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.4); border-bottom: 0.5px solid rgba(255, 255, 255, 0.12); }
+        .compare-table tbody td { color: rgba(255, 255, 255, 0.62); line-height: 1.55; }
+        .compare-table tbody td:first-child { color: rgba(255, 255, 255, 0.9); font-weight: 600; }
+        .compare-table td.right, .compare-table th.right { text-align: right; font-variant-numeric: tabular-nums; }
+        .compare-table td.green { color: #00ff88; font-weight: 600; }
+        .compare-table td.red { color: #ff6b6b; }
+        .compare-table td.amber { color: #ffcc00; }
+
+        .scenario-table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.88rem; }
+        .scenario-table th, .scenario-table td { padding: 10px 13px; border-bottom: 0.5px solid rgba(255, 255, 255, 0.06); }
+        .scenario-table th { font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.4); border-bottom: 0.5px solid rgba(255, 255, 255, 0.12); text-align: left; }
+        .scenario-table td { color: rgba(255, 255, 255, 0.65); text-align: left; }
+        .scenario-table td.right, .scenario-table th.right { text-align: right; font-variant-numeric: tabular-nums; }
+        .scenario-table td.win { color: #00ff88; font-weight: 600; }
+        .scenario-table td.lose { color: #ff6b6b; }
+
+        .related-tool { background: rgba(0, 255, 136, 0.04); border: 0.5px solid rgba(0, 255, 136, 0.22); border-radius: 12px; padding: 1.25rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; text-decoration: none; color: inherit; margin: 1.6rem 0; transition: all 0.2s; }
+        .related-tool:hover { background: rgba(0, 255, 136, 0.07); border-color: rgba(0, 255, 136, 0.45); }
+        .related-tool .label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #00ff88; font-weight: 700; margin-bottom: 0.3rem; }
+        .related-tool .name { color: white; font-weight: 700; font-size: 0.98rem; letter-spacing: -0.01em; }
+        .related-tool .desc { color: rgba(255, 255, 255, 0.48); font-size: 0.83rem; margin-top: 0.2rem; }
+        .related-tool .arrow { color: #00ff88; flex-shrink: 0; transition: transform 0.2s; }
+        .related-tool:hover .arrow { transform: translateX(4px); }
+
+        .guide-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 4rem; padding-top: 2.5rem; border-top: 0.5px solid rgba(255, 255, 255, 0.08); }
+        .guide-nav-card { background: rgba(255, 255, 255, 0.025); border: 0.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem 1.3rem; text-decoration: none; color: inherit; transition: all 0.2s; }
+        .guide-nav-card:hover { border-color: rgba(0, 255, 136, 0.3); background: rgba(0, 255, 136, 0.03); }
+        .guide-nav-card.next { text-align: right; }
+        .guide-nav-card .dir { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.32); margin-bottom: 0.35rem; }
+        .guide-nav-card .title { font-size: 0.92rem; font-weight: 600; color: white; letter-spacing: -0.01em; }
+
+        .footer { text-align: center; padding: 3rem 2rem; border-top: 1px solid rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.4); font-size: 0.85rem; margin-top: 4rem; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .nav-container { padding: 0 1.5rem; }
+            .stat-row { grid-template-columns: 1fr 1fr; }
+            .related-tool { flex-direction: column; align-items: flex-start; }
+            .related-tool .arrow { align-self: flex-end; }
+        }
+        @media (max-width: 480px) {
+            .page-wrapper { padding: 100px 1.25rem 3rem; }
+            .stat-row { grid-template-columns: 1fr; }
+            .guide-nav { grid-template-columns: 1fr; }
+            .guide-nav-card.next { text-align: left; }
+            .compare-table, .scenario-table { font-size: 0.82rem; }
+            .compare-table th, .compare-table td, .scenario-table th, .scenario-table td { padding: 8px 9px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header" id="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">YARDLINEIQ</a>
+            <ul class="nav-links">
+                <li><a href="/#home">Home</a></li>
+                <li><a href="/#free-pick">Free Picks</a></li>
+                <li><a href="/#pricing">Packages</a></li>
+                <li><a href="/resources.html" class="active">Resources</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="mailto:admin@yardlineiq.com">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-btn" aria-label="Open mobile menu">☰</button>
+            <a href="/picks.html" class="login-btn">Member Login</a>
+        </nav>
+    </header>
+
+    <main class="page-wrapper">
+
+        <div class="breadcrumb">
+            <a href="/resources.html">Resources</a>
+            <span>›</span>
+            <span>Middling &amp; Arbitrage</span>
+        </div>
+
+        <div class="read-meta">
+            <span class="read-cat">Advanced</span>
+            <span class="read-time">9 min read</span>
+        </div>
+
+        <div class="page-header">
+            <h1>Middling &amp; Arbitrage: Exploiting Market Imbalances</h1>
+            <p class="lede">When sportsbooks disagree with each other, or when a line moves significantly after you've bet, you can sometimes construct positions that lock profit or create two-way windows where both sides cash. Done well, this is one of the lowest-variance ways to grow a bankroll. Done sloppily, it's the fastest way to get your accounts limited.</p>
+        </div>
+
+        <div class="toc">
+            <div class="toc-label">In this guide</div>
+            <ol>
+                <li><a href="#definitions">Definitions: middle vs. arbitrage vs. hedge</a></li>
+                <li><a href="#arbitrage">Arbitrage: guaranteed profit, in theory</a></li>
+                <li><a href="#arb-math">Arb math and a worked example</a></li>
+                <li><a href="#middling">Middling: a window where both sides win</a></li>
+                <li><a href="#middling-math">Middle math and a worked example</a></li>
+                <li><a href="#ev-vs-lock">EV vs. lock — when middling is +EV</a></li>
+                <li><a href="#practical-limits">Practical limits: caps, latency, longevity</a></li>
+                <li><a href="#when-it-matters">When these matter and when they're a distraction</a></li>
+            </ol>
+        </div>
+
+        <div class="editorial-section" id="definitions">
+            <h2>1. Definitions: middle vs. arbitrage vs. hedge</h2>
+            <p>All three involve placing wagers on both sides of a market, but for different reasons and with different outcome profiles:</p>
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Strategy</th>
+                        <th>Setup</th>
+                        <th>Best Case</th>
+                        <th>Worst Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Arbitrage</td>
+                        <td>Two books, opposing sides, prices that yield guaranteed profit</td>
+                        <td class="green">Small profit either way</td>
+                        <td class="amber">Same small profit</td>
+                    </tr>
+                    <tr>
+                        <td>Middle</td>
+                        <td>Two opposing sides at different lines on a spread or total</td>
+                        <td class="green">Both sides win (big payoff)</td>
+                        <td class="red">Small loss (the juice)</td>
+                    </tr>
+                    <tr>
+                        <td>Hedge</td>
+                        <td>You have an open position and bet the other side to reduce variance</td>
+                        <td class="amber">Locked profit, capped upside</td>
+                        <td class="red">Locked profit, capped upside</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>This guide covers the first two; hedging gets its own treatment in the <a href="/hedging.html" style="color: #00ff88;">Hedging guide</a>. The conceptual difference is that arbitrage and middling are <em>opportunistic</em> — you go looking for them in the market — while hedging is <em>reactive</em> — you already have a position and you're adjusting it.</p>
+        </div>
+
+        <div class="editorial-section" id="arbitrage">
+            <h2>2. Arbitrage: guaranteed profit, in theory</h2>
+            <p>An arbitrage opportunity (arb, sometimes called "sure betting") exists when two books offer opposing prices that, when combined, imply a probability below 100%. By staking proportionally on both sides, you lock in a guaranteed profit regardless of which side wins.</p>
+            <p>This happens because books price independently and don't always agree. A late line move at one book, a sharp opinion at another, or just plain operational delay can leave temporary windows where the combined two-sided price totals less than 100% — the opposite of vig.</p>
+            <div class="callout">
+                <div class="callout-label">The market signal</div>
+                <p>If both implied probabilities sum to over 100%, the books are charging vig and you're betting at a disadvantage. If they sum to under 100%, the market has temporarily mispriced relative to itself — and you can extract the difference.</p>
+            </div>
+        </div>
+
+        <div class="editorial-section" id="arb-math">
+            <h2>3. Arb math and a worked example</h2>
+            <p>The check for whether an arb exists is straightforward:</p>
+            <div class="formula">
+                <span class="label"># Sum the two implied probabilities</span><br>
+                totalImplied = impliedA + impliedB<br><br>
+                <span class="label"># If under 100%, it's an arb</span><br>
+                arb if totalImplied &lt; <span class="num">1.00</span><br>
+                profit margin = <span class="accent">1 − totalImplied</span>
+            </div>
+            <p>Example. Book A has the Eagles at <span class="inline-highlight">+125</span>. Book B has the Giants at <span class="inline-highlight">+105</span>. Implied:</p>
+            <div class="formula">
+                Eagles at +125: 100 / 225 = <span class="num">44.44%</span><br>
+                Giants at +105: 100 / 205 = <span class="num">48.78%</span><br>
+                Sum: 44.44% + 48.78% = <span class="accent">93.22%</span><br><br>
+                <span class="label"># Profit margin</span><br>
+                100% − 93.22% = <span class="accent">6.78%</span> guaranteed
+            </div>
+            <p>To lock the profit, you stake proportionally to each implied probability. On a $1,000 total outlay:</p>
+            <div class="formula">
+                <span class="label"># Stake sizing</span><br>
+                Eagles stake = $1,000 × (44.44 / 93.22) = <span class="accent">$476.72</span><br>
+                Giants stake = $1,000 × (48.78 / 93.22) = <span class="accent">$523.28</span><br><br>
+                <span class="label"># Payouts (stake + profit, since both are +)</span><br>
+                Eagles win: $476.72 × 2.25 = $1,072.62 → <span class="accent">+$72.62</span><br>
+                Giants win: $523.28 × 2.05 = $1,072.72 → <span class="accent">+$72.72</span>
+            </div>
+            <p>Either side cashes for approximately the same amount: about <strong>$72 profit on $1,000 staked</strong>, or a 7.2% return on outlay — risk-free in the theoretical sense. In practice, the "risk-free" label is doing a lot of work; see Section 7.</p>
+        </div>
+
+        <div class="editorial-section" id="middling">
+            <h2>4. Middling: a window where both sides win</h2>
+            <p>A middle is the opposite of an arb in shape: instead of guaranteed small profit, you accept a small guaranteed loss in exchange for the possibility of a big two-way win. Middles exist on spreads and totals — markets where the outcome is a number, not just a winner.</p>
+            <p>The classic setup: you bet Team A at <span class="inline-highlight">−3</span> early in the week. By Sunday, sharp action pushes the line to <span class="inline-highlight">−6</span>. You now bet Team B at <span class="inline-highlight">+6</span> at another book. If the game lands by exactly 4 or 5 points (anywhere strictly between 3 and 6), <strong>both bets win</strong>. If the game lands by 3 or less, the Team A bet loses but Team B wins. If by 6 or more, the Team A bet wins but Team B loses.</p>
+            <p>In all the "split" outcomes, the wins and losses roughly cancel out (you pay the juice on each side). In the middle outcomes — those few specific scores where the game lands between your two numbers — you collect on both bets simultaneously.</p>
+        </div>
+
+        <div class="editorial-section" id="middling-math">
+            <h2>5. Middle math and a worked example</h2>
+            <p>Suppose you bet $110 to win $100 on Team A −3 at –110 on Wednesday. By Sunday the line is Team B +6 at –110, and you bet $110 to win $100 there. Your three possible outcomes:</p>
+            <table class="scenario-table">
+                <thead>
+                    <tr>
+                        <th>Game result</th>
+                        <th>Team A −3</th>
+                        <th>Team B +6</th>
+                        <th class="right">Net P&amp;L</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Team A wins by 7+</td>
+                        <td class="win">Wins (+$100)</td>
+                        <td class="lose">Loses (−$110)</td>
+                        <td class="right" style="color:#ff6b6b">−$10</td>
+                    </tr>
+                    <tr>
+                        <td>Team A wins by 4 or 5 (the middle)</td>
+                        <td class="win">Wins (+$100)</td>
+                        <td class="win">Wins (+$100)</td>
+                        <td class="right" style="color:#00ff88;font-weight:600">+$200</td>
+                    </tr>
+                    <tr>
+                        <td>Team A wins by 3 or less / loses</td>
+                        <td class="lose">Loses (−$110)</td>
+                        <td class="win">Wins (+$100)</td>
+                        <td class="right" style="color:#ff6b6b">−$10</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>You're risking $10 (the juice) to win $200 if the game lands in the middle. The breakeven probability for the middle is:</p>
+            <div class="formula">
+                $10 / ($10 + $200) = <span class="num">0.0476</span> → <span class="accent">4.76%</span>
+            </div>
+            <p>If you think the probability of the game landing on 4 or 5 is greater than 4.76%, the middle is <strong>+EV</strong>. NFL margins of 4 and 5 together account for roughly 8–10% of all games, depending on the era — which means a middle around the 4-5 zone is often +EV before accounting for vig.</p>
+            <div class="callout">
+                <div class="callout-label">Middling on key numbers</div>
+                <p>Middles that span key numbers (3 or 7) are particularly valuable. A middle on 3-and-7 (e.g. bet +7 early, bet −3 late) catches a large portion of typical NFL margins. The price of the juice is small; the size of the potential payoff is large.</p>
+            </div>
+        </div>
+
+        <div class="editorial-section" id="ev-vs-lock">
+            <h2>6. EV vs. lock — when middling is +EV</h2>
+            <p>People sometimes conflate arbing with middling, but they have very different EV profiles:</p>
+            <ul>
+                <li><strong>Arbitrage</strong> is always +EV (the entire point — you've found a price gap that mathematically guarantees profit). The expected return per dollar is small and consistent.</li>
+                <li><strong>Middling</strong> is +EV only when the actual probability of the game landing in the middle exceeds the implied breakeven. It is a positive expected value bet only sometimes — and most of the time, you'll lose the small "juice cost" and feel like you're treading water.</li>
+            </ul>
+            <p>The math discipline is to evaluate whether a middle is +EV <strong>before</strong> placing the second bet, not after the result is known. Use historical margin distributions for the sport (or your model) to estimate the probability of the middle landing. If it's above the breakeven, take it. If not, sit out — even though the "guaranteed small loss" feels appealing as insurance.</p>
+            <div class="callout warn">
+                <div class="callout-label">Common mistake</div>
+                <p>Bettors take middles reflexively after big line moves, anchoring on "I'll just lock in some profit." But a middle that doesn't span enough key numbers may be -EV, and the smarter play is often to leave the original bet alone and let it ride its full edge.</p>
+            </div>
+        </div>
+
+        <div class="editorial-section" id="practical-limits">
+            <h2>7. Practical limits: caps, latency, longevity</h2>
+            <p>The "guaranteed profit" framing of arbs and middles is academic. In practice, several real-world frictions chip away at the edge:</p>
+
+            <h3>Bet limits</h3>
+            <p>Arbs often live on sides with low limits — a soft book might be willing to take $200 on Eagles +125 but immediately cut you off if you try to bet $5,000. Your dollar return on a given arb may be capped well below what the percentage profit suggests.</p>
+
+            <h3>Latency and stale lines</h3>
+            <p>By the time you've spotted the arb, evaluated it, calculated your stake sizing, opened a second tab, and clicked confirm — the second book may have already adjusted. You hit one leg at the advertised price and the other leg has moved. Now you're stuck with a one-sided position you didn't want.</p>
+
+            <h3>Account longevity</h3>
+            <p>Books detect arbing patterns aggressively. Bettors who consistently take cross-book arbs get flagged faster than any other category, including outright sharp ATS bettors. Expect to get limited or restricted at any book where you visibly arb against them, sometimes within weeks.</p>
+
+            <h3>Withdrawal and float</h3>
+            <p>Arbing across 5 books means you have capital tied up at 5 books. Even when you're profitable, your money isn't compounding at any one of them — and withdrawing it back to consolidate takes time and is itself a flag.</p>
+
+            <div class="stat-row">
+                <div class="stat">
+                    <div class="num">~1–3%</div>
+                    <div class="lbl">Typical realized arb margin</div>
+                </div>
+                <div class="stat">
+                    <div class="num">$200–500</div>
+                    <div class="lbl">Common per-arb stake cap</div>
+                </div>
+                <div class="stat">
+                    <div class="num">Weeks</div>
+                    <div class="lbl">Until books flag and limit you</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="editorial-section" id="when-it-matters">
+            <h2>8. When these matter and when they're a distraction</h2>
+            <p>Middling and arbitrage are most useful for two specific types of bettor:</p>
+            <ul>
+                <li><strong>High-volume bettors with significant bankroll</strong> who can scale and accept the operational complexity in exchange for steady, low-variance returns.</li>
+                <li><strong>Bettors with sharp +EV positions</strong> who use middling opportunistically to capture additional value when lines move significantly in their favor — not as a primary strategy.</li>
+            </ul>
+            <p>They're often a distraction for:</p>
+            <ul>
+                <li><strong>Bettors still developing handicapping skill.</strong> Time spent chasing arbs across 6 books is time not spent improving the core skill of picking the right side.</li>
+                <li><strong>Bettors with limited bankroll.</strong> The percentage returns sound great, but on a $2,000 roll, a 2% arb that takes 30 minutes to set up nets $40. Your time is more valuable spent elsewhere.</li>
+                <li><strong>Bettors who care about account longevity.</strong> Once flagged as an arber, your access to good prices everywhere narrows quickly — sacrificing your other edges in pursuit of the smallest one.</li>
+            </ul>
+
+            <a href="/hedge-calculator.html" class="related-tool">
+                <div>
+                    <div class="label">Related tool</div>
+                    <div class="name">Hedging Calculator</div>
+                    <div class="desc">Size the second leg of a middle or arbitrage to lock in your desired profit profile.</div>
+                </div>
+                <svg class="arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+
+            <div class="callout">
+                <div class="callout-label">Bottom line</div>
+                <p>Treat arbs and middles as bonus capture, not as your main game. The bettors who win long-term make most of their money on directional +EV picks, with the occasional structural opportunity as supplemental income. If middling is consuming the majority of your attention, your edge is probably narrower than you realize.</p>
+            </div>
+        </div>
+
+        <nav class="guide-nav">
+            <a href="/closing-line-value.html" class="guide-nav-card">
+                <div class="dir">← Previous</div>
+                <div class="title">Closing Line Value</div>
+            </a>
+            <a href="/hedging.html" class="guide-nav-card next">
+                <div class="dir">Next →</div>
+                <div class="title">Hedging</div>
+            </a>
+        </nav>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 YardLineIQ. All rights reserved. | Please bet responsibly. Must be 21+.</p>
+        <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+            <a href="/disclaimer.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Disclaimer</a>
+            <a href="/terms.html"      style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Terms</a>
+            <a href="/privacy-policy.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Privacy</a>
+            <a href="mailto:admin@yardlineiq.com" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 100);
+        });
+
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function () {
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+            } else {
+                Object.assign(navLinks.style, {
+                    display: 'flex', flexDirection: 'column', position: 'absolute',
+                    top: '100%', left: '0', right: '0',
+                    background: 'rgba(10, 10, 10, 0.95)', padding: '2rem', backdropFilter: 'blur(20px)'
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

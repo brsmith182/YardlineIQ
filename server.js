@@ -660,6 +660,35 @@ app.get('/hedge-calculator.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'hedge-calculator.html'));
 });
 
+// Strategy guides
+app.get('/value-betting.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'value-betting.html'));
+});
+
+app.get('/line-shopping.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'line-shopping.html'));
+});
+
+app.get('/vig-juice.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'vig-juice.html'));
+});
+
+app.get('/fixed-unit-vs-kelly.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'fixed-unit-vs-kelly.html'));
+});
+
+app.get('/closing-line-value.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'closing-line-value.html'));
+});
+
+app.get('/middling-arbitrage.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'middling-arbitrage.html'));
+});
+
+app.get('/hedging.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'hedging.html'));
+});
+
 // Serve main page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

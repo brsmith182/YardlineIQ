@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L6R1V0FNXH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-L6R1V0FNXH');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Shopping: The Easiest Edge in Sports Betting | YardlineIQ</title>
+    <meta name="description" content="Why getting -105 instead of -110 consistently is worth more than a 1% improvement in win rate. The math behind line shopping, how many books to use, and what to actually shop for.">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+
+        .header {
+            position: fixed; top: 0; width: 100%; padding: 2rem 0; z-index: 1000; transition: all 0.3s ease;
+        }
+        .header.scrolled {
+            background: rgba(8, 10, 12, 0.97); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            padding: 1rem 0; border-bottom: 1px solid rgba(0, 255, 136, 0.12); box-shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
+        }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 3rem; }
+        .logo {
+            font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            text-decoration: none;
+        }
+        .nav-links { display: flex; list-style: none; gap: 3rem; }
+        .nav-links a { color: rgba(255, 255, 255, 0.7); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.3s ease; letter-spacing: 0.02em; }
+        .nav-links a:hover, .nav-links a.active { color: #00ff88; }
+        .login-btn {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;
+            padding: 0.8rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 500; transition: all 0.3s ease;
+            min-height: 44px; min-width: 44px; display: flex; align-items: center;
+        }
+        .login-btn:hover { background: rgba(0, 255, 136, 0.2); border-color: #00ff88; color: #00ff88; }
+        .mobile-menu-btn { display: none; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 8px; min-height: 44px; min-width: 44px; }
+
+        .page-wrapper { max-width: 820px; margin: 0 auto; padding: 120px 2rem 4rem; }
+
+        .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 12px; color: rgba(255, 255, 255, 0.28); margin-bottom: 1.5rem; }
+        .breadcrumb a { color: rgba(255, 255, 255, 0.45); text-decoration: none; transition: color 0.2s; }
+        .breadcrumb a:hover { color: #00ff88; }
+
+        .read-meta { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.1rem; }
+        .read-cat { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #00ff88; }
+        .read-time { font-size: 11px; color: rgba(255, 255, 255, 0.32); letter-spacing: 0.04em; }
+
+        .page-header { margin-bottom: 1.5rem; }
+        .page-header h1 {
+            font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 800; letter-spacing: -0.035em;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            line-height: 1.05; margin-bottom: 1rem;
+        }
+        .page-header .lede { font-size: 1.1rem; color: rgba(255, 255, 255, 0.62); line-height: 1.6; max-width: 680px; }
+
+        .toc {
+            background: rgba(255, 255, 255, 0.025); border: 0.5px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px; padding: 1.1rem 1.35rem; margin: 2.5rem 0 3rem;
+        }
+        .toc-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); margin-bottom: 0.8rem; }
+        .toc ol { list-style: none; counter-reset: toc; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+        .toc li { counter-increment: toc; }
+        .toc a {
+            color: rgba(255, 255, 255, 0.68); font-size: 0.92rem; text-decoration: none;
+            display: flex; gap: 0.85rem; transition: color 0.2s;
+        }
+        .toc a::before {
+            content: counter(toc, decimal-leading-zero); color: rgba(255, 255, 255, 0.25);
+            font-weight: 600; font-size: 0.78rem; min-width: 22px; font-family: 'JetBrains Mono', monospace;
+        }
+        .toc a:hover { color: #00ff88; }
+
+        .editorial-section { margin-bottom: 2.75rem; scroll-margin-top: 100px; }
+        .editorial-section h2 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.025em; color: white; margin-bottom: 1rem; line-height: 1.25; }
+        .editorial-section h3 { font-size: 1rem; font-weight: 700; color: rgba(255, 255, 255, 0.88); letter-spacing: -0.01em; margin: 1.5rem 0 0.6rem; }
+        .editorial-section p { font-size: 0.97rem; color: rgba(255, 255, 255, 0.62); line-height: 1.75; margin-bottom: 1rem; }
+        .editorial-section p:last-child { margin-bottom: 0; }
+        .editorial-section ol, .editorial-section ul { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1rem; }
+        .editorial-section li { font-size: 0.97rem; color: rgba(255, 255, 255, 0.62); line-height: 1.7; }
+        .editorial-section li strong, .editorial-section p strong { color: rgba(255, 255, 255, 0.92); font-weight: 600; }
+        .inline-highlight { color: #00ff88; font-weight: 600; }
+
+        .callout {
+            background: rgba(0, 255, 136, 0.04); border: 0.5px solid rgba(0, 255, 136, 0.18);
+            border-left: 2px solid rgba(0, 255, 136, 0.6); border-radius: 10px; padding: 1.15rem 1.35rem; margin: 1.4rem 0;
+        }
+        .callout-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #00ff88; margin-bottom: 0.45rem; }
+        .callout p { color: rgba(255, 255, 255, 0.72); font-size: 0.93rem; line-height: 1.65; margin: 0; }
+        .callout.warn { background: rgba(255, 107, 107, 0.04); border-color: rgba(255, 107, 107, 0.18); border-left-color: rgba(255, 107, 107, 0.55); }
+        .callout.warn .callout-label { color: #ff6b6b; }
+        .callout.neutral { background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.08); border-left-color: rgba(255, 255, 255, 0.3); }
+        .callout.neutral .callout-label { color: rgba(255,255,255,0.55); }
+
+        .formula {
+            font-family: 'JetBrains Mono', monospace; background: rgba(255, 255, 255, 0.03);
+            border: 0.5px solid rgba(255, 255, 255, 0.08); border-radius: 8px;
+            padding: 0.95rem 1.15rem; color: rgba(255, 255, 255, 0.82); font-size: 0.86rem;
+            line-height: 1.65; margin: 1.2rem 0; overflow-x: auto;
+        }
+        .formula .accent { color: #00ff88; font-weight: 600; }
+        .formula .label { color: rgba(255,255,255,0.4); }
+        .formula .num { color: #00ccff; }
+
+        .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin: 1.5rem 0; }
+        .stat { background: rgba(255, 255, 255, 0.03); border: 0.5px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 1rem 1.1rem; }
+        .stat .num {
+            font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            line-height: 1.1;
+        }
+        .stat .lbl { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.4); margin-top: 0.4rem; font-weight: 600; }
+
+        .compare-table { width: 100%; border-collapse: collapse; margin: 1.4rem 0; font-size: 0.9rem; }
+        .compare-table th, .compare-table td { padding: 12px 14px; text-align: left; border-bottom: 0.5px solid rgba(255, 255, 255, 0.06); vertical-align: top; }
+        .compare-table th { font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.4); border-bottom: 0.5px solid rgba(255, 255, 255, 0.12); }
+        .compare-table tbody td { color: rgba(255, 255, 255, 0.62); line-height: 1.55; }
+        .compare-table tbody td:first-child { color: rgba(255, 255, 255, 0.9); font-weight: 600; }
+        .compare-table td.right, .compare-table th.right { text-align: right; font-variant-numeric: tabular-nums; }
+        .compare-table td.green { color: #00ff88; font-weight: 600; }
+        .compare-table td.red { color: #ff6b6b; }
+
+        .related-tool {
+            background: rgba(0, 255, 136, 0.04); border: 0.5px solid rgba(0, 255, 136, 0.22);
+            border-radius: 12px; padding: 1.25rem 1.4rem; display: flex; align-items: center;
+            justify-content: space-between; gap: 1.2rem; text-decoration: none; color: inherit;
+            margin: 1.6rem 0; transition: all 0.2s;
+        }
+        .related-tool:hover { background: rgba(0, 255, 136, 0.07); border-color: rgba(0, 255, 136, 0.45); }
+        .related-tool .label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #00ff88; font-weight: 700; margin-bottom: 0.3rem; }
+        .related-tool .name { color: white; font-weight: 700; font-size: 0.98rem; letter-spacing: -0.01em; }
+        .related-tool .desc { color: rgba(255, 255, 255, 0.48); font-size: 0.83rem; margin-top: 0.2rem; }
+        .related-tool .arrow { color: #00ff88; flex-shrink: 0; transition: transform 0.2s; }
+        .related-tool:hover .arrow { transform: translateX(4px); }
+
+        .guide-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 4rem; padding-top: 2.5rem; border-top: 0.5px solid rgba(255, 255, 255, 0.08); }
+        .guide-nav-card { background: rgba(255, 255, 255, 0.025); border: 0.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem 1.3rem; text-decoration: none; color: inherit; transition: all 0.2s; }
+        .guide-nav-card:hover { border-color: rgba(0, 255, 136, 0.3); background: rgba(0, 255, 136, 0.03); }
+        .guide-nav-card.next { text-align: right; }
+        .guide-nav-card .dir { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.32); margin-bottom: 0.35rem; }
+        .guide-nav-card .title { font-size: 0.92rem; font-weight: 600; color: white; letter-spacing: -0.01em; }
+
+        .footer { text-align: center; padding: 3rem 2rem; border-top: 1px solid rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.4); font-size: 0.85rem; margin-top: 4rem; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .nav-container { padding: 0 1.5rem; }
+            .stat-row { grid-template-columns: 1fr 1fr; }
+            .related-tool { flex-direction: column; align-items: flex-start; }
+            .related-tool .arrow { align-self: flex-end; }
+        }
+        @media (max-width: 480px) {
+            .page-wrapper { padding: 100px 1.25rem 3rem; }
+            .stat-row { grid-template-columns: 1fr; }
+            .guide-nav { grid-template-columns: 1fr; }
+            .guide-nav-card.next { text-align: left; }
+            .compare-table { font-size: 0.83rem; }
+            .compare-table th, .compare-table td { padding: 9px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header" id="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">YARDLINEIQ</a>
+            <ul class="nav-links">
+                <li><a href="/#home">Home</a></li>
+                <li><a href="/#free-pick">Free Picks</a></li>
+                <li><a href="/#pricing">Packages</a></li>
+                <li><a href="/resources.html" class="active">Resources</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="mailto:admin@yardlineiq.com">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-btn" aria-label="Open mobile menu">☰</button>
+            <a href="/picks.html" class="login-btn">Member Login</a>
+        </nav>
+    </header>
+
+    <main class="page-wrapper">
+
+        <div class="breadcrumb">
+            <a href="/resources.html">Resources</a>
+            <span>›</span>
+            <span>Line Shopping</span>
+        </div>
+
+        <div class="read-meta">
+            <span class="read-cat">Strategy</span>
+            <span class="read-time">6 min read</span>
+        </div>
+
+        <div class="page-header">
+            <h1>Line Shopping: The Easiest Edge You Can Manufacture</h1>
+            <p class="lede">Line shopping is the only edge in sports betting that doesn't require you to outsmart the market. It requires accounts, discipline, and 90 extra seconds before each bet — and it's worth more than most "systems" you'll ever read about.</p>
+        </div>
+
+        <div class="toc">
+            <div class="toc-label">In this guide</div>
+            <ol>
+                <li><a href="#what-it-is">What line shopping actually is</a></li>
+                <li><a href="#math">The math: prices and breakeven win rates</a></li>
+                <li><a href="#season-impact">What this looks like over a season</a></li>
+                <li><a href="#how-many-books">How many books should you have</a></li>
+                <li><a href="#what-to-shop">What to shop for (and what not to)</a></li>
+                <li><a href="#pitfalls">Pitfalls: limits, longevity, and false precision</a></li>
+            </ol>
+        </div>
+
+        <div class="editorial-section" id="what-it-is">
+            <h2>1. What line shopping actually is</h2>
+            <p>Line shopping is the practice of comparing the price for the same bet across multiple sportsbooks and only placing the wager at the book offering the most favorable number. That's the entire concept. There's no model, no system, no secret — it's just refusing to take a worse price when a better one is sitting there.</p>
+            <p>"Better price" can mean two things. On a moneyline or a juiced side, it means better odds: <span class="inline-highlight">–105</span> instead of –110 on the same team. On a spread or total, it can also mean a more favorable number: getting <span class="inline-highlight">+3.5</span> on the Bengals when another book has them at +3, or <span class="inline-highlight">Under 47</span> when another book has Under 46.5. Half a point on a key NFL number like 3 or 7 is enormous.</p>
+            <div class="callout">
+                <div class="callout-label">Core idea</div>
+                <p>Sportsbooks compete with each other but don't price identically. If you only have one account, you're accepting whatever that single book happens to be offering — even when the rest of the market disagrees with them.</p>
+            </div>
+        </div>
+
+        <div class="editorial-section" id="math">
+            <h2>2. The math: prices and breakeven win rates</h2>
+            <p>Every juiced price has a "breakeven win rate" — the win percentage you'd need to hit, long-term, just to not lose money. At standard –110/–110, that breakeven is well-known:</p>
+            <div class="formula">
+                <span class="label"># Breakeven win % at -110</span><br>
+                110 / (110 + 100) = <span class="num">0.5238</span> → <span class="accent">52.38%</span>
+            </div>
+            <p>Now consider –105 — the price you'd get at a reduced-juice book or after shopping across mainstream books for the friendly side:</p>
+            <div class="formula">
+                <span class="label"># Breakeven win % at -105</span><br>
+                105 / (105 + 100) = <span class="num">0.5122</span> → <span class="accent">51.22%</span>
+            </div>
+            <p>That's a <strong>1.16-percentage-point</strong> reduction in your breakeven rate, for the same picks, against the same teams. To put it another way: a bettor going 52.4% at –110 is breakeven and earning the book the juice. The same bettor at –105 is netting roughly <span class="inline-highlight">2.4% ROI</span> on every dollar wagered. Same opinions, same outcomes, dramatically different bottom line.</p>
+            <p>Half-points on the spread work similarly, except the value depends on whether the half-point crosses a key number. NFL games are decided by 3 a lot. They're decided by 7 a lot. They're decided by 6 or by 10 much less. Crossing a 3 with a half-point is worth more than 30 cents of price; crossing a 4 is worth maybe 6 or 7 cents.</p>
+        </div>
+
+        <div class="editorial-section" id="season-impact">
+            <h2>3. What this looks like over a season</h2>
+            <p>The numbers above feel abstract. Plugged into a real betting volume, they're brutal. Take a bettor staking $200 per game across a 17-week season:</p>
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Scenario</th>
+                        <th class="right">Bets</th>
+                        <th class="right">Wagered</th>
+                        <th class="right">Win Rate</th>
+                        <th class="right">Net Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>One book, always –110</td>
+                        <td class="right">340</td>
+                        <td class="right">$68,000</td>
+                        <td class="right">53.0%</td>
+                        <td class="right red">+$845</td>
+                    </tr>
+                    <tr>
+                        <td>Shopping, average –107</td>
+                        <td class="right">340</td>
+                        <td class="right">$68,000</td>
+                        <td class="right">53.0%</td>
+                        <td class="right green">+$2,300</td>
+                    </tr>
+                    <tr>
+                        <td>Shopping, average –105</td>
+                        <td class="right">340</td>
+                        <td class="right">$68,000</td>
+                        <td class="right">53.0%</td>
+                        <td class="right green">+$3,160</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Same picks, same hit rate. A bettor who finds a way to take 3 cents off the average price more than triples their profit. A bettor at –105 nearly quadruples it. None of these gains require improving prediction by a single percentage point — they're all earned by saving on price.</p>
+            <div class="callout">
+                <div class="callout-label">Compounding insight</div>
+                <p>Improving win rate by 1% is incredibly hard. Improving average price by 3 cents is almost free — it just takes a second book and the discipline to use it. The market severely undervalues this lever.</p>
+            </div>
+        </div>
+
+        <div class="editorial-section" id="how-many-books">
+            <h2>4. How many books should you have</h2>
+            <p>The first book gets you in the game. The second book is where the math starts working for you. The third and fourth books pick up most of the remaining value. Beyond five or six, you're chasing diminishing returns and adding friction.</p>
+            <div class="stat-row">
+                <div class="stat">
+                    <div class="num">2</div>
+                    <div class="lbl">Minimum to call yourself a line shopper</div>
+                </div>
+                <div class="stat">
+                    <div class="num">3–4</div>
+                    <div class="lbl">Sweet spot for most serious bettors</div>
+                </div>
+                <div class="stat">
+                    <div class="num">5+</div>
+                    <div class="lbl">Worth it if you bet high volume / props</div>
+                </div>
+            </div>
+            <p>The right mix is one or two mainstream books (often the best for promos, key-number availability, and casual ATS lines) plus one or two reduced-juice or sharper books (where you'll find better prices on the post-market lines). Some bettors also add a book that specializes in alternate lines or player props.</p>
+            <p>You don't need to bet at every book every week. You need accounts open, funded with minimums, and ready to use when one of them happens to be offering the best number on a play you'd already make.</p>
+        </div>
+
+        <div class="editorial-section" id="what-to-shop">
+            <h2>5. What to shop for (and what not to)</h2>
+            <p>Not every market rewards line shopping equally. Some are tighter and more efficient; some are wildly disparate book-to-book.</p>
+
+            <h3>High-value markets to shop hard</h3>
+            <ul>
+                <li><strong>NFL sides and totals.</strong> Especially around key numbers (3, 7, 10) and in the days following injury news, when soft books lag. Half-points and reduced juice both matter here.</li>
+                <li><strong>Moneylines on heavy favorites/dogs.</strong> Price gaps in the +/–200 and +/–300 range can be 10–20 cents wide between books. Always shop.</li>
+                <li><strong>Player props.</strong> Books grade props independently and price them without much coordination, leading to large spreads on the same prop at different books.</li>
+                <li><strong>Same-game parlays.</strong> Different books use different correlation models. Identical legs often produce wildly different combined prices.</li>
+            </ul>
+
+            <h3>Markets where line shopping matters less</h3>
+            <ul>
+                <li><strong>Standard primetime NFL sides at peak market hours.</strong> By Sunday morning, prices on Sunday Night and Monday Night games are usually identical across mainstream books — the market has fully resolved.</li>
+                <li><strong>Massive futures.</strong> The juice on a +5000 Super Bowl future is enormous regardless of book, and you probably shouldn't be betting these for value anyway.</li>
+            </ul>
+        </div>
+
+        <div class="editorial-section" id="pitfalls">
+            <h2>6. Pitfalls: limits, longevity, and false precision</h2>
+            <p>Line shopping isn't free. There are real costs and traps worth being honest about.</p>
+
+            <h3>Account longevity</h3>
+            <p>Books track which customers consistently take the best line. Bettors who only place bets at advantageous prices, never bet promos, and beat the closing line get flagged, limited, or restricted from key markets. This is the cost of doing business. Mitigate it by betting a more "natural" pattern at each book (mixing in some non-shopped bets, taking some promos as offered, varying stake sizes) — but accept that some restriction over time is unavoidable if you're sharp.</p>
+
+            <h3>Chasing pennies across high-friction books</h3>
+            <p>Saving 2 cents per bet at a book that takes 5 business days to withdraw is a bad trade. Saving 2 cents per bet at a book whose app crashes on Sunday mornings is a bad trade. Friction costs are real. Don't add a fourth book just to gain occasional half-cent improvements if it slows you down.</p>
+
+            <h3>False precision on stale lines</h3>
+            <p>If you see one book at +3.5 and three other books at +3, the +3.5 book may not be "offering value" — it may simply not have updated yet, and the price will move to +3 before you can place the bet. Verify the line is live and the timestamp is fresh before declaring it a steal.</p>
+            <div class="callout warn">
+                <div class="callout-label">Reality check</div>
+                <p>If you're sharp enough that line shopping meaningfully changes your bottom line, you're sharp enough to eventually get limited. That's the price of being on the right side of the math. Plan accordingly — don't put 100% of your bankroll at one book.</p>
+            </div>
+            <a href="/vig-calculator.html" class="related-tool">
+                <div>
+                    <div class="label">Related tool</div>
+                    <div class="name">Vig / No-Vig Calculator</div>
+                    <div class="desc">Compare prices across books to see which is offering closest to fair value.</div>
+                </div>
+                <svg class="arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+            <div class="callout">
+                <div class="callout-label">Bottom line</div>
+                <p>If you only do one thing differently after reading this guide, open a second sportsbook account. Whatever you think you'll gain from finding a sharper handicapper, you'll gain twice as much from never paying –110 again.</p>
+            </div>
+        </div>
+
+        <nav class="guide-nav">
+            <a href="/value-betting.html" class="guide-nav-card">
+                <div class="dir">← Previous</div>
+                <div class="title">Value Betting</div>
+            </a>
+            <a href="/vig-juice.html" class="guide-nav-card next">
+                <div class="dir">Next →</div>
+                <div class="title">Vig &amp; Juice Explained</div>
+            </a>
+        </nav>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 YardLineIQ. All rights reserved. | Please bet responsibly. Must be 21+.</p>
+        <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+            <a href="/disclaimer.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Disclaimer</a>
+            <a href="/terms.html"      style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Terms</a>
+            <a href="/privacy-policy.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Privacy</a>
+            <a href="mailto:admin@yardlineiq.com" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 100);
+        });
+
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function () {
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+            } else {
+                Object.assign(navLinks.style, {
+                    display: 'flex', flexDirection: 'column', position: 'absolute',
+                    top: '100%', left: '0', right: '0',
+                    background: 'rgba(10, 10, 10, 0.95)', padding: '2rem', backdropFilter: 'blur(20px)'
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

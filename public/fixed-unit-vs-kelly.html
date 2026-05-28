@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L6R1V0FNXH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-L6R1V0FNXH');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Unit vs. Kelly Criterion: A Practical Guide to Bet Sizing | YardlineIQ</title>
+    <meta name="description" content="The math and tradeoffs between flat betting and Kelly Criterion sizing. Why pure Kelly is too aggressive, what fractional Kelly really means, and how to choose the right staking model for your bankroll and risk tolerance.">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: white; overflow-x: hidden; line-height: 1.4; }
+
+        .header { position: fixed; top: 0; width: 100%; padding: 2rem 0; z-index: 1000; transition: all 0.3s ease; }
+        .header.scrolled { background: rgba(8, 10, 12, 0.97); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 1rem 0; border-bottom: 1px solid rgba(0, 255, 136, 0.12); box-shadow: 0 4px 32px rgba(0, 0, 0, 0.6); }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 3rem; }
+        .logo { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
+        .nav-links { display: flex; list-style: none; gap: 3rem; }
+        .nav-links a { color: rgba(255, 255, 255, 0.7); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.3s ease; letter-spacing: 0.02em; }
+        .nav-links a:hover, .nav-links a.active { color: #00ff88; }
+        .login-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 0.8rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; min-height: 44px; min-width: 44px; display: flex; align-items: center; }
+        .login-btn:hover { background: rgba(0, 255, 136, 0.2); border-color: #00ff88; color: #00ff88; }
+        .mobile-menu-btn { display: none; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 8px; min-height: 44px; min-width: 44px; }
+
+        .page-wrapper { max-width: 820px; margin: 0 auto; padding: 120px 2rem 4rem; }
+
+        .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 12px; color: rgba(255, 255, 255, 0.28); margin-bottom: 1.5rem; }
+        .breadcrumb a { color: rgba(255, 255, 255, 0.45); text-decoration: none; transition: color 0.2s; }
+        .breadcrumb a:hover { color: #00ff88; }
+
+        .read-meta { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.1rem; }
+        .read-cat { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #00ff88; }
+        .read-time { font-size: 11px; color: rgba(255, 255, 255, 0.32); letter-spacing: 0.04em; }
+
+        .page-header { margin-bottom: 1.5rem; }
+        .page-header h1 { font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 800; letter-spacing: -0.035em; background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.05; margin-bottom: 1rem; }
+        .page-header .lede { font-size: 1.1rem; color: rgba(255, 255, 255, 0.62); line-height: 1.6; max-width: 680px; }
+
+        .toc { background: rgba(255, 255, 255, 0.025); border: 0.5px solid rgba(255, 255, 255, 0.07); border-radius: 12px; padding: 1.1rem 1.35rem; margin: 2.5rem 0 3rem; }
+        .toc-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); margin-bottom: 0.8rem; }
+        .toc ol { list-style: none; counter-reset: toc; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+        .toc li { counter-increment: toc; }
+        .toc a { color: rgba(255, 255, 255, 0.68); font-size: 0.92rem; text-decoration: none; display: flex; gap: 0.85rem; transition: color 0.2s; }
+        .toc a::before { content: counter(toc, decimal-leading-zero); color: rgba(255, 255, 255, 0.25); font-weight: 600; font-size: 0.78rem; min-width: 22px; font-family: 'JetBrains Mono', monospace; }
+        .toc a:hover { color: #00ff88; }
+
+        .editorial-section { margin-bottom: 2.75rem; scroll-margin-top: 100px; }
+        .editorial-section h2 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.025em; color: white; margin-bottom: 1rem; line-height: 1.25; }
+        .editorial-section h3 { font-size: 1rem; font-weight: 700; color: rgba(255, 255, 255, 0.88); letter-spacing: -0.01em; margin: 1.5rem 0 0.6rem; }
+        .editorial-section p { font-size: 0.97rem; color: rgba(255, 255, 255, 0.62); line-height: 1.75; margin-bottom: 1rem; }
+        .editorial-section p:last-child { margin-bottom: 0; }
+        .editorial-section ol, .editorial-section ul { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1rem; }
+        .editorial-section li { font-size: 0.97rem; color: rgba(255, 255, 255, 0.62); line-height: 1.7; }
+        .editorial-section li strong, .editorial-section p strong { color: rgba(255, 255, 255, 0.92); font-weight: 600; }
+        .inline-highlight { color: #00ff88; font-weight: 600; }
+
+        .callout { background: rgba(0, 255, 136, 0.04); border: 0.5px solid rgba(0, 255, 136, 0.18); border-left: 2px solid rgba(0, 255, 136, 0.6); border-radius: 10px; padding: 1.15rem 1.35rem; margin: 1.4rem 0; }
+        .callout-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #00ff88; margin-bottom: 0.45rem; }
+        .callout p { color: rgba(255, 255, 255, 0.72); font-size: 0.93rem; line-height: 1.65; margin: 0; }
+        .callout.warn { background: rgba(255, 107, 107, 0.04); border-color: rgba(255, 107, 107, 0.18); border-left-color: rgba(255, 107, 107, 0.55); }
+        .callout.warn .callout-label { color: #ff6b6b; }
+        .callout.neutral { background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.08); border-left-color: rgba(255, 255, 255, 0.3); }
+        .callout.neutral .callout-label { color: rgba(255,255,255,0.55); }
+
+        .formula { font-family: 'JetBrains Mono', monospace; background: rgba(255, 255, 255, 0.03); border: 0.5px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.95rem 1.15rem; color: rgba(255, 255, 255, 0.82); font-size: 0.86rem; line-height: 1.65; margin: 1.2rem 0; overflow-x: auto; }
+        .formula .accent { color: #00ff88; font-weight: 600; }
+        .formula .label { color: rgba(255,255,255,0.4); }
+        .formula .num { color: #00ccff; }
+
+        .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin: 1.5rem 0; }
+        .stat { background: rgba(255, 255, 255, 0.03); border: 0.5px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 1rem 1.1rem; }
+        .stat .num { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.1; }
+        .stat .lbl { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.4); margin-top: 0.4rem; font-weight: 600; }
+
+        .compare-table { width: 100%; border-collapse: collapse; margin: 1.4rem 0; font-size: 0.9rem; }
+        .compare-table th, .compare-table td { padding: 12px 14px; text-align: left; border-bottom: 0.5px solid rgba(255, 255, 255, 0.06); vertical-align: top; }
+        .compare-table th { font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.4); border-bottom: 0.5px solid rgba(255, 255, 255, 0.12); }
+        .compare-table tbody td { color: rgba(255, 255, 255, 0.62); line-height: 1.55; }
+        .compare-table tbody td:first-child { color: rgba(255, 255, 255, 0.9); font-weight: 600; }
+        .compare-table td.right, .compare-table th.right { text-align: right; font-variant-numeric: tabular-nums; }
+        .compare-table td.green { color: #00ff88; font-weight: 600; }
+        .compare-table td.red { color: #ff6b6b; }
+
+        .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+        .vs-card { background: rgba(255, 255, 255, 0.03); border: 0.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.3rem; }
+        .vs-card h4 { font-size: 0.95rem; font-weight: 700; color: white; margin-bottom: 0.6rem; letter-spacing: -0.01em; }
+        .vs-card .tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 8px; border-radius: 12px; margin-bottom: 0.7rem; }
+        .vs-card.pros .tag { background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 0.5px solid rgba(0, 255, 136, 0.25); }
+        .vs-card.cons .tag { background: rgba(255, 107, 107, 0.08); color: #ff6b6b; border: 0.5px solid rgba(255, 107, 107, 0.22); }
+        .vs-card ul { padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.5rem; margin: 0; }
+        .vs-card li { font-size: 0.88rem; color: rgba(255, 255, 255, 0.62); line-height: 1.55; }
+
+        .related-tool { background: rgba(0, 255, 136, 0.04); border: 0.5px solid rgba(0, 255, 136, 0.22); border-radius: 12px; padding: 1.25rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; text-decoration: none; color: inherit; margin: 1.6rem 0; transition: all 0.2s; }
+        .related-tool:hover { background: rgba(0, 255, 136, 0.07); border-color: rgba(0, 255, 136, 0.45); }
+        .related-tool .label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #00ff88; font-weight: 700; margin-bottom: 0.3rem; }
+        .related-tool .name { color: white; font-weight: 700; font-size: 0.98rem; letter-spacing: -0.01em; }
+        .related-tool .desc { color: rgba(255, 255, 255, 0.48); font-size: 0.83rem; margin-top: 0.2rem; }
+        .related-tool .arrow { color: #00ff88; flex-shrink: 0; transition: transform 0.2s; }
+        .related-tool:hover .arrow { transform: translateX(4px); }
+
+        .guide-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 4rem; padding-top: 2.5rem; border-top: 0.5px solid rgba(255, 255, 255, 0.08); }
+        .guide-nav-card { background: rgba(255, 255, 255, 0.025); border: 0.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem 1.3rem; text-decoration: none; color: inherit; transition: all 0.2s; }
+        .guide-nav-card:hover { border-color: rgba(0, 255, 136, 0.3); background: rgba(0, 255, 136, 0.03); }
+        .guide-nav-card.next { text-align: right; }
+        .guide-nav-card .dir { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.32); margin-bottom: 0.35rem; }
+        .guide-nav-card .title { font-size: 0.92rem; font-weight: 600; color: white; letter-spacing: -0.01em; }
+
+        .footer { text-align: center; padding: 3rem 2rem; border-top: 1px solid rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.4); font-size: 0.85rem; margin-top: 4rem; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .nav-container { padding: 0 1.5rem; }
+            .stat-row { grid-template-columns: 1fr 1fr; }
+            .related-tool { flex-direction: column; align-items: flex-start; }
+            .related-tool .arrow { align-self: flex-end; }
+            .vs-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .page-wrapper { padding: 100px 1.25rem 3rem; }
+            .stat-row { grid-template-columns: 1fr; }
+            .guide-nav { grid-template-columns: 1fr; }
+            .guide-nav-card.next { text-align: left; }
+            .compare-table { font-size: 0.83rem; }
+            .compare-table th, .compare-table td { padding: 9px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header" id="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">YARDLINEIQ</a>
+            <ul class="nav-links">
+                <li><a href="/#home">Home</a></li>
+                <li><a href="/#free-pick">Free Picks</a></li>
+                <li><a href="/#pricing">Packages</a></li>
+                <li><a href="/resources.html" class="active">Resources</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="mailto:admin@yardlineiq.com">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-btn" aria-label="Open mobile menu">☰</button>
+            <a href="/picks.html" class="login-btn">Member Login</a>
+        </nav>
+    </header>
+
+    <main class="page-wrapper">
+
+        <div class="breadcrumb">
+            <a href="/resources.html">Resources</a>
+            <span>›</span>
+            <span>Fixed Unit vs. Kelly Criterion</span>
+        </div>
+
+        <div class="read-meta">
+            <span class="read-cat">Bankroll</span>
+            <span class="read-time">9 min read</span>
+        </div>
+
+        <div class="page-header">
+            <h1>Fixed Unit vs. Kelly Criterion</h1>
+            <p class="lede">Picking winners is half of betting. The other half is deciding how much to put on each one. A great handicapper with poor sizing can still go bust; a mediocre handicapper with good sizing survives long enough to keep playing. Here's the math behind the two dominant approaches — and how to choose between them.</p>
+        </div>
+
+        <div class="toc">
+            <div class="toc-label">In this guide</div>
+            <ol>
+                <li><a href="#why-sizing">Why bet sizing matters as much as picks</a></li>
+                <li><a href="#flat">Fixed-unit (flat) betting</a></li>
+                <li><a href="#kelly">The Kelly Criterion</a></li>
+                <li><a href="#full-kelly-problem">Why full Kelly is too aggressive</a></li>
+                <li><a href="#fractional">Fractional Kelly: the practical compromise</a></li>
+                <li><a href="#side-by-side">Side-by-side: growth, drawdown, and error</a></li>
+                <li><a href="#what-to-use">What to use, depending on who you are</a></li>
+            </ol>
+        </div>
+
+        <div class="editorial-section" id="why-sizing">
+            <h2>1. Why bet sizing matters as much as picks</h2>
+            <p>Two bettors hit the same 55% over a season on +100 picks. Bettor A sizes every bet at 1% of bankroll. Bettor B sizes every bet at 10% of bankroll. After 200 bets, Bettor A has grown their bankroll meaningfully. Bettor B may have <em>lost everything</em> despite winning the majority of their bets — because a streak of 8 or 9 losses (which happens regularly even with a 55% hit rate) wipes out an entire bankroll at 10% per bet.</p>
+            <p>Sizing controls two things: the rate at which your bankroll grows when you're winning, and the rate at which it shrinks when you're losing. Both matter. A staking model that maximizes growth with no regard for drawdown can put a winning bettor out of business.</p>
+            <div class="callout">
+                <div class="callout-label">Core idea</div>
+                <p>Bet sizing is the bridge between having an edge and converting it into bankroll growth. A real edge poorly sized is worth less than no edge sized correctly — because the bettor with no edge at least preserves capital.</p>
+            </div>
+        </div>
+
+        <div class="editorial-section" id="flat">
+            <h2>2. Fixed-unit (flat) betting</h2>
+            <p>Flat betting — also called fixed-unit or unit-based staking — means risking the same nominal amount on every bet. A bettor with a $5,000 bankroll might set their unit at 1% ($50) and risk that $50 on every play regardless of price, confidence, or perceived edge.</p>
+            <p>It's the most common staking model among recreational and semi-serious bettors, for good reasons.</p>
+            <div class="vs-grid">
+                <div class="vs-card pros">
+                    <span class="tag">Strengths</span>
+                    <ul>
+                        <li><strong>Simple.</strong> No math at bet time. Bet the unit, log the bet.</li>
+                        <li><strong>Disciplined.</strong> Removes emotion. You can't "chase" by sizing up after losses if every bet is the same size.</li>
+                        <li><strong>Survival-friendly.</strong> A 1-unit bet at 1% of bankroll is hard to go broke with. Even a brutal 0-15 stretch only dents your roll.</li>
+                        <li><strong>Honest tracking.</strong> Units won/lost is a clean metric — no need to normalize for varying stakes.</li>
+                    </ul>
+                </div>
+                <div class="vs-card cons">
+                    <span class="tag">Weaknesses</span>
+                    <ul>
+                        <li><strong>Suboptimal growth.</strong> Treats all bets identically — a 5% edge play gets the same stake as a 0.5% edge play.</li>
+                        <li><strong>Ignores price.</strong> A flat unit on a +200 dog and a –200 favorite represent very different risk and EV profiles.</li>
+                        <li><strong>Bankroll doesn't compound.</strong> If you never resize your unit as your roll grows, you give up exponential growth.</li>
+                    </ul>
+                </div>
+            </div>
+            <p>A common refinement is <strong>percentage flat</strong>: instead of locking the unit at a fixed dollar amount, define it as 1% of <em>current</em> bankroll. As the bankroll grows, units grow with it; as it shrinks, units shrink. This preserves the simplicity of flat betting while introducing some of the compounding behavior of Kelly.</p>
+        </div>
+
+        <div class="editorial-section" id="kelly">
+            <h2>3. The Kelly Criterion</h2>
+            <p>The Kelly Criterion, derived by John Kelly at Bell Labs in 1956, is the mathematical formula for the bet size that <strong>maximizes the long-run growth rate</strong> of a bankroll given a known edge. For a binary bet, the formula is:</p>
+            <div class="formula">
+                <span class="label"># Kelly stake as a fraction of bankroll</span><br>
+                <span class="accent">f*</span> = (<span class="num">b</span> × <span class="num">p</span> − <span class="num">q</span>) / <span class="num">b</span><br><br>
+                <span class="label">where:</span><br>
+                f* = optimal fraction of bankroll to bet<br>
+                b = decimal odds − 1 (i.e. profit per $1 risked)<br>
+                p = your estimated probability of winning<br>
+                q = 1 − p
+            </div>
+            <p>Worked example. You estimate a team is 58% to cover at –110 (decimal 1.909, so b = 0.909):</p>
+            <div class="formula">
+                f* = (<span class="num">0.909</span> × <span class="num">0.58</span> − <span class="num">0.42</span>) / <span class="num">0.909</span><br>
+                = (0.527 − 0.42) / 0.909<br>
+                = 0.107 / 0.909<br>
+                = <span class="accent">0.118</span> → bet 11.8% of bankroll
+            </div>
+            <p>11.8% of bankroll on a single play feels enormous — and it is. That's the part most bettors don't appreciate about full Kelly: when there's edge, the formula prescribes aggressive sizing because it's optimizing pure growth rate, ignoring how it feels along the way.</p>
+            <p>Three properties make Kelly mathematically attractive:</p>
+            <ol>
+                <li>It is provably the staking strategy that <strong>maximizes expected logarithmic growth</strong> over the long run.</li>
+                <li>It scales bet size with both <strong>edge</strong> and <strong>price</strong>. Bigger edge → bigger bet. Better odds → bigger bet.</li>
+                <li>It is impossible to go broke at full Kelly, because the bet shrinks as the bankroll shrinks (you bet a fraction, not a fixed amount).</li>
+            </ol>
+        </div>
+
+        <div class="editorial-section" id="full-kelly-problem">
+            <h2>4. Why full Kelly is too aggressive in practice</h2>
+            <p>Full Kelly's mathematical optimality rests on a critical assumption: <strong>you know your true edge exactly</strong>. In practice, no one does. Your "58% estimate" is itself a guess, and the math is brutally sensitive to overestimation.</p>
+            <p>If your true edge is 58% but you think it's 62%, you're betting almost twice the Kelly stake — taking on enormous drawdown risk for theoretical growth that doesn't exist. The same overestimation that produces a 5% growth rate boost in your spreadsheet produces a 30%+ drawdown in practice.</p>
+            <div class="callout warn">
+                <div class="callout-label">Practical reality</div>
+                <p>The penalty for betting at 2× Kelly is roughly the same as the bonus for betting at 1× Kelly: you give up most of the growth and add enormous variance. Full Kelly is a knife's edge — and most bettors are confidently wrong about how sharp their model is.</p>
+            </div>
+            <p>Even when your edge estimate is perfect, full Kelly produces brutal drawdowns. Simulations show that a Kelly bettor with a 2% edge will, with high probability, experience a 50% drawdown at some point in their career. Most bettors stop betting before they ride that out — and a staking model you can't psychologically execute is worse than one you can.</p>
+        </div>
+
+        <div class="editorial-section" id="fractional">
+            <h2>5. Fractional Kelly: the practical compromise</h2>
+            <p>The solution most professional bettors converge on is <strong>fractional Kelly</strong> — betting a defined fraction (½, ¼, ⅛) of the full Kelly amount. The intuition is that you're trading a small amount of theoretical growth for a large reduction in variance and a buffer against model error.</p>
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Kelly Fraction</th>
+                        <th class="right">% of Full Kelly</th>
+                        <th class="right">Growth Rate</th>
+                        <th class="right">Drawdown Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Full Kelly</td>
+                        <td class="right">100%</td>
+                        <td class="right green">Maximum</td>
+                        <td class="right red">Severe</td>
+                    </tr>
+                    <tr>
+                        <td>Half Kelly</td>
+                        <td class="right">50%</td>
+                        <td class="right">~75% of full</td>
+                        <td class="right">~25% of full</td>
+                    </tr>
+                    <tr>
+                        <td>Quarter Kelly</td>
+                        <td class="right">25%</td>
+                        <td class="right">~44% of full</td>
+                        <td class="right">~6% of full</td>
+                    </tr>
+                    <tr>
+                        <td>Eighth Kelly</td>
+                        <td class="right">12.5%</td>
+                        <td class="right">~23% of full</td>
+                        <td class="right">~1.5% of full</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Half Kelly is the sweet spot for most serious bettors with reasonably reliable edge estimates. Quarter Kelly is appropriate when you're less sure about your edge calibration, or when psychological factors (you can't tolerate big swings) outweigh pure growth. Anything above full Kelly is reckless under any condition.</p>
+        </div>
+
+        <div class="editorial-section" id="side-by-side">
+            <h2>6. Side-by-side: growth, drawdown, and error sensitivity</h2>
+            <p>Here's how the two staking models stack up across the dimensions that actually matter:</p>
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Dimension</th>
+                        <th>Flat (1% bankroll)</th>
+                        <th>Half Kelly</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Long-run growth</td>
+                        <td>Lower — single rate ignores edge</td>
+                        <td>Higher — scales with edge and odds</td>
+                    </tr>
+                    <tr>
+                        <td>Variance / drawdowns</td>
+                        <td>Mild — uniform small bets</td>
+                        <td>Higher — larger bets on big edges</td>
+                    </tr>
+                    <tr>
+                        <td>Reaction to model error</td>
+                        <td>Forgiving — wrong edge ≠ wrong stake</td>
+                        <td>Punishing — wrong edge = wrong stake</td>
+                    </tr>
+                    <tr>
+                        <td>Discipline required</td>
+                        <td>Low — no calculation at bet time</td>
+                        <td>Moderate — need edge estimate per bet</td>
+                    </tr>
+                    <tr>
+                        <td>Compounds with bankroll</td>
+                        <td>Only with % flat variant</td>
+                        <td>Yes — by construction</td>
+                    </tr>
+                    <tr>
+                        <td>Psychological load</td>
+                        <td>Low — every bet looks the same</td>
+                        <td>High — big bets feel scary even when correct</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="editorial-section" id="what-to-use">
+            <h2>7. What to use, depending on who you are</h2>
+
+            <h3>You should bet flat (1–2% of bankroll, percentage variant) if:</h3>
+            <ul>
+                <li>You don't have a reliable model that produces calibrated edge estimates per bet.</li>
+                <li>You bet for entertainment as much as profit and don't want sizing to feel like work.</li>
+                <li>You'd struggle psychologically with a 20%+ drawdown.</li>
+                <li>You're early in your betting career and still calibrating what "edge" feels like.</li>
+            </ul>
+
+            <h3>You should bet half- or quarter-Kelly if:</h3>
+            <ul>
+                <li>You have a model or system that produces consistent, back-tested edge estimates.</li>
+                <li>You're tracking CLV and confirming your process is sharp.</li>
+                <li>You can mentally tolerate the swings that come with sizing aggressively on high-edge plays.</li>
+                <li>You're optimizing for long-run bankroll growth, not steady psychological flow.</li>
+            </ul>
+
+            <h3>You should never:</h3>
+            <ul>
+                <li>Bet full Kelly. The variance is too high and the cost of model error is too punishing.</li>
+                <li>Bet more than 5% of bankroll on any single wager, even at quarter Kelly, regardless of perceived edge.</li>
+                <li>Size up after losses to "chase" — this is the opposite of every principle on this page.</li>
+            </ul>
+
+            <a href="/kelly-calculator.html" class="related-tool">
+                <div>
+                    <div class="label">Use the tool</div>
+                    <div class="name">Kelly Criterion Calculator</div>
+                    <div class="desc">Distribute your weekly bankroll across your slate using full, half, or quarter Kelly sizing.</div>
+                </div>
+                <svg class="arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+
+            <div class="callout">
+                <div class="callout-label">Bottom line</div>
+                <p>The right answer for most serious bettors is somewhere between percentage flat and quarter Kelly. The wrong answer is full Kelly, sizing up to chase losses, or putting more than 5% of your bankroll on a single bet because you "feel really good about this one."</p>
+            </div>
+        </div>
+
+        <nav class="guide-nav">
+            <a href="/vig-juice.html" class="guide-nav-card">
+                <div class="dir">← Previous</div>
+                <div class="title">Vig &amp; Juice Explained</div>
+            </a>
+            <a href="/closing-line-value.html" class="guide-nav-card next">
+                <div class="dir">Next →</div>
+                <div class="title">Closing Line Value (CLV)</div>
+            </a>
+        </nav>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 YardLineIQ. All rights reserved. | Please bet responsibly. Must be 21+.</p>
+        <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+            <a href="/disclaimer.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Disclaimer</a>
+            <a href="/terms.html"      style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Terms</a>
+            <a href="/privacy-policy.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Privacy</a>
+            <a href="mailto:admin@yardlineiq.com" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 100);
+        });
+
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function () {
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+            } else {
+                Object.assign(navLinks.style, {
+                    display: 'flex', flexDirection: 'column', position: 'absolute',
+                    top: '100%', left: '0', right: '0',
+                    background: 'rgba(10, 10, 10, 0.95)', padding: '2rem', backdropFilter: 'blur(20px)'
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

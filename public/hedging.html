@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L6R1V0FNXH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-L6R1V0FNXH');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hedging: When to Take Chips Off the Table | YardlineIQ</title>
+    <meta name="description" content="The math and psychology of hedging open sports betting positions. When locking in profit is the right call, when it's fear costing you EV, and how to size partial hedges to match your goals.">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: white; overflow-x: hidden; line-height: 1.4; }
+
+        .header { position: fixed; top: 0; width: 100%; padding: 2rem 0; z-index: 1000; transition: all 0.3s ease; }
+        .header.scrolled { background: rgba(8, 10, 12, 0.97); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 1rem 0; border-bottom: 1px solid rgba(0, 255, 136, 0.12); box-shadow: 0 4px 32px rgba(0, 0, 0, 0.6); }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 3rem; }
+        .logo { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
+        .nav-links { display: flex; list-style: none; gap: 3rem; }
+        .nav-links a { color: rgba(255, 255, 255, 0.7); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.3s ease; letter-spacing: 0.02em; }
+        .nav-links a:hover, .nav-links a.active { color: #00ff88; }
+        .login-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 0.8rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; min-height: 44px; min-width: 44px; display: flex; align-items: center; }
+        .login-btn:hover { background: rgba(0, 255, 136, 0.2); border-color: #00ff88; color: #00ff88; }
+        .mobile-menu-btn { display: none; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 8px; min-height: 44px; min-width: 44px; }
+
+        .page-wrapper { max-width: 820px; margin: 0 auto; padding: 120px 2rem 4rem; }
+
+        .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 12px; color: rgba(255, 255, 255, 0.28); margin-bottom: 1.5rem; }
+        .breadcrumb a { color: rgba(255, 255, 255, 0.45); text-decoration: none; transition: color 0.2s; }
+        .breadcrumb a:hover { color: #00ff88; }
+
+        .read-meta { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.1rem; }
+        .read-cat { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #00ff88; }
+        .read-time { font-size: 11px; color: rgba(255, 255, 255, 0.32); letter-spacing: 0.04em; }
+
+        .page-header { margin-bottom: 1.5rem; }
+        .page-header h1 { font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 800; letter-spacing: -0.035em; background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.05; margin-bottom: 1rem; }
+        .page-header .lede { font-size: 1.1rem; color: rgba(255, 255, 255, 0.62); line-height: 1.6; max-width: 680px; }
+
+        .toc { background: rgba(255, 255, 255, 0.025); border: 0.5px solid rgba(255, 255, 255, 0.07); border-radius: 12px; padding: 1.1rem 1.35rem; margin: 2.5rem 0 3rem; }
+        .toc-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); margin-bottom: 0.8rem; }
+        .toc ol { list-style: none; counter-reset: toc; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+        .toc li { counter-increment: toc; }
+        .toc a { color: rgba(255, 255, 255, 0.68); font-size: 0.92rem; text-decoration: none; display: flex; gap: 0.85rem; transition: color 0.2s; }
+        .toc a::before { content: counter(toc, decimal-leading-zero); color: rgba(255, 255, 255, 0.25); font-weight: 600; font-size: 0.78rem; min-width: 22px; font-family: 'JetBrains Mono', monospace; }
+        .toc a:hover { color: #00ff88; }
+
+        .editorial-section { margin-bottom: 2.75rem; scroll-margin-top: 100px; }
+        .editorial-section h2 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.025em; color: white; margin-bottom: 1rem; line-height: 1.25; }
+        .editorial-section h3 { font-size: 1rem; font-weight: 700; color: rgba(255, 255, 255, 0.88); letter-spacing: -0.01em; margin: 1.5rem 0 0.6rem; }
+        .editorial-section p { font-size: 0.97rem; color: rgba(255, 255, 255, 0.62); line-height: 1.75; margin-bottom: 1rem; }
+        .editorial-section p:last-child { margin-bottom: 0; }
+        .editorial-section ol, .editorial-section ul { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1rem; }
+        .editorial-section li { font-size: 0.97rem; color: rgba(255, 255, 255, 0.62); line-height: 1.7; }
+        .editorial-section li strong, .editorial-section p strong { color: rgba(255, 255, 255, 0.92); font-weight: 600; }
+        .inline-highlight { color: #00ff88; font-weight: 600; }
+
+        .callout { background: rgba(0, 255, 136, 0.04); border: 0.5px solid rgba(0, 255, 136, 0.18); border-left: 2px solid rgba(0, 255, 136, 0.6); border-radius: 10px; padding: 1.15rem 1.35rem; margin: 1.4rem 0; }
+        .callout-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #00ff88; margin-bottom: 0.45rem; }
+        .callout p { color: rgba(255, 255, 255, 0.72); font-size: 0.93rem; line-height: 1.65; margin: 0; }
+        .callout.warn { background: rgba(255, 107, 107, 0.04); border-color: rgba(255, 107, 107, 0.18); border-left-color: rgba(255, 107, 107, 0.55); }
+        .callout.warn .callout-label { color: #ff6b6b; }
+        .callout.neutral { background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.08); border-left-color: rgba(255, 255, 255, 0.3); }
+        .callout.neutral .callout-label { color: rgba(255,255,255,0.55); }
+
+        .formula { font-family: 'JetBrains Mono', monospace; background: rgba(255, 255, 255, 0.03); border: 0.5px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.95rem 1.15rem; color: rgba(255, 255, 255, 0.82); font-size: 0.86rem; line-height: 1.65; margin: 1.2rem 0; overflow-x: auto; }
+        .formula .accent { color: #00ff88; font-weight: 600; }
+        .formula .label { color: rgba(255,255,255,0.4); }
+        .formula .num { color: #00ccff; }
+
+        .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin: 1.5rem 0; }
+        .stat { background: rgba(255, 255, 255, 0.03); border: 0.5px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 1rem 1.1rem; }
+        .stat .num { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.1; }
+        .stat .lbl { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.4); margin-top: 0.4rem; font-weight: 600; }
+
+        .compare-table { width: 100%; border-collapse: collapse; margin: 1.4rem 0; font-size: 0.9rem; }
+        .compare-table th, .compare-table td { padding: 12px 14px; text-align: left; border-bottom: 0.5px solid rgba(255, 255, 255, 0.06); vertical-align: top; }
+        .compare-table th { font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.4); border-bottom: 0.5px solid rgba(255, 255, 255, 0.12); }
+        .compare-table tbody td { color: rgba(255, 255, 255, 0.62); line-height: 1.55; }
+        .compare-table tbody td:first-child { color: rgba(255, 255, 255, 0.9); font-weight: 600; }
+        .compare-table td.right, .compare-table th.right { text-align: right; font-variant-numeric: tabular-nums; }
+        .compare-table td.green { color: #00ff88; font-weight: 600; }
+        .compare-table td.red { color: #ff6b6b; }
+        .compare-table td.amber { color: #ffcc00; }
+
+        .scenario-table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.88rem; }
+        .scenario-table th, .scenario-table td { padding: 10px 13px; border-bottom: 0.5px solid rgba(255, 255, 255, 0.06); }
+        .scenario-table th { font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.4); border-bottom: 0.5px solid rgba(255, 255, 255, 0.12); text-align: left; }
+        .scenario-table td { color: rgba(255, 255, 255, 0.65); text-align: left; }
+        .scenario-table td.right, .scenario-table th.right { text-align: right; font-variant-numeric: tabular-nums; }
+        .scenario-table td.win { color: #00ff88; font-weight: 600; }
+        .scenario-table td.lose { color: #ff6b6b; }
+
+        .related-tool { background: rgba(0, 255, 136, 0.04); border: 0.5px solid rgba(0, 255, 136, 0.22); border-radius: 12px; padding: 1.25rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; text-decoration: none; color: inherit; margin: 1.6rem 0; transition: all 0.2s; }
+        .related-tool:hover { background: rgba(0, 255, 136, 0.07); border-color: rgba(0, 255, 136, 0.45); }
+        .related-tool .label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #00ff88; font-weight: 700; margin-bottom: 0.3rem; }
+        .related-tool .name { color: white; font-weight: 700; font-size: 0.98rem; letter-spacing: -0.01em; }
+        .related-tool .desc { color: rgba(255, 255, 255, 0.48); font-size: 0.83rem; margin-top: 0.2rem; }
+        .related-tool .arrow { color: #00ff88; flex-shrink: 0; transition: transform 0.2s; }
+        .related-tool:hover .arrow { transform: translateX(4px); }
+
+        .guide-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 4rem; padding-top: 2.5rem; border-top: 0.5px solid rgba(255, 255, 255, 0.08); }
+        .guide-nav-card { background: rgba(255, 255, 255, 0.025); border: 0.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.1rem 1.3rem; text-decoration: none; color: inherit; transition: all 0.2s; }
+        .guide-nav-card:hover { border-color: rgba(0, 255, 136, 0.3); background: rgba(0, 255, 136, 0.03); }
+        .guide-nav-card.next { text-align: right; }
+        .guide-nav-card .dir { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.32); margin-bottom: 0.35rem; }
+        .guide-nav-card .title { font-size: 0.92rem; font-weight: 600; color: white; letter-spacing: -0.01em; }
+        .guide-nav-card.placeholder { opacity: 0.4; pointer-events: none; }
+
+        .footer { text-align: center; padding: 3rem 2rem; border-top: 1px solid rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.4); font-size: 0.85rem; margin-top: 4rem; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .nav-container { padding: 0 1.5rem; }
+            .stat-row { grid-template-columns: 1fr 1fr; }
+            .related-tool { flex-direction: column; align-items: flex-start; }
+            .related-tool .arrow { align-self: flex-end; }
+        }
+        @media (max-width: 480px) {
+            .page-wrapper { padding: 100px 1.25rem 3rem; }
+            .stat-row { grid-template-columns: 1fr; }
+            .guide-nav { grid-template-columns: 1fr; }
+            .guide-nav-card.next { text-align: left; }
+            .compare-table, .scenario-table { font-size: 0.82rem; }
+            .compare-table th, .compare-table td, .scenario-table th, .scenario-table td { padding: 8px 9px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header" id="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">YARDLINEIQ</a>
+            <ul class="nav-links">
+                <li><a href="/#home">Home</a></li>
+                <li><a href="/#free-pick">Free Picks</a></li>
+                <li><a href="/#pricing">Packages</a></li>
+                <li><a href="/resources.html" class="active">Resources</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="mailto:admin@yardlineiq.com">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-btn" aria-label="Open mobile menu">☰</button>
+            <a href="/picks.html" class="login-btn">Member Login</a>
+        </nav>
+    </header>
+
+    <main class="page-wrapper">
+
+        <div class="breadcrumb">
+            <a href="/resources.html">Resources</a>
+            <span>›</span>
+            <span>Hedging</span>
+        </div>
+
+        <div class="read-meta">
+            <span class="read-cat">Strategy</span>
+            <span class="read-time">8 min read</span>
+        </div>
+
+        <div class="page-header">
+            <h1>Hedging: When to Take Chips Off the Table</h1>
+            <p class="lede">Hedging is the most psychologically tempting and mathematically misused tool in sports betting. Done with intent, it manages risk on positions that have grown too large. Done reflexively, it's the most expensive insurance product you'll ever buy — paid for in expected value you're handing back to the book.</p>
+        </div>
+
+        <div class="toc">
+            <div class="toc-label">In this guide</div>
+            <ol>
+                <li><a href="#what-it-is">What hedging actually does</a></li>
+                <li><a href="#vs-middling">Hedging vs. middling vs. arbitrage</a></li>
+                <li><a href="#math">The math: full hedge vs. partial hedge</a></li>
+                <li><a href="#parlay-example">Worked example: a parlay leg</a></li>
+                <li><a href="#futures-example">Worked example: a futures ticket</a></li>
+                <li><a href="#ev-cost">The EV cost — why hedging is usually -EV in the moment</a></li>
+                <li><a href="#when-to">When hedging is the right call</a></li>
+                <li><a href="#when-not">When hedging is fear costing you EV</a></li>
+            </ol>
+        </div>
+
+        <div class="editorial-section" id="what-it-is">
+            <h2>1. What hedging actually does</h2>
+            <p>Hedging is placing a bet on the opposite side of a position you already hold, with the goal of reducing the variance of the outcome. You're not creating new edge — you're sculpting the shape of your existing edge's payoff distribution. A successful hedge narrows the range of outcomes: less upside if you win, less downside if you lose. The math is straightforward arithmetic of payouts; the hard part is the judgment about whether reducing variance is worth what it costs.</p>
+            <p>The defining feature of a hedge is that you choose to do it <em>after</em> you've already placed the original bet. Something has changed — the line moved, a parlay leg cashed, you're alive on a futures ticket — and you're now deciding whether to "lock something in" before the original position resolves.</p>
+            <div class="callout">
+                <div class="callout-label">Core idea</div>
+                <p>Hedging is a variance management tool, not a profit tool. The book takes vig on both your original bet and your hedge — so the combined position will, on average, return less than holding the original alone. You're paying for certainty.</p>
+            </div>
+        </div>
+
+        <div class="editorial-section" id="vs-middling">
+            <h2>2. Hedging vs. middling vs. arbitrage</h2>
+            <p>People use these terms interchangeably, but they describe different positions with different goals:</p>
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Strategy</th>
+                        <th>When you decide</th>
+                        <th>Goal</th>
+                        <th>Outcome</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Arbitrage</td>
+                        <td>Opportunistically, looking for price gaps</td>
+                        <td>Lock guaranteed profit from book disagreement</td>
+                        <td>Small profit either way</td>
+                    </tr>
+                    <tr>
+                        <td>Middling</td>
+                        <td>After line moves significantly</td>
+                        <td>Win both sides in a narrow outcome window</td>
+                        <td>Big win sometimes, small loss otherwise</td>
+                    </tr>
+                    <tr>
+                        <td>Hedging</td>
+                        <td>After your original bet has appreciated</td>
+                        <td>Reduce variance on an open position</td>
+                        <td>Locked smaller profit, capped upside</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Middling and arbitrage are covered in the <a href="/middling-arbitrage.html" style="color: #00ff88;">Middling &amp; Arbitrage guide</a>. The rest of this guide focuses on hedging — managing positions you already hold.</p>
+        </div>
+
+        <div class="editorial-section" id="math">
+            <h2>3. The math: full hedge vs. partial hedge</h2>
+            <p>A <strong>full hedge</strong> stakes the opposite side such that your net payoff is identical no matter which side wins. You guarantee a specific dollar outcome.</p>
+            <div class="formula">
+                <span class="label"># Full hedge stake</span><br>
+                <span class="accent">hedgeStake</span> = potentialPayout / hedgeDecimalOdds<br><br>
+                <span class="label"># Locked profit</span><br>
+                profit = potentialPayout − hedgeStake − originalStake
+            </div>
+            <p>A <strong>partial hedge</strong> stakes less than the full-hedge amount. You still benefit from your original side winning, but you've reduced your downside if it loses. The tradeoff is explicit: smaller cushion, larger remaining upside.</p>
+            <p>The right size depends entirely on what you're optimizing for: <em>guarantee a specific dollar amount</em> (full hedge), <em>limit downside to a specific dollar amount</em> (partial hedge), or <em>never hedge at all because your original position is still +EV</em> (no hedge).</p>
+        </div>
+
+        <div class="editorial-section" id="parlay-example">
+            <h2>4. Worked example: a parlay leg</h2>
+            <p>You placed a 4-leg parlay at +1200 for <span class="inline-highlight">$50</span>. Three legs hit. The fourth leg is the Chiefs moneyline at –180. Your parlay pays <span class="inline-highlight">$650</span> if the Chiefs win (4-leg parlay payout = $600 profit + $50 stake = $650 total).</p>
+            <p>You can now bet against the Chiefs (i.e., on the Broncos) at +160. Should you?</p>
+
+            <h3>Option A: No hedge (let it ride)</h3>
+            <table class="scenario-table">
+                <thead>
+                    <tr><th>Outcome</th><th class="right">Net P&amp;L</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="win">Chiefs win</td><td class="right" style="color:#00ff88;font-weight:600">+$600</td></tr>
+                    <tr><td class="lose">Chiefs lose</td><td class="right" style="color:#ff6b6b">−$50</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Option B: Full hedge (lock equal profit)</h3>
+            <p>To equalize the payoff: hedge stake = $650 / 2.60 = <span class="inline-highlight">$250</span> on Broncos at +160.</p>
+            <table class="scenario-table">
+                <thead>
+                    <tr><th>Outcome</th><th class="right">Net P&amp;L</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Chiefs win: parlay pays $650, hedge loses $250</td><td class="right" style="color:#00ff88;font-weight:600">+$350</td></tr>
+                    <tr><td>Broncos win: parlay loses $50, hedge pays $400</td><td class="right" style="color:#00ff88;font-weight:600">+$350</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Option C: Partial hedge ($125)</h3>
+            <table class="scenario-table">
+                <thead>
+                    <tr><th>Outcome</th><th class="right">Net P&amp;L</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Chiefs win: parlay pays $650, hedge loses $125</td><td class="right" style="color:#00ff88;font-weight:600">+$475</td></tr>
+                    <tr><td>Broncos win: parlay loses $50, hedge pays $200</td><td class="right" style="color:#00ff88;font-weight:600">+$150</td></tr>
+                </tbody>
+            </table>
+
+            <p>The choice between A, B, and C isn't a math question — the math is all on the table. It's a question about <em>your relationship to variance</em>, the size of the original bet relative to your bankroll, and whether the Chiefs at –180 is +EV in your model.</p>
+        </div>
+
+        <div class="editorial-section" id="futures-example">
+            <h2>5. Worked example: a futures ticket</h2>
+            <p>Last August you took the Lions to win the NFC at <span class="inline-highlight">+800</span> for $100 — potential profit of $800. They're now in the NFC Championship, and the moneyline against their opponent is +110 (you have Lions). Should you hedge?</p>
+            <p>If they win, your futures ticket cashes for $800 profit. If they lose, you're down $100. To lock equal profit, you'd hedge the opposite team's moneyline:</p>
+            <div class="formula">
+                <span class="label"># Full hedge to equalize at ~$X profit</span><br>
+                opponent moneyline odds (decimal): 1.91 (i.e. -110)<br>
+                future payout if Lions win = $900<br><br>
+                hedge stake = 900 / (1 + 1.91) = <span class="num">$309</span><br><br>
+                <span class="label"># Outcomes after hedge</span><br>
+                Lions win: $900 − $309 (lost hedge) − $100 (original) = <span class="accent">$491 profit</span><br>
+                Lions lose: $309 × 1.91 − $100 − $309 = <span class="accent">$181 profit</span>
+            </div>
+            <p>Notice the asymmetric payoffs at full hedge — that's because your original ticket isn't equally priced against the current market. You also have the option of partial hedges that bias toward Lions (more upside if they win, smaller cushion if they lose) or toward the opponent (the reverse).</p>
+        </div>
+
+        <div class="editorial-section" id="ev-cost">
+            <h2>6. The EV cost — why hedging is usually -EV in the moment</h2>
+            <p>Here's the part that recreational bettors miss. The book is offering you the hedge price <em>with vig included</em>. If the no-vig probability of the Chiefs winning is 63%, the book is offering Broncos at +160 (38.5% implied) — meaning they're charging you about 2 cents of juice on the hedge side relative to fair odds.</p>
+            <p>So when you hedge, you are deliberately taking a -EV transaction (the hedge bet) in order to reduce variance on your existing position. The combined two-position EV is always lower than holding the original alone, by exactly the vig on the hedge bet.</p>
+            <div class="callout warn">
+                <div class="callout-label">The real cost</div>
+                <p>Every dollar you put down on a hedge is a dollar you're paying the book to be less anxious. That's a legitimate purchase sometimes — but pretend it's free, and you'll bleed EV by reflexively hedging positions you should have just let ride.</p>
+            </div>
+            <p>A useful frame: if you wouldn't have placed the hedge as a standalone bet (because it's -EV at the price offered), then placing it as a hedge is <strong>also -EV</strong> at that price. You're just laundering the bet behind a different motivation.</p>
+        </div>
+
+        <div class="editorial-section" id="when-to">
+            <h2>7. When hedging is the right call</h2>
+            <p>Several specific situations make hedging a defensible decision, even though it costs EV:</p>
+
+            <h3>Bankroll concentration risk</h3>
+            <p>Your position is now disproportionately large relative to your bankroll. The original $50 parlay represents 1% of bankroll, but it could pay $650 — that's a one-bet 13% bankroll swing. Locking some profit reduces concentration to a level that doesn't put your trajectory at the mercy of a single outcome.</p>
+
+            <h3>Life-changing money</h3>
+            <p>The position has grown into territory where the marginal utility of additional dollars is much lower than the disutility of losing what's already there. A $400 sure thing is genuinely more valuable than a 60% shot at $650 if $400 covers your rent and $650 is just nicer. Standard expected-utility theory, not just risk aversion.</p>
+
+            <h3>Reduced confidence in original analysis</h3>
+            <p>You bet the original ticket months ago. Information has changed materially — key injuries, scheme changes, public information you didn't have then. If your current EV estimate on the original position is now <em>negative</em>, hedging is reducing exposure to a now-bad bet, not just reducing variance on a good one.</p>
+
+            <h3>Liquidity needs</h3>
+            <p>Your bankroll is committed elsewhere and the open position is tying up capital you need to deploy. Hedging frees risk capital for other opportunities.</p>
+        </div>
+
+        <div class="editorial-section" id="when-not">
+            <h2>8. When hedging is fear costing you EV</h2>
+            <p>The honest cases against hedging are usually more common than the honest cases for it:</p>
+            <ul>
+                <li><strong>Your original bet is still +EV at the current price.</strong> You picked the right side and the market still hasn't fully agreed with you. Hedging here is buying out of a +EV position at a -EV exit — paying the book to take your edge.</li>
+                <li><strong>The position is appropriately sized relative to your bankroll.</strong> If a $50 bet paying $500 doesn't materially threaten your bankroll, the variance is something you can absorb. Hedging is unnecessary insurance against an outcome you're already capitalized to handle.</li>
+                <li><strong>You're letting recency bias drive the decision.</strong> A team that has "looked shaky" in pregame coverage isn't actually any less likely to win than your original analysis said. The visible drama before kickoff is what makes hedging feel urgent; the math hasn't changed.</li>
+                <li><strong>You're chasing the dopamine of a "guaranteed win."</strong> Locking in $200 of profit feels great. But you didn't enter this hobby to lock in $200 wins — you entered it to find +EV positions and let them play out. Letting variance work for you in the long run requires accepting variance in the short run.</li>
+            </ul>
+            <div class="callout">
+                <div class="callout-label">The discipline test</div>
+                <p>Ask: "Would a robot version of me, with no emotional attachment to this ticket, hedge it right now?" If the answer is no, you're not hedging — you're paying for emotional comfort. Both can be legitimate, but be honest about which one it is.</p>
+            </div>
+
+            <a href="/hedge-calculator.html" class="related-tool">
+                <div>
+                    <div class="label">Use the tool</div>
+                    <div class="name">Hedging Calculator</div>
+                    <div class="desc">Calculate the optimal hedge amount to lock guaranteed profit or size a partial hedge.</div>
+                </div>
+                <svg class="arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+
+            <div class="callout">
+                <div class="callout-label">Bottom line</div>
+                <p>Hedge when the math, the bankroll, or the changed information justifies trading EV for variance reduction. Don't hedge to make the screen stop being scary. The professional answer is usually "no hedge" — but the right answer depends on the size of the position relative to your life, not the size of the win relative to the original stake.</p>
+            </div>
+        </div>
+
+        <nav class="guide-nav">
+            <a href="/middling-arbitrage.html" class="guide-nav-card">
+                <div class="dir">← Previous</div>
+                <div class="title">Middling &amp; Arbitrage</div>
+            </a>
+            <a href="/resources.html" class="guide-nav-card next">
+                <div class="dir">Back to →</div>
+                <div class="title">All Resources</div>
+            </a>
+        </nav>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 YardLineIQ. All rights reserved. | Please bet responsibly. Must be 21+.</p>
+        <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+            <a href="/disclaimer.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Disclaimer</a>
+            <a href="/terms.html"      style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Terms</a>
+            <a href="/privacy-policy.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Privacy</a>
+            <a href="mailto:admin@yardlineiq.com" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            document.getElementById('header').classList.toggle('scrolled', window.scrollY > 100);
+        });
+
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function () {
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+            } else {
+                Object.assign(navLinks.style, {
+                    display: 'flex', flexDirection: 'column', position: 'absolute',
+                    top: '100%', left: '0', right: '0',
+                    background: 'rgba(10, 10, 10, 0.95)', padding: '2rem', backdropFilter: 'blur(20px)'
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -285,6 +285,14 @@
             display: flex;
             flex-direction: column;
             gap: 0.35rem;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.2s, background 0.2s;
+            position: relative;
+        }
+        .guide-card:hover {
+            border-color: rgba(0, 255, 136, 0.25);
+            background: rgba(0, 255, 136, 0.03);
         }
 
         .guide-category {
@@ -292,29 +300,35 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.09em;
-            color: rgba(255, 255, 255, 0.22);
+            color: rgba(0, 255, 136, 0.55);
             margin-bottom: 0.1rem;
         }
         .guide-card h3 {
-            font-size: 0.88rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: white;
             letter-spacing: -0.01em;
             line-height: 1.3;
         }
         .guide-card p {
-            font-size: 0.78rem;
-            color: rgba(255, 255, 255, 0.28);
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.42);
             line-height: 1.5;
-            margin-top: 0.15rem;
+            margin-top: 0.2rem;
+            flex: 1;
         }
-        .guide-coming-soon {
-            font-size: 10px;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.2);
-            letter-spacing: 0.05em;
-            margin-top: 0.4rem;
+        .guide-read {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(0, 255, 136, 0.85);
+            letter-spacing: 0.02em;
+            margin-top: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
+        .guide-read svg { transition: transform 0.2s; }
+        .guide-card:hover .guide-read svg { transform: translateX(3px); }
 
         /* ── Footer ── */
         .footer {
@@ -443,59 +457,80 @@
         <!-- ── Guides ── -->
         <div class="section-header">
             <h2>Strategy Guides</h2>
-            <span class="section-count">7 guides &nbsp;·&nbsp; coming soon</span>
+            <span class="section-count">7 guides &nbsp;·&nbsp; 7 live</span>
         </div>
 
         <div class="guides-grid">
 
-            <div class="guide-card">
+            <a href="/value-betting.html" class="guide-card">
                 <div class="guide-category">Foundation</div>
                 <h3>Value Betting</h3>
                 <p>What edge actually means, how to identify it, and why it's the only thing that matters long-term.</p>
-                <div class="guide-coming-soon">Coming soon</div>
-            </div>
+                <span class="guide-read">
+                    Read guide
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M7 3l3.5 3.5L7 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+            </a>
 
-            <div class="guide-card">
+            <a href="/line-shopping.html" class="guide-card">
                 <div class="guide-category">Strategy</div>
                 <h3>Line Shopping</h3>
                 <p>Why getting –105 instead of –110 consistently is worth more than a 1% improvement in win rate.</p>
-                <div class="guide-coming-soon">Coming soon</div>
-            </div>
+                <span class="guide-read">
+                    Read guide
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M7 3l3.5 3.5L7 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+            </a>
 
-            <div class="guide-card">
+            <a href="/vig-juice.html" class="guide-card">
                 <div class="guide-category">Analytics</div>
                 <h3>Vig &amp; Juice Explained</h3>
                 <p>Understanding the true cost of betting and how to calculate fair odds from any line.</p>
-                <div class="guide-coming-soon">Coming soon</div>
-            </div>
+                <span class="guide-read">
+                    Read guide
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M7 3l3.5 3.5L7 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+            </a>
 
-            <div class="guide-card">
+            <a href="/fixed-unit-vs-kelly.html" class="guide-card">
                 <div class="guide-category">Bankroll</div>
                 <h3>Fixed Unit vs. Kelly Criterion</h3>
                 <p>The tradeoffs between flat betting and Kelly sizing — and which approach fits your risk tolerance.</p>
-                <div class="guide-coming-soon">Coming soon</div>
-            </div>
+                <span class="guide-read">
+                    Read guide
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M7 3l3.5 3.5L7 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+            </a>
 
-            <div class="guide-card">
+            <a href="/closing-line-value.html" class="guide-card">
                 <div class="guide-category">Analytics</div>
                 <h3>Closing Line Value (CLV)</h3>
                 <p>The single best metric for evaluating whether your betting process is profitable over the long run.</p>
-                <div class="guide-coming-soon">Coming soon</div>
-            </div>
+                <span class="guide-read">
+                    Read guide
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M7 3l3.5 3.5L7 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+            </a>
 
-            <div class="guide-card">
+            <a href="/middling-arbitrage.html" class="guide-card">
                 <div class="guide-category">Advanced</div>
                 <h3>Middling &amp; Arbitrage</h3>
                 <p>How to exploit line movement across books to create guaranteed profit windows or two-way opportunities.</p>
-                <div class="guide-coming-soon">Coming soon</div>
-            </div>
+                <span class="guide-read">
+                    Read guide
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M7 3l3.5 3.5L7 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+            </a>
 
-            <div class="guide-card">
+            <a href="/hedging.html" class="guide-card">
                 <div class="guide-category">Strategy</div>
                 <h3>Hedging: When to Take Chips Off the Table</h3>
                 <p>The math behind hedging, when locking profit makes sense, and when it's just fear costing you EV.</p>
-                <div class="guide-coming-soon">Coming soon</div>
-            </div>
+                <span class="guide-read">
+                    Read guide
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M7 3l3.5 3.5L7 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+            </a>
 
         </div>
 
