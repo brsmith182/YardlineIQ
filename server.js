@@ -294,7 +294,7 @@ app.post('/api/payments/payment-success', async (req, res) => {
       } else if (packageType === 'monthly') {
         subscriptionEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
       } else if (packageType === 'season') {
-        subscriptionEnd = new Date('2025-02-15');
+        subscriptionEnd = new Date('2027-02-15');
       }
       
       // Create customer object
