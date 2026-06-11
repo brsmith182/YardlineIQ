@@ -1181,8 +1181,8 @@
             <div class="logo">YARDLINEIQ</div>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
-                <li><a href="#free-pick">Free Picks</a></li>
                 <li><a href="#pricing">Packages</a></li>
+                <li><a href="#free-pick">Free Picks</a></li>
                 <li><a href="/resources.html">Resources</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="mailto:admin@yardlineiq.com">Contact</a></li>
@@ -1220,8 +1220,8 @@
                 <p class="stat-footnote">† Historical average across multiple seasons and model iterations. Past results do not guarantee future performance.</p>
 
                 <div class="cta-group">
-                    <button class="btn-primary" onclick="scrollToFreePick()">Get Free Pick</button>
-                    <button class="btn-secondary" onclick="scrollToPricing()">View All Packages</button>
+                    <button class="btn-primary" onclick="scrollToPricing()">View All Packages</button>
+                    <button class="btn-secondary" onclick="scrollToFreePick()">Request a Free Pick</button>
                 </div>
             </div>
 
@@ -1327,37 +1327,6 @@
         </div>
     </section>
 
-    <section class="free-pick-section" id="free-pick">
-        <div class="free-pick-container">
-            <h2 class="section-title">GET YOUR FREE NFL PICK</h2>
-            <p class="section-subtitle">Join smart bettors and get your free expert regular season NFL prediction against the spread</p>
-            
-            <form class="email-signup-form" id="freePickForm">
-                <input type="email" class="email-input" placeholder="Enter your email address" required id="freeEmail" aria-label="Email address for free NFL pick">
-                <!-- Legal notice -->
-                <div style="background: rgba(255,170,0,0.05); border: 1px solid rgba(255,170,0,0.18); border-radius: 12px; padding: 1.5rem 1.8rem; margin: 1.25rem 0; color: rgba(255,255,255,0.65);">
-                    <div style="font-weight: 700; margin-bottom: 0.65rem; color: rgba(255,200,50,0.8); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em;">Important Notice</div>
-                    <div style="font-size: 0.875rem; margin-bottom: 1rem; line-height: 1.6;">
-                        All picks and analysis are for <strong style="color: rgba(255,255,255,0.85);">entertainment purposes only</strong>. Sports betting involves significant risk, and we make no guarantees of success. You are solely responsible for all betting decisions.
-                    </div>
-                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 0.875rem; color: rgba(255,255,255,0.6);">
-                        <input type="checkbox" id="agreementCheckbox" required style="margin-top: 2px; accent-color: #00ff88;">
-                        <span>
-                            I am 21+ and agree to the
-                            <a href="/disclaimer.html" target="_blank" style="color: #00ff88; text-decoration: none; border-bottom: 1px solid rgba(0,255,136,0.3);">Disclaimer</a>.
-                            I understand this is for entertainment only.
-                        </span>
-                    </label>
-                </div>
-                <button type="submit" class="btn-primary" id="freePickSubmit" disabled style="opacity: 0.5;">Get Free NFL Pick</button> 
-            </form>
-            
-            <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-top: 1rem;">
-                No spam. Unsubscribe anytime. Get exclusive NFL betting insights and flash sale alerts.
-            </p>
-        </div>
-    </section>
-
     <section class="pricing" id="pricing">
         <div class="pricing-container">
             <div class="section-header">
@@ -1421,6 +1390,37 @@
                     <button class="plan-button" onclick="openPaymentModal('season', 199, 'Full Season Pass')">Get Full Season</button>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <section class="free-pick-section" id="free-pick">
+        <div class="free-pick-container">
+            <h2 class="section-title">NOT READY TO COMMIT?</h2>
+            <p class="section-subtitle">Request a complimentary pick and see the analysis for yourself — no strings attached.</p>
+
+            <form class="email-signup-form" id="freePickForm">
+                <input type="email" class="email-input" placeholder="Enter your email address" required id="freeEmail" aria-label="Email address for free NFL pick">
+                <!-- Legal notice -->
+                <div style="background: rgba(255,170,0,0.05); border: 1px solid rgba(255,170,0,0.18); border-radius: 12px; padding: 1.5rem 1.8rem; margin: 1.25rem 0; color: rgba(255,255,255,0.65);">
+                    <div style="font-weight: 700; margin-bottom: 0.65rem; color: rgba(255,200,50,0.8); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em;">Important Notice</div>
+                    <div style="font-size: 0.875rem; margin-bottom: 1rem; line-height: 1.6;">
+                        All picks and analysis are for <strong style="color: rgba(255,255,255,0.85);">entertainment purposes only</strong>. Sports betting involves significant risk, and we make no guarantees of success. You are solely responsible for all betting decisions.
+                    </div>
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 0.875rem; color: rgba(255,255,255,0.6);">
+                        <input type="checkbox" id="agreementCheckbox" required style="margin-top: 2px; accent-color: #00ff88;">
+                        <span>
+                            I am 21+ and agree to the
+                            <a href="/disclaimer.html" target="_blank" style="color: #00ff88; text-decoration: none; border-bottom: 1px solid rgba(0,255,136,0.3);">Disclaimer</a>.
+                            I understand this is for entertainment only.
+                        </span>
+                    </label>
+                </div>
+                <button type="submit" class="btn-primary" id="freePickSubmit" disabled style="opacity: 0.5;">Get Free NFL Pick</button> 
+            </form>
+            
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-top: 1rem;">
+                No spam. Unsubscribe anytime. Get exclusive NFL betting insights and flash sale alerts.
+            </p>
         </div>
     </section>
 
