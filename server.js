@@ -523,6 +523,158 @@ app.get('/api/picks', async (req, res) => {
   }
 });
 
+// ===================== BETTING TRENDS (member-gated) =====================
+// Curated trend-mining findings. Subscriber-facing set = Tiers 1-3 (spreads)
+// + Totals. Each trend stores the *actionable* side and its cover/hit rate,
+// the sample size (n), and the binomial p-value. The frontend converts p into
+// a Confidence label (Very High / High / Moderate / Speculative).
+// Source: "Master ATS list — reconciled", regular season 2020–25.
+const STARTER_TRENDS = [
+  // --- Tier 1: CORE (the real edge, multiple confirmations) ---
+  { category: 'spread', tier: 1, trend: 'Home dog +7 or more (fade road favorites of 7+)', side: 'Home dog', n: 146, rate: 61.6, p: 0.0061 },
+  { category: 'spread', tier: 1, trend: 'Home dog +7 or more AND home implied total ≤17', side: 'Home dog', n: 54, rate: 74.1, p: 0.0005 },
+  { category: 'spread', tier: 1, trend: 'Home dog +7.5 to +10', side: 'Home dog', n: 70, rate: 65.7, p: 0.0115 },
+  { category: 'spread', tier: 1, trend: 'Home team with implied total ≤17 (any spread)', side: 'Home', n: 91, rate: 62.6, p: 0.0206 },
+  { category: 'spread', tier: 1, trend: 'Home favorite −10.5 or more', side: 'Home favorite', n: 123, rate: 56.1, p: 0.2066 },
+  // --- Tier 2: HISTORICAL / ROLE (engineered situations) ---
+  { category: 'spread', tier: 2, trend: 'Team was a dog last week, now a favorite — fade them (bet the opponent)', side: 'Fade', n: 556, rate: 53.6, p: 0.098 },
+  { category: 'spread', tier: 2, trend: 'Home dog off an ATS loss of 14+', side: 'Home dog', n: 104, rate: 59.6, p: 0.0619 },
+  { category: 'spread', tier: 2, trend: 'Weeks 1–4, team off an ATS loss', side: 'The team', n: 270, rate: 55.9, p: 0.059 },
+  // --- Tier 3: POCKET / SECONDARY (real-ish, thinner) ---
+  { category: 'spread', tier: 3, trend: 'Away team, non-grass surface, spread under 3', side: 'Away', n: 171, rate: 60.2, p: 0.0091 },
+  { category: 'spread', tier: 3, trend: 'Road dog +4.5 to +6', side: 'Road dog', n: 130, rate: 60.8, p: 0.0175 },
+  { category: 'spread', tier: 3, trend: 'Home team, weeks 14–18, spread ≥7', side: 'Home', n: 149, rate: 59.1, p: 0.0328 },
+  { category: 'spread', tier: 3, trend: 'Divisional underdog', side: 'Underdog', n: 567, rate: 53.8, p: 0.0777 },
+  { category: 'spread', tier: 3, trend: 'Underdog +7.5 to +9.5 (home or road)', side: 'Underdog', n: 181, rate: 55.2, p: 0.1808 },
+  { category: 'spread', tier: 3, trend: 'Off a bye AND an underdog', side: 'Underdog', n: 169, rate: 55.0, p: 0.2183 },
+  // --- Totals (shade the number, directional lean) ---
+  { category: 'total', tier: 4, trend: 'Wind 11–15 mph', side: 'Under', n: 189, rate: 60.3, p: 0.0056 },
+  { category: 'total', tier: 4, trend: 'Prime-time games (SNF / MNF / TNF)', side: 'Under', n: 330, rate: 55.2, p: 0.0691 },
+  { category: 'total', tier: 4, trend: 'Outdoor games', side: 'Under', n: 1082, rate: 52.6, p: 0.0945 },
+  { category: 'total', tier: 4, trend: 'Underdog with wind 10–14 mph', side: 'Underdog', n: 209, rate: 56.9, p: 0.0525 }
+];
+
+// Post a new trend (admin)
+app.post('/api/trends', requireAuth, async (req, res) => {
+  try {
+    const { trend, side, n, rate, p, category, tier } = req.body;
+
+    if (!trend || !side || rate === undefined || rate === '') {
+      return res.status(400).json({ error: 'Trend, side, and rate are required' });
+    }
+
+    const newTrend = {
+      id: Date.now().toString(),
+      category: (category === 'total' ? 'total' : 'spread'),
+      tier: tier ? parseInt(tier, 10) : 3,
+      trend: trend.toString().trim(),
+      side: side.toString().trim(),
+      n: n !== undefined && n !== '' ? parseInt(n, 10) : null,
+      rate: parseFloat(rate),
+      p: p !== undefined && p !== '' ? parseFloat(p) : null,
+      datePosted: new Date().toISOString()
+    };
+
+    const client = await getRedisClient();
+    await client.set(`trend:${newTrend.id}`, JSON.stringify(newTrend));
+    await client.sAdd('all_trends', newTrend.id);
+
+    console.log('Trend saved to Redis:', newTrend.id);
+    res.json({ success: true, message: 'Trend posted successfully!', trend: newTrend });
+  } catch (error) {
+    console.error('Error adding trend:', error);
+    res.status(500).json({ error: 'Failed to post trend' });
+  }
+});
+
+// Seed the starter trend set from the reconciled workbook (admin, idempotent unless ?force=true)
+app.post('/api/trends/seed', requireAuth, async (req, res) => {
+  try {
+    if (!process.env.REDIS_URL) {
+      return res.json({ success: true, seeded: 0, message: 'No Redis configured — dev stub serves starter trends automatically.' });
+    }
+    const client = await getRedisClient();
+    const force = req.query.force === 'true' || req.body.force === true;
+    const existing = await client.sMembers('all_trends');
+
+    if (existing.length > 0 && !force) {
+      return res.json({ success: false, message: `${existing.length} trends already exist. Re-seed with force to replace them.` });
+    }
+
+    // When forcing, clear the existing set first
+    if (force && existing.length > 0) {
+      for (const id of existing) await client.del(`trend:${id}`);
+      await client.del('all_trends');
+    }
+
+    let seeded = 0;
+    for (let i = 0; i < STARTER_TRENDS.length; i++) {
+      const t = { id: `seed-${Date.now()}-${i}`, datePosted: new Date().toISOString(), ...STARTER_TRENDS[i] };
+      await client.set(`trend:${t.id}`, JSON.stringify(t));
+      await client.sAdd('all_trends', t.id);
+      seeded++;
+    }
+
+    console.log(`Seeded ${seeded} starter trends to Redis`);
+    res.json({ success: true, seeded, message: `Imported ${seeded} starter trends.` });
+  } catch (error) {
+    console.error('Error seeding trends:', error);
+    res.status(500).json({ error: 'Failed to seed trends' });
+  }
+});
+
+// Delete a trend (admin)
+app.delete('/api/trends/:id', requireAuth, async (req, res) => {
+  try {
+    const client = await getRedisClient();
+    await client.del(`trend:${req.params.id}`);
+    await client.sRem('all_trends', req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting trend:', error);
+    res.status(500).json({ error: 'Failed to delete trend' });
+  }
+});
+
+// Get trends — requires valid member session token (same gate as picks)
+app.get('/api/trends', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const token = authHeader.slice(7);
+    const isAdmin = authHeader === 'Bearer admin-authenticated';
+
+    // --- DEV STUB: serve the starter set when Redis is unavailable ---
+    if (!process.env.REDIS_URL) {
+      if (!isAdmin) return res.status(401).json({ error: 'Authentication required' });
+      return res.json(STARTER_TRENDS.map((t, i) => ({ id: `stub-${i}`, datePosted: new Date().toISOString(), ...t })));
+    }
+    // ----------------------------------------------------------------
+
+    const client = await getRedisClient();
+    const email = isAdmin ? 'admin' : await client.get(`session:${token}`);
+    if (!email) {
+      return res.status(401).json({ error: 'Session expired. Please log in again.' });
+    }
+
+    const ids = await client.sMembers('all_trends');
+    const trends = [];
+    for (const id of ids) {
+      const data = await client.get(`trend:${id}`);
+      if (data) trends.push(JSON.parse(data));
+    }
+
+    console.log('Trends requested by', email, '— returning', trends.length, 'trends');
+    res.json(trends);
+  } catch (error) {
+    console.error('Error fetching trends:', error);
+    res.status(500).json({ error: 'Failed to fetch trends' });
+  }
+});
+
 // Admin stats - Redis version
 app.get('/api/admin/stats', requireAuth, async (req, res) => {
   try {
@@ -642,6 +794,11 @@ app.get('/admin', (req, res) => {
 // Serve picks page for members
 app.get('/picks.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'picks.html'));
+});
+
+// Serve trends page for members
+app.get('/trends.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'trends.html'));
 });
 
 app.get('/resources.html', (req, res) => {
