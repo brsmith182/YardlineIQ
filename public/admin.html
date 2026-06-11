@@ -308,6 +308,56 @@
             </div>
 
             <div class="content-section">
+                <h2 class="section-title">Betting Trends <span id="trendCount" class="email-badge">0</span></h2>
+                <p style="font-size:0.85rem;color:#aaa;margin-bottom:1rem;">Member-gated trend findings shown at <strong>/trends.html</strong>, sorted by cover rate.</p>
+                <button class="btn" onclick="seedTrends()">Import Starter Trends</button>
+                <button class="btn btn-secondary" onclick="refreshTrends()">Refresh List</button>
+                <div id="seedMessage"></div>
+
+                <form id="trendForm" style="margin-top:1rem;">
+                    <div class="form-group">
+                        <label>Trend description</label>
+                        <input type="text" id="trendDesc" placeholder="Home dog +7 or more" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Side</label>
+                        <input type="text" id="trendSide" placeholder="Home dog" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cover / hit rate (%)</label>
+                        <input type="number" step="0.1" id="trendRate" placeholder="61.6" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sample size (n games)</label>
+                        <input type="number" id="trendN" placeholder="146">
+                    </div>
+                    <div class="form-group">
+                        <label>p-value (for confidence)</label>
+                        <input type="number" step="0.0001" id="trendP" placeholder="0.0061">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="trendCategory">
+                            <option value="spread">Against the Spread</option>
+                            <option value="total">Totals / Situational</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tier</label>
+                        <select id="trendTier">
+                            <option value="1">Tier 1 — Core</option>
+                            <option value="2">Tier 2 — Historical</option>
+                            <option value="3" selected>Tier 3 — Secondary</option>
+                            <option value="4">Totals</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Add Trend</button>
+                </form>
+                <div id="trendMessage"></div>
+                <div id="trendsList" style="margin-top:1rem;"></div>
+            </div>
+
+            <div class="content-section">
                 <h2 class="section-title">User Management</h2>
                 <button class="btn" onclick="refreshUsers()">Refresh Users</button>
                 <button class="btn btn-secondary" onclick="exportUsers()">Export CSV</button>
@@ -435,6 +485,101 @@
                 document.getElementById('pickMessage').innerHTML = '<div class="error-message">Error posting pick</div>';
             }
         });
+
+        // ── Betting Trends management ──
+        async function seedTrends() {
+            const msg = document.getElementById('seedMessage');
+            const existing = document.getElementById('trendCount').textContent;
+            const force = existing && parseInt(existing, 10) > 0
+                ? confirm('Trends already exist. Replace them with the starter set from the workbook?')
+                : false;
+            msg.innerHTML = '<div style="color:#aaa;padding:0.5rem;">Importing…</div>';
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/api/trends/seed${force ? '?force=true' : ''}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    msg.innerHTML = `<div class="success-message">${result.message}</div>`;
+                    refreshTrends();
+                } else {
+                    msg.innerHTML = `<div class="error-message">${result.message || result.error || 'Seed failed'}</div>`;
+                }
+            } catch (error) {
+                msg.innerHTML = '<div class="error-message">Error importing trends</div>';
+            }
+        }
+
+        document.getElementById('trendForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                trend: document.getElementById('trendDesc').value,
+                side: document.getElementById('trendSide').value,
+                rate: document.getElementById('trendRate').value,
+                n: document.getElementById('trendN').value,
+                p: document.getElementById('trendP').value,
+                category: document.getElementById('trendCategory').value,
+                tier: document.getElementById('trendTier').value
+            };
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/api/trends`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                const messageDiv = document.getElementById('trendMessage');
+                if (response.ok) {
+                    messageDiv.innerHTML = '<div class="success-message">Trend added!</div>';
+                    document.getElementById('trendForm').reset();
+                    refreshTrends();
+                } else {
+                    messageDiv.innerHTML = `<div class="error-message">${result.error || 'Failed to add trend'}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('trendMessage').innerHTML = '<div class="error-message">Error adding trend</div>';
+            }
+        });
+
+        async function refreshTrends() {
+            const list = document.getElementById('trendsList');
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/api/trends`);
+                if (response.status === 401) { logout(); return; }
+                const trends = await response.json();
+                document.getElementById('trendCount').textContent = Array.isArray(trends) ? trends.length : 0;
+                if (!Array.isArray(trends) || trends.length === 0) {
+                    list.innerHTML = '<div class="error-message">No trends yet — import the starter set or add one above.</div>';
+                    return;
+                }
+                trends.sort((a, b) => b.rate - a.rate);
+                list.innerHTML = `<div class="user-list">${trends.map(t => `
+                    <div class="user-item">
+                        <strong>${t.rate}%</strong> — ${escapeHtml(t.trend)}
+                        <span class="email-badge">${escapeHtml(t.side)}</span>
+                        ${t.n ? `<small> · n=${t.n}</small>` : ''}
+                        ${t.p !== null && t.p !== undefined ? `<small> · p=${t.p}</small>` : ''}
+                        <button class="btn btn-secondary" style="float:right;padding:0.2rem 0.6rem;font-size:0.75rem;" onclick="deleteTrend('${t.id}')">Delete</button>
+                    </div>`).join('')}</div>`;
+            } catch (error) {
+                list.innerHTML = '<div class="error-message">Error loading trends</div>';
+            }
+        }
+
+        async function deleteTrend(id) {
+            if (!confirm('Delete this trend?')) return;
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/api/trends/${id}`, { method: 'DELETE' });
+                if (response.ok) refreshTrends();
+            } catch (error) {
+                console.error('Error deleting trend:', error);
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
 
         // Refresh users with authentication
         async function refreshUsers() {

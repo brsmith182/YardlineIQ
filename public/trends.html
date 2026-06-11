@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Members Only — NFL Picks | YardLineIQ</title>
+    <title>Members Only — Betting Trends | YardLineIQ</title>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
@@ -58,9 +58,7 @@
             color: rgba(255, 255, 255, 0.4);
             letter-spacing: 0.02em;
         }
-        .member-badge span {
-            color: rgba(255, 255, 255, 0.75);
-        }
+        .member-badge span { color: rgba(255, 255, 255, 0.75); }
         .logout-btn {
             background: rgba(255, 255, 255, 0.06);
             border: 0.5px solid rgba(255, 255, 255, 0.15);
@@ -74,10 +72,7 @@
             transition: all 0.2s;
             display: none;
         }
-        .logout-btn:hover {
-            border-color: rgba(255, 107, 107, 0.4);
-            color: #ff6b6b;
-        }
+        .logout-btn:hover { border-color: rgba(255, 107, 107, 0.4); color: #ff6b6b; }
 
         /* ── Login screen ── */
         #loginScreen {
@@ -163,15 +158,11 @@
             border-color: rgba(0, 255, 136, 0.2);
             color: rgba(255, 255, 255, 0.6);
         }
-        .login-error a {
-            color: #00ff88;
-            text-decoration: none;
-            font-weight: 600;
-        }
+        .login-error a { color: #00ff88; text-decoration: none; font-weight: 600; }
         .login-error a:hover { text-decoration: underline; }
 
-        /* ── Picks dashboard ── */
-        #picksScreen {
+        /* ── Trends screen ── */
+        #trendsScreen {
             display: none;
             max-width: 1200px;
             margin: 0 auto;
@@ -191,31 +182,14 @@
             flex-wrap: wrap;
             gap: 0.75rem;
         }
-        .sub-bar-left {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
+        .sub-bar-left { display: flex; align-items: center; gap: 0.75rem; }
         .sub-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #00ff88;
-            box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
-            flex-shrink: 0;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #00ff88; box-shadow: 0 0 8px rgba(0, 255, 136, 0.6); flex-shrink: 0;
         }
-        .sub-info {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-        .sub-info strong {
-            color: white;
-            font-weight: 600;
-        }
-        .sub-expires {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.3);
-        }
+        .sub-info { font-size: 13px; color: rgba(255, 255, 255, 0.6); }
+        .sub-info strong { color: white; font-weight: 600; }
+        .sub-expires { font-size: 12px; color: rgba(255, 255, 255, 0.3); }
 
         /* Sub-nav (Picks / Trends) */
         .member-tabs {
@@ -240,8 +214,8 @@
             border-color: rgba(0, 255, 136, 0.25);
         }
 
-        /* Picks header */
-        .picks-page-title {
+        /* Page header */
+        .page-title {
             font-size: clamp(1.8rem, 4vw, 2.6rem);
             font-weight: 800;
             letter-spacing: -0.03em;
@@ -251,81 +225,123 @@
             background-clip: text;
             margin-bottom: 0.4rem;
         }
-        .picks-page-sub {
+        .page-sub {
             color: rgba(255, 255, 255, 0.4);
             font-size: 0.9rem;
-            margin-bottom: 2.5rem;
+            margin-bottom: 1.5rem;
+            max-width: 680px;
+            line-height: 1.6;
         }
 
-        /* Week section */
-        .week-section { margin-bottom: 3rem; }
-        .week-label {
+        /* Methodology note */
+        .methodology {
+            background: rgba(255, 255, 255, 0.02);
+            border: 0.5px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 2.5rem;
+            font-size: 12.5px;
+            color: rgba(255, 255, 255, 0.4);
+            line-height: 1.6;
+        }
+        .methodology strong { color: rgba(255, 255, 255, 0.7); }
+        .breakeven { color: #00ff88; font-weight: 600; }
+
+        /* Section */
+        .trend-section { margin-bottom: 3rem; }
+        .section-label {
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: rgba(255, 255, 255, 0.25);
-            margin-bottom: 1rem;
-            padding-bottom: 0.6rem;
+            color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 0.35rem;
+        }
+        .section-desc {
+            font-size: 12.5px;
+            color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 1.1rem;
+            padding-bottom: 0.9rem;
             border-bottom: 0.5px solid rgba(255, 255, 255, 0.06);
         }
 
-        /* Pick cards grid */
-        .picks-grid {
+        /* Trend cards grid */
+        .trends-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
             gap: 1rem;
         }
-
-        .pick-card {
+        .trend-card {
             background: rgba(255, 255, 255, 0.03);
             border: 0.5px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
-            padding: 1.4rem;
+            padding: 1.35rem 1.4rem;
             transition: border-color 0.2s;
+            display: flex;
+            flex-direction: column;
         }
-        .pick-card:hover { border-color: rgba(0, 255, 136, 0.2); }
-        .pick-card.result-win { border-color: rgba(0, 255, 136, 0.2); }
-        .pick-card.result-loss { border-color: rgba(255, 107, 107, 0.15); }
-        .pick-card.result-push { border-color: rgba(255, 255, 255, 0.12); }
+        .trend-card:hover { border-color: rgba(0, 255, 136, 0.2); }
 
-        .pick-card-top {
+        .trend-card-top {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        /* Team logos */
-        .pick-teams {
-            display: flex;
             align-items: center;
+            margin-bottom: 0.85rem;
             gap: 0.5rem;
-            margin-bottom: 0.65rem;
         }
-        .team-logo {
-            width: 36px;
-            height: 36px;
-            object-fit: contain;
-            filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
-        }
-        .pick-teams-vs {
+        .tier-label {
             font-size: 10px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.2);
-            letter-spacing: 0.05em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: rgba(255, 255, 255, 0.3);
         }
 
-        .pick-game {
-            font-size: 1rem;
+        .trend-name {
+            font-size: 0.98rem;
             font-weight: 700;
             letter-spacing: -0.01em;
-            line-height: 1.2;
+            line-height: 1.35;
+            margin-bottom: 1rem;
+            min-height: 2.6em;
         }
-        .pick-time {
-            font-size: 11px;
+
+        .trend-stats {
+            display: flex;
+            align-items: flex-end;
+            gap: 1.5rem;
+            margin-top: auto;
+            padding-top: 0.9rem;
+            border-top: 0.5px solid rgba(255, 255, 255, 0.06);
+        }
+        .stat-rate { display: flex; flex-direction: column; }
+        .stat-rate .num {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #00ff88;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+        .stat-rate .lbl {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
             color: rgba(255, 255, 255, 0.3);
-            margin-top: 3px;
+            margin-top: 4px;
+        }
+        .stat-meta { display: flex; flex-direction: column; gap: 0.35rem; }
+        .meta-row { font-size: 12px; color: rgba(255, 255, 255, 0.5); }
+        .meta-row strong { color: rgba(255, 255, 255, 0.85); font-weight: 600; }
+        .side-pill {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(0, 204, 255, 0.9);
+            background: rgba(0, 204, 255, 0.08);
+            border: 0.5px solid rgba(0, 204, 255, 0.2);
+            padding: 2px 9px;
+            border-radius: 20px;
         }
 
         /* Confidence badge */
@@ -333,107 +349,53 @@
             font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.07em;
+            letter-spacing: 0.06em;
             padding: 3px 9px;
             border-radius: 20px;
             flex-shrink: 0;
+            white-space: nowrap;
         }
-        .confidence-high {
-            background: rgba(0, 255, 136, 0.12);
-            border: 0.5px solid rgba(0, 255, 136, 0.3);
+        .conf-veryhigh {
+            background: rgba(0, 255, 136, 0.14);
+            border: 0.5px solid rgba(0, 255, 136, 0.35);
             color: #00ff88;
         }
-        .confidence-medium {
+        .conf-high {
+            background: rgba(0, 255, 136, 0.07);
+            border: 0.5px solid rgba(0, 255, 136, 0.2);
+            color: #6effb0;
+        }
+        .conf-moderate {
             background: rgba(255, 196, 0, 0.1);
             border: 0.5px solid rgba(255, 196, 0, 0.25);
             color: #ffc400;
         }
-        .confidence-low {
-            background: rgba(255, 255, 255, 0.05);
-            border: 0.5px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.35);
-        }
-
-        /* Pick recommendation */
-        .pick-recommendation {
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: #00ff88;
-            letter-spacing: -0.01em;
-            margin-bottom: 0.75rem;
-        }
-
-        /* Result badge */
-        .result-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
-            padding: 3px 9px;
-            border-radius: 20px;
-            margin-bottom: 0.75rem;
-        }
-        .result-win-badge {
-            background: rgba(0, 255, 136, 0.1);
-            border: 0.5px solid rgba(0, 255, 136, 0.25);
-            color: #00ff88;
-        }
-        .result-loss-badge {
-            background: rgba(255, 107, 107, 0.1);
-            border: 0.5px solid rgba(255, 107, 107, 0.25);
-            color: #ff6b6b;
-        }
-        .result-push-badge {
+        .conf-speculative {
             background: rgba(255, 255, 255, 0.05);
             border: 0.5px solid rgba(255, 255, 255, 0.1);
             color: rgba(255, 255, 255, 0.4);
         }
-        .result-pending-badge {
-            background: rgba(255, 255, 255, 0.04);
-            border: 0.5px solid rgba(255, 255, 255, 0.08);
-            color: rgba(255, 255, 255, 0.25);
-        }
 
-        /* Reasoning */
-        .pick-reasoning {
-            font-size: 0.82rem;
-            color: rgba(255, 255, 255, 0.4);
-            line-height: 1.55;
-            border-top: 0.5px solid rgba(255, 255, 255, 0.06);
-            padding-top: 0.75rem;
-            margin-top: 0.25rem;
-        }
-
-        /* Empty / loading states */
-        .picks-empty {
+        /* Empty / loading */
+        .state-box {
             text-align: center;
             padding: 4rem 2rem;
             color: rgba(255, 255, 255, 0.3);
         }
-        .picks-empty h3 {
+        .state-box h3 {
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: rgba(255, 255, 255, 0.5);
         }
-        .picks-empty p { font-size: 0.875rem; }
+        .state-box p { font-size: 0.875rem; }
 
-        .picks-loading {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 0.9rem;
-        }
-
-        /* Mobile */
         @media (max-width: 600px) {
-            .picks-grid { grid-template-columns: 1fr; }
+            .trends-grid { grid-template-columns: 1fr; }
             .sub-bar { flex-direction: column; align-items: flex-start; }
-            #picksScreen { padding: 1.5rem 1.25rem 4rem; }
+            #trendsScreen { padding: 1.5rem 1.25rem 4rem; }
             .login-card { padding: 1.75rem; }
+            .trend-name { min-height: 0; }
         }
     </style>
 </head>
@@ -459,14 +421,14 @@
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <label class="form-label" for="emailInput">Email address</label>
                 <input type="email" id="emailInput" class="form-input" placeholder="you@example.com" required autocomplete="email">
-                <button type="submit" class="login-submit" id="loginBtn">Access My Picks</button>
+                <button type="submit" class="login-submit" id="loginBtn">View Betting Trends</button>
             </form>
             <div class="login-error" id="loginError"></div>
         </div>
     </div>
 
-    <!-- ── Picks dashboard ── -->
-    <div id="picksScreen">
+    <!-- ── Trends screen ── -->
+    <div id="trendsScreen">
 
         <div class="sub-bar" id="subBar">
             <div class="sub-bar-left">
@@ -479,15 +441,19 @@
         </div>
 
         <div class="member-tabs">
-            <a href="/picks.html" class="member-tab active">This Week's Picks</a>
-            <a href="/trends.html" class="member-tab">Betting Trends</a>
+            <a href="/picks.html" class="member-tab">This Week's Picks</a>
+            <a href="/trends.html" class="member-tab active">Betting Trends</a>
         </div>
 
-        <h1 class="picks-page-title">This Week's Picks</h1>
-        <p class="picks-page-sub">New picks posted every Wednesday and Saturday. Questions? <a href="mailto:admin@yardlineiq.com" style="color:#00ff88;text-decoration:none;">admin@yardlineiq.com</a></p>
+        <h1 class="page-title">Betting Trends</h1>
+        <p class="page-sub">Edges surfaced from our trend-mining engine across the 2020–25 regular seasons. Sorted by cover rate, with sample size and statistical confidence so you can weight them yourself.</p>
 
-        <div id="picksContainer">
-            <div class="picks-loading">Loading picks…</div>
+        <div class="methodology">
+            <strong>How to read this:</strong> ATS% is the cover rate for the listed side. Break-even at standard −110 juice is <span class="breakeven">52.38%</span> — anything above that is a long-run edge. <strong>n</strong> is the sample size (number of games). <strong>Confidence</strong> reflects how unlikely the result is to be random (exact binomial test): Very High = p&lt;0.01, High = p&lt;0.05, Moderate = p&lt;0.10, Speculative = thinner evidence. Bigger samples + higher confidence = sturdier edges. These are research signals, not guaranteed outcomes — bet responsibly.
+        </div>
+
+        <div id="trendsContainer">
+            <div class="state-box">Loading trends…</div>
         </div>
 
     </div>
@@ -495,29 +461,23 @@
     <script>
         const SESSION_KEY = 'yiq_session';
 
-        // ── Helpers ───────────────────────────────────────────────
-
+        // ── Session helpers ───────────────────────────────────────
         function saveSession(token, user) {
             sessionStorage.setItem(SESSION_KEY, JSON.stringify({ token, user }));
         }
-
         function loadSession() {
             try {
                 const raw = sessionStorage.getItem(SESSION_KEY);
                 return raw ? JSON.parse(raw) : null;
             } catch { return null; }
         }
-
-        function clearSession() {
-            sessionStorage.removeItem(SESSION_KEY);
-        }
+        function clearSession() { sessionStorage.removeItem(SESSION_KEY); }
 
         function formatPackage(type) {
             if (!type) return 'Member';
             const map = { weekly: 'Weekly', monthly: 'Monthly', season: 'Season' };
             return map[type] || type.charAt(0).toUpperCase() + type.slice(1);
         }
-
         function formatExpiry(isoDate) {
             if (!isoDate) return '';
             const d = new Date(isoDate);
@@ -525,17 +485,15 @@
         }
 
         // ── Show / hide screens ───────────────────────────────────
-
         function showLoginScreen() {
             document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('picksScreen').style.display = 'none';
+            document.getElementById('trendsScreen').style.display = 'none';
             document.getElementById('logoutBtn').style.display = 'none';
             document.getElementById('memberBadge').style.display = 'none';
         }
-
-        function showPicksScreen(user) {
+        function showTrendsScreen(user) {
             document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('picksScreen').style.display = 'block';
+            document.getElementById('trendsScreen').style.display = 'block';
             document.getElementById('logoutBtn').style.display = 'block';
             document.getElementById('memberBadge').style.display = 'block';
             document.getElementById('memberEmail').textContent = user.email;
@@ -544,7 +502,6 @@
         }
 
         // ── Login ─────────────────────────────────────────────────
-
         async function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('emailInput').value.trim();
@@ -566,8 +523,8 @@
 
                 if (res.ok) {
                     saveSession(data.token, data.user);
-                    showPicksScreen(data.user);
-                    loadPicks(data.token);
+                    showTrendsScreen(data.user);
+                    loadTrends(data.token);
                 } else {
                     err.style.display = 'block';
                     if (data.error === 'paid_required') {
@@ -584,12 +541,11 @@
                 err.textContent = 'Connection error. Please try again.';
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Access My Picks';
+                btn.textContent = 'View Betting Trends';
             }
         }
 
         // ── Logout ────────────────────────────────────────────────
-
         async function logout() {
             const session = loadSession();
             if (session) {
@@ -604,14 +560,22 @@
             showLoginScreen();
         }
 
-        // ── Load picks ────────────────────────────────────────────
+        // ── Confidence from p-value ───────────────────────────────
+        function confidenceFromP(p) {
+            if (p === null || p === undefined || isNaN(p)) return { label: 'Speculative', cls: 'conf-speculative' };
+            if (p < 0.01)  return { label: 'Very High',   cls: 'conf-veryhigh' };
+            if (p < 0.05)  return { label: 'High',        cls: 'conf-high' };
+            if (p < 0.10)  return { label: 'Moderate',    cls: 'conf-moderate' };
+            return { label: 'Speculative', cls: 'conf-speculative' };
+        }
 
-        async function loadPicks(token) {
-            const container = document.getElementById('picksContainer');
-            container.innerHTML = '<div class="picks-loading">Loading picks…</div>';
+        // ── Load trends ───────────────────────────────────────────
+        async function loadTrends(token) {
+            const container = document.getElementById('trendsContainer');
+            container.innerHTML = '<div class="state-box">Loading trends…</div>';
 
             try {
-                const res = await fetch('/api/picks', {
+                const res = await fetch('/api/trends', {
                     headers: { Authorization: 'Bearer ' + token }
                 });
 
@@ -621,146 +585,89 @@
                     return;
                 }
 
-                const picks = await res.json();
+                const trends = await res.json();
 
-                if (!Array.isArray(picks) || picks.length === 0) {
+                if (!Array.isArray(trends) || trends.length === 0) {
                     container.innerHTML = `
-                        <div class="picks-empty">
-                            <h3>No picks posted yet</h3>
-                            <p>Check back Wednesday and Saturday for this week's picks.</p>
+                        <div class="state-box">
+                            <h3>No trends published yet</h3>
+                            <p>Check back soon — new findings are added as our engine surfaces them.</p>
                         </div>`;
                     return;
                 }
 
-                renderPicks(picks, container);
-
+                renderTrends(trends, container);
             } catch {
                 container.innerHTML = `
-                    <div class="picks-empty">
-                        <h3>Could not load picks</h3>
+                    <div class="state-box">
+                        <h3>Could not load trends</h3>
                         <p>Please refresh the page or contact admin@yardlineiq.com.</p>
                     </div>`;
             }
         }
 
-        // ── Render picks grouped by week ──────────────────────────
-
-        function renderPicks(picks, container) {
-            // Group by week
-            const byWeek = {};
-            picks.forEach(p => {
-                const w = p.week || 'Current Week';
-                if (!byWeek[w]) byWeek[w] = [];
-                byWeek[w].push(p);
-            });
+        // ── Render trends ─────────────────────────────────────────
+        function renderTrends(trends, container) {
+            const spreads = trends.filter(t => (t.category || 'spread') !== 'total')
+                                   .sort((a, b) => b.rate - a.rate);
+            const totals  = trends.filter(t => (t.category || 'spread') === 'total')
+                                   .sort((a, b) => b.rate - a.rate);
 
             let html = '';
-            for (const [week, weekPicks] of Object.entries(byWeek)) {
-                html += `<div class="week-section">
-                    <div class="week-label">Week ${week}</div>
-                    <div class="picks-grid">`;
 
-                weekPicks.forEach(p => { html += renderPickCard(p); });
+            if (spreads.length) {
+                html += `<div class="trend-section">
+                    <div class="section-label">Against the Spread</div>
+                    <div class="section-desc">Ranked by cover rate. Break-even is 52.38%.</div>
+                    <div class="trends-grid">
+                        ${spreads.map(renderTrendCard).join('')}
+                    </div>
+                </div>`;
+            }
 
-                html += `</div></div>`;
+            if (totals.length) {
+                html += `<div class="trend-section">
+                    <div class="section-label">Totals &amp; Situational Leans</div>
+                    <div class="section-desc">Directional leans on the total — shade the number, don't blindly bet the bucket.</div>
+                    <div class="trends-grid">
+                        ${totals.map(renderTrendCard).join('')}
+                    </div>
+                </div>`;
             }
 
             container.innerHTML = html;
         }
 
-        const NFL_LOGOS = {
-            'patriots': 'ne', 'new england patriots': 'ne',
-            'seahawks': 'sea', 'seattle seahawks': 'sea',
-            'chiefs': 'kc', 'kansas city chiefs': 'kc',
-            'eagles': 'phi', 'philadelphia eagles': 'phi',
-            '49ers': 'sf', 'san francisco 49ers': 'sf',
-            'bills': 'buf', 'buffalo bills': 'buf',
-            'ravens': 'bal', 'baltimore ravens': 'bal',
-            'bengals': 'cin', 'cincinnati bengals': 'cin',
-            'browns': 'cle', 'cleveland browns': 'cle',
-            'steelers': 'pit', 'pittsburgh steelers': 'pit',
-            'texans': 'hou', 'houston texans': 'hou',
-            'colts': 'ind', 'indianapolis colts': 'ind',
-            'jaguars': 'jac', 'jacksonville jaguars': 'jac',
-            'titans': 'ten', 'tennessee titans': 'ten',
-            'broncos': 'den', 'denver broncos': 'den',
-            'raiders': 'lv', 'las vegas raiders': 'lv',
-            'chargers': 'lac', 'los angeles chargers': 'lac',
-            'cowboys': 'dal', 'dallas cowboys': 'dal',
-            'giants': 'nyg', 'new york giants': 'nyg',
-            'jets': 'nyj', 'new york jets': 'nyj',
-            'commanders': 'wsh', 'washington commanders': 'wsh',
-            'bears': 'chi', 'chicago bears': 'chi',
-            'lions': 'det', 'detroit lions': 'det',
-            'packers': 'gb', 'green bay packers': 'gb',
-            'vikings': 'min', 'minnesota vikings': 'min',
-            'falcons': 'atl', 'atlanta falcons': 'atl',
-            'panthers': 'car', 'carolina panthers': 'car',
-            'saints': 'no', 'new orleans saints': 'no',
-            'buccaneers': 'tb', 'tampa bay buccaneers': 'tb',
-            'cardinals': 'ari', 'arizona cardinals': 'ari',
-            'rams': 'lar', 'los angeles rams': 'lar',
-            'dolphins': 'mia', 'miami dolphins': 'mia',
-        };
-
-        function teamLogoUrl(name) {
-            const abbr = NFL_LOGOS[name.toLowerCase().trim()];
-            return abbr ? `https://a.espncdn.com/i/teamlogos/nfl/500/${abbr}.png` : null;
+        function tierName(tier, category) {
+            if (category === 'total') return 'Totals';
+            const map = { 1: 'Tier 1 · Core', 2: 'Tier 2 · Historical', 3: 'Tier 3 · Secondary' };
+            return map[tier] || 'Trend';
         }
 
-        function parseTeams(game) {
-            const parts = game.split(/\s+vs\.?\s+/i);
-            if (parts.length !== 2) return null;
-            return { away: parts[0].trim(), home: parts[1].trim() };
-        }
-
-        function renderPickCard(p) {
-            const result    = (p.result || 'pending').toLowerCase();
-            const conf      = (p.confidence || '').toLowerCase();
-            const cardClass = result !== 'pending' ? `result-${result}` : '';
-
-            const confBadge = conf
-                ? `<span class="confidence-badge confidence-${conf}">${p.confidence}</span>`
-                : '';
-
-            const resultBadge = {
-                win:     `<span class="result-badge result-win-badge">✓ Win</span>`,
-                loss:    `<span class="result-badge result-loss-badge">✕ Loss</span>`,
-                push:    `<span class="result-badge result-push-badge">Push</span>`,
-                pending: `<span class="result-badge result-pending-badge">Pending</span>`
-            }[result] || `<span class="result-badge result-pending-badge">Pending</span>`;
-
-            const reasoning = p.reasoning
-                ? `<div class="pick-reasoning">${escHtml(p.reasoning)}</div>`
-                : '';
-
-            const teams = parseTeams(p.game);
-            let logosHtml = '';
-            if (teams) {
-                const awayLogo = teamLogoUrl(teams.away);
-                const homeLogo = teamLogoUrl(teams.home);
-                if (awayLogo || homeLogo) {
-                    logosHtml = `<div class="pick-teams">
-                        ${awayLogo ? `<img class="team-logo" src="${awayLogo}" alt="${escHtml(teams.away)}">` : ''}
-                        <span class="pick-teams-vs">vs</span>
-                        ${homeLogo ? `<img class="team-logo" src="${homeLogo}" alt="${escHtml(teams.home)}">` : ''}
-                    </div>`;
-                }
-            }
+        function renderTrendCard(t) {
+            const conf = confidenceFromP(t.p);
+            const rateLabel = (t.category === 'total') ? 'Hit Rate' : 'ATS Cover';
+            const rate = (typeof t.rate === 'number') ? t.rate.toFixed(1) : t.rate;
+            const nRow = (t.n !== null && t.n !== undefined && t.n !== '')
+                ? `<div class="meta-row"><strong>${t.n.toLocaleString()}</strong> games</div>` : '';
 
             return `
-                <div class="pick-card ${cardClass}">
-                    <div class="pick-card-top">
-                        <div>
-                            ${logosHtml}
-                            <div class="pick-game">${escHtml(p.game)}</div>
-                            ${p.time ? `<div class="pick-time">${escHtml(p.time)}</div>` : ''}
-                        </div>
-                        ${confBadge}
+                <div class="trend-card">
+                    <div class="trend-card-top">
+                        <span class="tier-label">${escHtml(tierName(t.tier, t.category))}</span>
+                        <span class="confidence-badge ${conf.cls}">${conf.label}</span>
                     </div>
-                    <div class="pick-recommendation">${escHtml(p.pick)}</div>
-                    ${resultBadge}
-                    ${reasoning}
+                    <div class="trend-name">${escHtml(t.trend)}</div>
+                    <div class="trend-stats">
+                        <div class="stat-rate">
+                            <span class="num">${rate}%</span>
+                            <span class="lbl">${rateLabel}</span>
+                        </div>
+                        <div class="stat-meta">
+                            <div class="meta-row"><span class="side-pill">${escHtml(t.side)}</span></div>
+                            ${nRow}
+                        </div>
+                    </div>
                 </div>`;
         }
 
@@ -773,7 +680,6 @@
         }
 
         // ── Init ──────────────────────────────────────────────────
-
         window.addEventListener('load', () => {
             const params = new URLSearchParams(window.location.search);
             const adminToken = params.get('admin');
@@ -781,15 +687,15 @@
                 const adminUser = { email: 'admin', packageType: 'admin', subscriptionEnd: null };
                 saveSession(adminToken, adminUser);
                 history.replaceState(null, '', window.location.pathname);
-                showPicksScreen(adminUser);
-                loadPicks(adminToken);
+                showTrendsScreen(adminUser);
+                loadTrends(adminToken);
                 return;
             }
 
             const session = loadSession();
             if (session && session.token && session.user) {
-                showPicksScreen(session.user);
-                loadPicks(session.token);
+                showTrendsScreen(session.user);
+                loadTrends(session.token);
             } else {
                 showLoginScreen();
             }
