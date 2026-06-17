@@ -608,10 +608,12 @@
 
         // ── Render trends ─────────────────────────────────────────
         function renderTrends(trends, container) {
-            const spreads = trends.filter(t => (t.category || 'spread') !== 'total')
-                                   .sort((a, b) => b.rate - a.rate);
-            const totals  = trends.filter(t => (t.category || 'spread') === 'total')
-                                   .sort((a, b) => b.rate - a.rate);
+            const spreads  = trends.filter(t => !['total', 'referee'].includes(t.category || 'spread'))
+                                    .sort((a, b) => b.rate - a.rate);
+            const totals   = trends.filter(t => (t.category || 'spread') === 'total')
+                                    .sort((a, b) => b.rate - a.rate);
+            const referees = trends.filter(t => (t.category || 'spread') === 'referee')
+                                    .sort((a, b) => b.rate - a.rate);
 
             let html = '';
 
@@ -635,11 +637,22 @@
                 </div>`;
             }
 
+            if (referees.length) {
+                html += `<div class="trend-section">
+                    <div class="section-label">Referee Leans</div>
+                    <div class="section-desc">Home-team ATS cover rate by head referee. A scheduling quirk, not a cause — weight the sample size accordingly.</div>
+                    <div class="trends-grid">
+                        ${referees.map(renderTrendCard).join('')}
+                    </div>
+                </div>`;
+            }
+
             container.innerHTML = html;
         }
 
         function tierName(tier, category) {
             if (category === 'total') return 'Totals';
+            if (category === 'referee') return 'Referee';
             const map = { 1: 'Tier 1 · Core', 2: 'Tier 2 · Historical', 3: 'Tier 3 · Secondary' };
             return map[tier] || 'Trend';
         }

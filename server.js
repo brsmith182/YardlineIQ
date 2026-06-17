@@ -525,7 +525,7 @@ app.get('/api/picks', async (req, res) => {
 
 // ===================== BETTING TRENDS (member-gated) =====================
 // Curated trend-mining findings. Subscriber-facing set = Tiers 1-3 (spreads)
-// + Totals. Each trend stores the *actionable* side and its cover/hit rate,
+// + Totals + Referee leans. Each trend stores the *actionable* side and its cover/hit rate,
 // the sample size (n), and the binomial p-value. The frontend converts p into
 // a Confidence label (Very High / High / Moderate / Speculative).
 // Source: "Master ATS list — reconciled", regular season 2020–25.
@@ -551,7 +551,11 @@ const STARTER_TRENDS = [
   { category: 'total', tier: 4, trend: 'Wind 11–15 mph', side: 'Under', n: 189, rate: 60.3, p: 0.0056 },
   { category: 'total', tier: 4, trend: 'Prime-time games (SNF / MNF / TNF)', side: 'Under', n: 330, rate: 55.2, p: 0.0691 },
   { category: 'total', tier: 4, trend: 'Outdoor games', side: 'Under', n: 1082, rate: 52.6, p: 0.0945 },
-  { category: 'total', tier: 4, trend: 'Underdog with wind 10–14 mph', side: 'Underdog', n: 209, rate: 56.9, p: 0.0525 }
+  { category: 'total', tier: 4, trend: 'Underdog with wind 10–14 mph', side: 'Underdog', n: 209, rate: 56.9, p: 0.0525 },
+  // --- Referee leans (home team ATS by head referee) ---
+  { category: 'referee', tier: 5, trend: 'John Hussey refereeing — home team ATS', side: 'Home', n: 98, rate: 62.2, p: 0.0197 },
+  { category: 'referee', tier: 5, trend: 'Alan Eck refereeing — home team ATS', side: 'Home', n: 50, rate: 58.0, p: 0.3222 },
+  { category: 'referee', tier: 5, trend: 'Carl Cheffers refereeing — home team ATS', side: 'Home', n: 99, rate: 55.6, p: 0.3149 }
 ];
 
 // Post a new trend (admin)
