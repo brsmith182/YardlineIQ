@@ -547,6 +547,7 @@ const STARTER_TRENDS = [
   { category: 'spread', tier: 3, trend: 'Divisional underdog', side: 'Underdog', n: 567, rate: 53.8, p: 0.0777 },
   { category: 'spread', tier: 3, trend: 'Underdog +7.5 to +9.5 (home or road)', side: 'Underdog', n: 181, rate: 55.2, p: 0.1808 },
   { category: 'spread', tier: 3, trend: 'Off a bye AND an underdog', side: 'Underdog', n: 169, rate: 55.0, p: 0.2183 },
+  { category: 'spread', tier: 3, trend: 'Home underdog off a straight-up loss', side: 'Home dog', n: 385, rate: 53.8, p: 0.1386 },
   // --- Totals (shade the number, directional lean) ---
   { category: 'total', tier: 4, trend: 'Wind 11–15 mph', side: 'Under', n: 189, rate: 60.3, p: 0.0056 },
   { category: 'total', tier: 4, trend: 'Prime-time games (SNF / MNF / TNF)', side: 'Under', n: 330, rate: 55.2, p: 0.0691 },
@@ -555,7 +556,9 @@ const STARTER_TRENDS = [
   // --- Referee leans (home team ATS by head referee) ---
   { category: 'referee', tier: 5, trend: 'John Hussey refereeing — home team ATS', side: 'Home', n: 98, rate: 62.2, p: 0.0197 },
   { category: 'referee', tier: 5, trend: 'Alan Eck refereeing — home team ATS', side: 'Home', n: 50, rate: 58.0, p: 0.3222 },
-  { category: 'referee', tier: 5, trend: 'Carl Cheffers refereeing — home team ATS', side: 'Home', n: 99, rate: 55.6, p: 0.3149 }
+  { category: 'referee', tier: 5, trend: 'Carl Cheffers refereeing — home team ATS', side: 'Home', n: 99, rate: 55.6, p: 0.3149 },
+  { category: 'referee', tier: 5, trend: 'Bill Vinovich refereeing — road team ATS', side: 'Road', n: 100, rate: 58.0, p: 0.1096 },
+  { category: 'referee', tier: 5, trend: 'Scott Novak refereeing — road team ATS', side: 'Road', n: 96, rate: 56.3, p: 0.2207 }
 ];
 
 // Post a new trend (admin)
