@@ -471,6 +471,34 @@ app.post('/api/picks', requireAuth, async (req, res) => {
   }
 });
 
+// Update a pick's result — admin only (win / loss / push / pending)
+app.patch('/api/picks/:id', requireAuth, async (req, res) => {
+  try {
+    const allowed = ['win', 'loss', 'push', 'pending'];
+    const normalized = (req.body.result || '').toString().trim().toLowerCase();
+    if (!allowed.includes(normalized)) {
+      return res.status(400).json({ error: `result must be one of: ${allowed.join(', ')}` });
+    }
+
+    const client = await getRedisClient();
+    const key = `pick:${req.params.id}`;
+    const data = await client.get(key);
+    if (!data) {
+      return res.status(404).json({ error: 'Pick not found' });
+    }
+
+    const pick = JSON.parse(data);
+    pick.result = normalized;
+    await client.set(key, JSON.stringify(pick));
+
+    console.log('Pick result updated:', req.params.id, '->', normalized);
+    res.json({ success: true, pick });
+  } catch (error) {
+    console.error('Error updating pick result:', error);
+    res.status(500).json({ error: 'Failed to update pick' });
+  }
+});
+
 // Get picks — requires valid member session token
 app.get('/api/picks', async (req, res) => {
   try {

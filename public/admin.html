@@ -308,6 +308,13 @@
             </div>
 
             <div class="content-section">
+                <h2 class="section-title">Manage Picks <span id="pickCount" class="email-badge">0</span></h2>
+                <p style="font-size:0.85rem;color:#aaa;margin-bottom:1rem;">Grade posted picks once games finish. Results show on <strong>/picks.html</strong>.</p>
+                <button class="btn" onclick="refreshPicks()">Refresh Picks</button>
+                <div id="picksList" style="margin-top:1rem;"><div class="error-message">Click "Refresh Picks" to load.</div></div>
+            </div>
+
+            <div class="content-section">
                 <h2 class="section-title">Betting Trends <span id="trendCount" class="email-badge">0</span></h2>
                 <p style="font-size:0.85rem;color:#aaa;margin-bottom:1rem;">Member-gated trend findings shown at <strong>/trends.html</strong>, sorted by cover rate.</p>
                 <button class="btn" onclick="seedTrends()">Import Starter Trends</button>
@@ -486,6 +493,54 @@
                 document.getElementById('pickMessage').innerHTML = '<div class="error-message">Error posting pick</div>';
             }
         });
+
+        // ── Pick grading ──
+        async function refreshPicks() {
+            const list = document.getElementById('picksList');
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/api/picks`);
+                if (response.status === 401) { logout(); return; }
+                const picks = await response.json();
+                document.getElementById('pickCount').textContent = Array.isArray(picks) ? picks.length : 0;
+                if (!Array.isArray(picks) || picks.length === 0) {
+                    list.innerHTML = '<div class="error-message">No picks posted yet.</div>';
+                    return;
+                }
+                const opts = ['pending', 'win', 'loss', 'push'];
+                list.innerHTML = `<div class="user-list">${picks.map(p => {
+                    const result = (p.result || 'pending').toLowerCase();
+                    return `
+                    <div class="user-item">
+                        <strong>${escapeHtml(p.week || '')}</strong> — ${escapeHtml(p.game || '')}
+                        <span class="email-badge">${escapeHtml(p.pick || '')}</span>
+                        <select onchange="gradePick('${p.id}', this.value)" style="float:right;padding:0.2rem 0.5rem;">
+                            ${opts.map(o => `<option value="${o}"${o === result ? ' selected' : ''}>${o.charAt(0).toUpperCase() + o.slice(1)}</option>`).join('')}
+                        </select>
+                    </div>`;
+                }).join('')}</div>`;
+            } catch (error) {
+                list.innerHTML = '<div class="error-message">Error loading picks</div>';
+            }
+        }
+
+        async function gradePick(id, result) {
+            try {
+                const response = await fetchWithAuth(`${API_BASE}/api/picks/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ result })
+                });
+                if (response.status === 401) { logout(); return; }
+                if (response.ok) {
+                    refreshPicks();
+                } else {
+                    const r = await response.json();
+                    alert(r.error || 'Failed to update pick');
+                }
+            } catch (error) {
+                alert('Error updating pick');
+            }
+        }
 
         // ── Betting Trends management ──
         async function seedTrends() {
