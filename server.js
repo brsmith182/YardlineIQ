@@ -852,6 +852,10 @@ app.get('/hedge-calculator.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'hedge-calculator.html'));
 });
 
+app.get('/parlay-calculator.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'parlay-calculator.html'));
+});
+
 // Strategy guides
 app.get('/value-betting.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'value-betting.html'));
