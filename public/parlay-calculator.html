@@ -12,8 +12,8 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vig / No-Vig Calculator | YardlineIQ</title>
-    <meta name="description" content="Free vig calculator for sports bettors. Strip the sportsbook's juice to see the true implied probability and fair odds on each side of any two-sided market.">
+    <title>Parlay Calculator | YardlineIQ</title>
+    <meta name="description" content="Free parlay calculator for sports bettors. Combine up to 12 legs in American or decimal odds to see your true combined odds, total payout, profit, and implied probability.">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
@@ -111,7 +111,7 @@
 
         /* ── Page layout ── */
         .page-wrapper {
-            max-width: 1100px;
+            max-width: 860px;
             margin: 0 auto;
             padding: 120px 2rem 4rem;
         }
@@ -148,10 +148,28 @@
             font-size: 0.95rem;
         }
 
+        /* ── Calculator card ── */
+        .calc-card {
+            background: rgba(255, 255, 255, 0.025);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        /* ── Section label ── */
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: rgba(255, 255, 255, 0.28);
+            margin-bottom: 0.9rem;
+        }
+
         /* ── Format toggle ── */
         .fmt-toggle {
             display: flex;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.75rem;
             border: 0.5px solid rgba(255, 255, 255, 0.12);
             border-radius: 8px;
             overflow: hidden;
@@ -175,16 +193,58 @@
         }
         .fmt-btn:not(.active):hover { color: rgba(255, 255, 255, 0.75); }
 
-        /* ── Slate table ── */
-        .slate-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+        /* ── Stake input ── */
+        .stake-wrap { margin-bottom: 1.75rem; }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            max-width: 220px;
+        }
+        .control-group label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.35);
+        }
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-prefix {
+            position: absolute;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 13px;
+            pointer-events: none;
+        }
+        .calc-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 0.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            padding: 10px 12px;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .calc-input:focus { border-color: rgba(0, 255, 136, 0.4); }
+        .calc-input.has-prefix { padding-left: 22px; }
 
-        table.slate-table {
+        /* ── Legs table ── */
+        .legs-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+
+        table.legs-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
             table-layout: fixed;
         }
-        .slate-table thead th {
+        .legs-table thead th {
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
@@ -196,12 +256,12 @@
             white-space: nowrap;
             overflow: hidden;
         }
-        .slate-table thead th.right { text-align: right; }
+        .legs-table thead th.right { text-align: right; }
 
-        .slate-table tbody tr {
+        .legs-table tbody tr {
             border-bottom: 0.5px solid rgba(255, 255, 255, 0.05);
         }
-        .slate-table tbody tr td { padding: 6px 8px; vertical-align: middle; }
+        .legs-table tbody tr td { padding: 6px 8px; vertical-align: middle; }
 
         td.row-num {
             color: rgba(255, 255, 255, 0.2);
@@ -209,7 +269,7 @@
             width: 28px;
             padding-right: 4px;
         }
-        td input.slate-input {
+        td input.leg-input {
             background: rgba(255, 255, 255, 0.04);
             border: 0.5px solid rgba(255, 255, 255, 0.1);
             border-radius: 6px;
@@ -221,38 +281,17 @@
             transition: border-color 0.2s;
             width: 100%;
         }
-        td input.slate-input:focus { border-color: rgba(0, 255, 136, 0.35); }
-        td input.matchup-input { width: 100%; }
-        td input.odds-a-input,
-        td input.odds-b-input { text-align: right; }
+        td input.leg-input:focus { border-color: rgba(0, 255, 136, 0.35); }
+        td input.odds-input { text-align: right; }
 
-        td.odds-cell { width: 82px; text-align: right; }
+        td.odds-cell { width: 100px; text-align: right; }
 
-        td.output-cell {
+        td.implied-cell {
             font-size: 13px;
             text-align: right;
             white-space: nowrap;
             color: rgba(255, 255, 255, 0.55);
-            width: 75px;
-        }
-        td.prob-a,
-        td.prob-b {
-            width: 75px;
-        }
-        td.vig-pct {
-            font-weight: 600;
-            font-size: 13px;
-            text-align: right;
-            white-space: nowrap;
-            width: 70px;
-        }
-        td.fair-a,
-        td.fair-b {
-            color: rgba(255, 255, 255, 0.45);
-            font-size: 12px;
-            width: 75px;
-            text-align: right;
-            white-space: nowrap;
+            width: 112px;
         }
 
         td.remove-cell { width: 32px; text-align: center; }
@@ -269,7 +308,7 @@
         }
         .remove-btn:hover { color: #ff6b6b; }
 
-        /* ── Add row button ── */
+        /* ── Add leg button ── */
         .add-row-btn {
             background: transparent;
             border: 0.5px solid rgba(255, 255, 255, 0.12);
@@ -290,21 +329,39 @@
             border-color: rgba(0, 255, 136, 0.35);
             color: #00ff88;
         }
+        .add-row-btn:disabled {
+            opacity: 0.35;
+            cursor: default;
+        }
+        .add-row-btn:disabled:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.4);
+        }
 
-        /* ── Summary grid ── */
-        .summary-grid {
+        /* ── Divider ── */
+        .calc-divider {
+            height: 0.5px;
+            background: rgba(255, 255, 255, 0.07);
+            margin: 1.75rem 0;
+        }
+
+        /* ── Result cards ── */
+        .result-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 0.75rem;
-            margin-top: 1.5rem;
         }
-        .summary-card {
+        .result-card {
             background: rgba(255, 255, 255, 0.03);
             border: 0.5px solid rgba(255, 255, 255, 0.08);
             border-radius: 12px;
             padding: 1rem 1.25rem;
         }
-        .summary-card-label {
+        .result-card.highlight {
+            background: rgba(0, 255, 136, 0.05);
+            border-color: rgba(0, 255, 136, 0.2);
+        }
+        .result-label {
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
@@ -312,17 +369,23 @@
             color: rgba(255, 255, 255, 0.3);
             margin-bottom: 0.4rem;
         }
-        .summary-card-value {
+        .result-value {
             font-size: 20px;
             font-weight: 700;
             color: white;
             line-height: 1.1;
         }
-        .summary-card-value.green {
+        .result-value.green {
             background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+        .result-value.dim { color: rgba(255, 255, 255, 0.3); }
+        .result-sub {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.28);
+            margin-top: 0.25rem;
         }
 
         /* ── Editorial content ── */
@@ -377,17 +440,17 @@
 
         /* ── Mobile ── */
         @media (max-width: 900px) {
-            .summary-grid { grid-template-columns: 1fr 1fr; }
+            .result-grid { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .mobile-menu-btn { display: block; }
             .nav-container { padding: 0 1.5rem; }
-            td.fair-a, td.fair-b { display: none; }
         }
         @media (max-width: 480px) {
-            td.vig-pct { display: none; }
-            .summary-grid { grid-template-columns: 1fr 1fr; }
+            td.implied-cell { display: none; }
+            .legs-table thead th.implied-head { display: none; }
+            .calc-card { padding: 1.5rem 1.25rem; }
             .page-wrapper { padding: 100px 1.25rem 3rem; }
         }
     </style>
@@ -415,64 +478,77 @@
         <div class="breadcrumb">
             <a href="/resources.html">Resources</a>
             <span>›</span>
-            <span>Vig Calculator</span>
+            <span>Parlay Calculator</span>
         </div>
 
         <div class="page-header">
-            <h1>Vig / No-Vig Calculator</h1>
-            <p>Strip the sportsbook's juice to see the true implied probability and fair odds on each side</p>
+            <h1>Parlay Calculator</h1>
+            <p>Combine multiple legs to see your true combined odds, total payout, and implied probability</p>
         </div>
 
-        <div class="vig-calculator">
+        <div class="calc-card">
 
             <div class="fmt-toggle">
                 <button class="fmt-btn active" data-fmt="american" onclick="setFormat('american')">American</button>
                 <button class="fmt-btn" data-fmt="decimal" onclick="setFormat('decimal')">Decimal</button>
             </div>
 
-            <div class="slate-table-wrap">
-                <table class="slate-table">
+            <div class="stake-wrap">
+                <div class="control-group">
+                    <label for="stakeInput">Stake</label>
+                    <div class="input-wrap">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="stakeInput" class="calc-input has-prefix" value="100" min="0" step="10" oninput="recalc()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-label">Parlay Legs</div>
+
+            <div class="legs-table-wrap">
+                <table class="legs-table">
                     <thead>
                         <tr>
                             <th style="width:28px">#</th>
-                            <th style="width:140px">Matchup</th>
-                            <th class="right" style="width:82px">Odds A</th>
-                            <th class="right" style="width:82px">Odds B</th>
-                            <th class="right" style="width:70px">Vig %</th>
-                            <th class="right" style="width:75px">Prob A</th>
-                            <th class="right" style="width:75px">Prob B</th>
-                            <th class="right" style="width:75px">Fair A</th>
-                            <th class="right" style="width:75px">Fair B</th>
+                            <th>Leg</th>
+                            <th class="right" style="width:100px">Odds</th>
+                            <th class="right implied-head" style="width:112px">Implied Prob</th>
                             <th style="width:32px"></th>
                         </tr>
                     </thead>
-                    <tbody id="vigBody"></tbody>
+                    <tbody id="legsBody"></tbody>
                 </table>
             </div>
 
-            <button class="add-row-btn">
+            <button class="add-row-btn" id="addLegBtn">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
-                Add line
+                Add leg
             </button>
 
-            <div class="summary-grid">
-                <div class="summary-card">
-                    <div class="summary-card-label">Avg Vig</div>
-                    <div class="summary-card-value green" id="sumAvgVig">—</div>
+            <div class="calc-divider"></div>
+
+            <div class="result-grid">
+                <div class="result-card highlight">
+                    <div class="result-label">Combined Odds</div>
+                    <div class="result-value green" id="resCombined">—</div>
+                    <div class="result-sub" id="resLegCount">0 legs</div>
                 </div>
-                <div class="summary-card">
-                    <div class="summary-card-label">Highest Vig</div>
-                    <div class="summary-card-value" id="sumHighVig">—</div>
+                <div class="result-card">
+                    <div class="result-label">Total Payout</div>
+                    <div class="result-value" id="resPayout">—</div>
+                    <div class="result-sub">Stake + profit</div>
                 </div>
-                <div class="summary-card">
-                    <div class="summary-card-label">Lowest Vig</div>
-                    <div class="summary-card-value" id="sumLowVig">—</div>
+                <div class="result-card">
+                    <div class="result-label">Profit</div>
+                    <div class="result-value" id="resProfit">—</div>
+                    <div class="result-sub">If every leg hits</div>
                 </div>
-                <div class="summary-card">
-                    <div class="summary-card-label">Total Lines</div>
-                    <div class="summary-card-value" id="sumTotalLines">0</div>
+                <div class="result-card">
+                    <div class="result-label">Implied Probability</div>
+                    <div class="result-value" id="resImplied">—</div>
+                    <div class="result-sub">Break-even win rate</div>
                 </div>
             </div>
 
@@ -481,26 +557,25 @@
         <div class="editorial">
 
             <div class="editorial-section">
-                <h2>What is vig (juice)?</h2>
-                <p>Vig — short for vigorish, also called juice — is the commission a sportsbook charges for taking your action. It's baked into every line you see. On a standard NFL ATS bet, both sides are priced at <span class="inline-highlight">–110</span>, meaning you risk $110 to win $100. If the implied probabilities on each side were fair, they'd sum to exactly 100%. At –110/–110, they sum to about <span class="inline-highlight">104.76%</span>. That extra 4.76% is the book's built-in edge — it's what ensures they profit over the long run regardless of outcome.</p>
-                <p>Understanding the vig on any given line is the first step in evaluating whether a price represents genuine value. A line with 8% juice built in starts you at a significant disadvantage before the game even kicks off.</p>
+                <h2>How parlay odds work</h2>
+                <p>A parlay combines two or more individual bets into a single wager. Every leg must win for the parlay to cash — one loss and the whole ticket is dead. The payoff is calculated by converting each leg to decimal odds and multiplying them together. Three legs at <span class="inline-highlight">–110</span> each convert to 1.909 in decimal, and 1.909 × 1.909 × 1.909 ≈ 6.96 — roughly <span class="inline-highlight">+596</span> in American odds.</p>
+                <p>Here's the part most bettors miss: if each of those legs is a true coin flip, the fair probability of hitting all three is 50% × 50% × 50% = 12.5%, which should pay +700. The gap between +700 and +596 is the sportsbook's vig — compounded across every leg. The more legs you stack, the wider that gap grows.</p>
             </div>
 
             <div class="editorial-section">
                 <h2>How to use this calculator</h2>
                 <ol>
-                    <li><strong>Choose your odds format.</strong> Toggle between American (e.g. –110) and Decimal (e.g. 1.909) depending on the format your book displays. Switching format converts all existing row values automatically.</li>
-                    <li><strong>Enter the odds for both sides.</strong> Type in the line for Side A and Side B as listed at your sportsbook. For a standard ATS game this is typically –110 on each side, but any line works.</li>
-                    <li><strong>Read the outputs.</strong> <strong>Vig %</strong> shows the book's margin on that game. <strong>Prob A / Prob B</strong> show the true implied probabilities after removing the juice — these sum to exactly 100%. <strong>Fair A / Fair B</strong> show what the odds would be at zero vig.</li>
-                    <li><strong>Add multiple lines.</strong> Use <em>+ Add line</em> to compare vig across your full slate or across multiple books offering the same game. The summary row shows your average, highest, and lowest vig across all entries.</li>
-                    <li><strong>Use the fair odds for line shopping.</strong> If your book has Side A at –115 but the no-vig fair odds are –106, you're paying extra juice. Finding the same side at –108 at another book means you're closer to fair value.</li>
+                    <li><strong>Choose your odds format.</strong> Toggle between American (e.g. –110) and Decimal (e.g. 1.909). Switching format converts all existing leg values automatically.</li>
+                    <li><strong>Enter your stake.</strong> The dollar amount you're putting on the ticket. Payout and profit update as you type.</li>
+                    <li><strong>Add your legs.</strong> Enter the odds for each bet in the parlay as listed at your sportsbook. Use <em>+ Add leg</em> to build tickets up to 12 legs. The Implied Prob column shows what each leg's price says about its win probability.</li>
+                    <li><strong>Read the results.</strong> <strong>Combined Odds</strong> is the price of the full ticket. <strong>Total Payout</strong> is what the book returns if everything hits, and <strong>Profit</strong> is that amount minus your stake. <strong>Implied Probability</strong> is how often the whole ticket must win for the bet to break even.</li>
                 </ol>
             </div>
 
             <div class="editorial-section">
-                <h2>Why no-vig odds matter</h2>
-                <p>The fair odds this calculator produces are the starting point for evaluating closing line value (CLV). If you consistently bet sides at prices better than the no-vig closing line, you're demonstrating a genuine process edge — not just running hot. Conversely, if you're always paying above fair odds, the vig alone is enough to grind your bankroll down over time regardless of your pick accuracy.</p>
-                <p>No-vig odds are also useful for line shopping. When you know the fair price on a side is <span class="inline-highlight">–106</span>, getting it at –108 is a meaningful improvement even if –108 still looks like "you're paying juice." Relative to the fair line, you're 2 cents better off — and those 2 cents compound significantly over hundreds of bets.</p>
+                <h2>The math working against you</h2>
+                <p>Parlays are the most profitable bet type sportsbooks offer — for the sportsbook. On a single –110 bet, the built-in house edge is about <span class="inline-highlight">4.5%</span>. Parlay two –110 legs and the edge compounds to roughly 9%. At three legs it's near 13%, and a five-leg ticket hands the book close to 20% before kickoff. You're not just paying juice once; you're paying it on every leg, multiplied together.</p>
+                <p>That doesn't mean parlays are never worth analyzing. If you genuinely hold an edge on each individual leg, that edge compounds the same way the vig does — but your per-leg edge has to be large enough to overcome the stacked juice, which is a high bar. For most bettors, the disciplined play is straight bets at the best available price. Use this calculator to see exactly what a ticket pays and what it implies — and compare the implied probability against your honest assessment of how often that ticket actually cashes.</p>
             </div>
 
         </div>
@@ -518,36 +593,21 @@
     </footer>
 
     <script>
+        const MAX_LEGS = 12;
         let format = 'american';
         let rowCounter = 0;
 
-        function toImplied(odds, fmt) {
-            if (fmt === 'decimal') {
-                const d = parseFloat(odds);
-                return isNaN(d) || d <= 1 ? null : 1 / d;
-            }
+        function toDecimal(odds, fmt) {
             const o = parseFloat(odds);
-            if (isNaN(o) || o === 0) return null;
-            return o > 0 ? 100 / (o + 100) : Math.abs(o) / (Math.abs(o) + 100);
-        }
-
-        function toFairOdds(prob, fmt) {
-            if (fmt === 'decimal') return (1 / prob).toFixed(3);
-            if (prob >= 0.5) return Math.round(-(prob / (1 - prob)) * 100).toString();
-            return '+' + Math.round(((1 - prob) / prob) * 100);
-        }
-
-        function vigColor(pct) {
-            if (pct < 0) return '#00ccff';
-            if (pct <= 4) return '#00ff88';
-            if (pct <= 6) return '#ffcc00';
-            return '#ff6b6b';
+            if (isNaN(o)) return null;
+            if (fmt === 'decimal') return o > 1 ? o : null;
+            if (o === 0 || (o > -100 && o < 100)) return null;
+            return o > 0 ? o / 100 + 1 : 100 / Math.abs(o) + 1;
         }
 
         function americanToDecimal(american) {
-            const o = parseFloat(american);
-            if (isNaN(o) || o === 0) return '';
-            return o > 0 ? (o / 100 + 1).toFixed(3) : (100 / Math.abs(o) + 1).toFixed(3);
+            const d = toDecimal(american, 'american');
+            return d === null ? '' : d.toFixed(3);
         }
 
         function decimalToAmerican(decimal) {
@@ -558,72 +618,71 @@
             return Math.round(-100 / (d - 1)).toString();
         }
 
+        function formatCombined(decimal, fmt) {
+            if (fmt === 'decimal') {
+                return decimal >= 100 ? decimal.toFixed(1) : decimal.toFixed(3);
+            }
+            if (decimal >= 2) return '+' + Math.round((decimal - 1) * 100).toLocaleString('en-US');
+            return Math.round(-100 / (decimal - 1)).toString();
+        }
+
+        function formatMoney(amount) {
+            return '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         function recalc() {
-            const rows = Array.from(document.querySelectorAll('#vigBody tr'));
-            let totalVig = 0, maxVig = -Infinity, minVig = Infinity, validCount = 0;
+            const rows = Array.from(document.querySelectorAll('#legsBody tr'));
+            let combined = 1, validCount = 0;
 
             rows.forEach(row => {
-                const impliedA = toImplied(row.querySelector('.odds-a-input').value, format);
-                const impliedB = toImplied(row.querySelector('.odds-b-input').value, format);
-                const vigCell  = row.querySelector('.vig-pct');
-                const probACell = row.querySelector('.prob-a');
-                const probBCell = row.querySelector('.prob-b');
-                const fairACell = row.querySelector('.fair-a');
-                const fairBCell = row.querySelector('.fair-b');
-
-                if (!impliedA || !impliedB || impliedA <= 0 || impliedB <= 0) {
-                    vigCell.textContent = '—';
-                    vigCell.style.color = 'rgba(255,255,255,0.3)';
-                    probACell.textContent = '—';
-                    probBCell.textContent = '—';
-                    fairACell.textContent = '—';
-                    fairBCell.textContent = '—';
+                const dec = toDecimal(row.querySelector('.odds-input').value, format);
+                const impliedCell = row.querySelector('.implied-cell');
+                if (dec === null) {
+                    impliedCell.textContent = '—';
                     return;
                 }
-
-                const total  = impliedA + impliedB;
-                const noVigA = impliedA / total;
-                const noVigB = impliedB / total;
-                const vig    = (total - 1) * 100;
-
-                vigCell.textContent  = vig.toFixed(2) + '%';
-                vigCell.style.color  = vigColor(vig);
-                probACell.textContent = (noVigA * 100).toFixed(1) + '%';
-                probBCell.textContent = (noVigB * 100).toFixed(1) + '%';
-                fairACell.textContent = toFairOdds(noVigA, format);
-                fairBCell.textContent = toFairOdds(noVigB, format);
-
-                totalVig += vig;
-                if (vig > maxVig) maxVig = vig;
-                if (vig < minVig) minVig = vig;
+                impliedCell.textContent = (100 / dec).toFixed(1) + '%';
+                combined *= dec;
                 validCount++;
             });
 
-            document.getElementById('sumAvgVig').textContent    = validCount > 0 ? (totalVig / validCount).toFixed(2) + '%' : '—';
-            document.getElementById('sumHighVig').textContent   = validCount > 0 ? maxVig.toFixed(2) + '%' : '—';
-            document.getElementById('sumLowVig').textContent    = validCount > 0 ? minVig.toFixed(2) + '%' : '—';
-            document.getElementById('sumTotalLines').textContent = validCount;
+            const combinedEl = document.getElementById('resCombined');
+            const payoutEl   = document.getElementById('resPayout');
+            const profitEl   = document.getElementById('resProfit');
+            const impliedEl  = document.getElementById('resImplied');
+            const legCountEl = document.getElementById('resLegCount');
+
+            legCountEl.textContent = validCount + (validCount === 1 ? ' leg' : ' legs');
+
+            if (validCount === 0) {
+                combinedEl.textContent = '—';
+                payoutEl.textContent   = '—';
+                profitEl.textContent   = '—';
+                impliedEl.textContent  = '—';
+                return;
+            }
+
+            const stake = parseFloat(document.getElementById('stakeInput').value);
+            const hasStake = !isNaN(stake) && stake > 0;
+
+            combinedEl.textContent = formatCombined(combined, format);
+            payoutEl.textContent   = hasStake ? formatMoney(stake * combined) : '—';
+            profitEl.textContent   = hasStake ? formatMoney(stake * combined - stake) : '—';
+            impliedEl.textContent  = (100 / combined).toFixed(2) + '%';
         }
 
         function setFormat(fmt) {
             if (fmt === format) return;
-            document.querySelectorAll('#vigBody tr').forEach(row => {
-                const aInput = row.querySelector('.odds-a-input');
-                const bInput = row.querySelector('.odds-b-input');
+            document.querySelectorAll('#legsBody tr').forEach(row => {
+                const input = row.querySelector('.odds-input');
                 if (fmt === 'decimal') {
-                    aInput.value = americanToDecimal(aInput.value);
-                    bInput.value = americanToDecimal(bInput.value);
-                    aInput.step  = '0.001';
-                    bInput.step  = '0.001';
-                    aInput.placeholder = '1.909';
-                    bInput.placeholder = '1.909';
+                    input.value = americanToDecimal(input.value);
+                    input.step  = '0.001';
+                    input.placeholder = '1.909';
                 } else {
-                    aInput.value = decimalToAmerican(aInput.value);
-                    bInput.value = decimalToAmerican(bInput.value);
-                    aInput.step  = '5';
-                    bInput.step  = '5';
-                    aInput.placeholder = '-110';
-                    bInput.placeholder = '-110';
+                    input.value = decimalToAmerican(input.value);
+                    input.step  = '5';
+                    input.placeholder = '-110';
                 }
             });
             format = fmt;
@@ -633,35 +692,48 @@
             recalc();
         }
 
-        function addRow(oddsA, oddsB, label) {
+        function renumberRows() {
+            document.querySelectorAll('#legsBody tr').forEach((row, i) => {
+                row.querySelector('.row-num').textContent = i + 1;
+            });
+        }
+
+        function updateAddBtn() {
+            const count = document.querySelectorAll('#legsBody tr').length;
+            document.getElementById('addLegBtn').disabled = count >= MAX_LEGS;
+        }
+
+        function addRow(odds, label) {
+            if (document.querySelectorAll('#legsBody tr').length >= MAX_LEGS) return;
             rowCounter++;
-            const id  = rowCounter;
-            const lbl = label !== null ? label : 'Game ' + id;
+            const id   = rowCounter;
             const step = format === 'decimal' ? '0.001' : '5';
             const ph   = format === 'decimal' ? '1.909' : '-110';
 
             const tr = document.createElement('tr');
             tr.dataset.id = id;
             tr.innerHTML = `
-                <td class="row-num">${id}</td>
-                <td><input type="text" class="slate-input matchup-input" placeholder="Matchup" oninput="recalc()"></td>
-                <td class="odds-cell"><input type="number" class="slate-input odds-a-input" value="${oddsA}" step="${step}" placeholder="${ph}" oninput="recalc()"></td>
-                <td class="odds-cell"><input type="number" class="slate-input odds-b-input" value="${oddsB}" step="${step}" placeholder="${ph}" oninput="recalc()"></td>
-                <td class="vig-pct output-cell">—</td>
-                <td class="prob-a output-cell">—</td>
-                <td class="prob-b output-cell">—</td>
-                <td class="fair-a output-cell">—</td>
-                <td class="fair-b output-cell">—</td>
+                <td class="row-num"></td>
+                <td><input type="text" class="leg-input desc-input" placeholder="Leg description" oninput="recalc()"></td>
+                <td class="odds-cell"><input type="number" class="leg-input odds-input" value="${odds}" step="${step}" placeholder="${ph}" oninput="recalc()"></td>
+                <td class="implied-cell">—</td>
                 <td class="remove-cell"><button class="remove-btn" onclick="removeRow(${id})" title="Remove">✕</button></td>
             `;
-            document.getElementById('vigBody').appendChild(tr);
-            tr.querySelector('.matchup-input').value = lbl;
+            document.getElementById('legsBody').appendChild(tr);
+            tr.querySelector('.desc-input').value = label !== null ? label : 'Leg ' + id;
+            renumberRows();
+            updateAddBtn();
             recalc();
         }
 
         function removeRow(id) {
-            const row = document.querySelector(`#vigBody tr[data-id="${id}"]`);
-            if (row) { row.remove(); recalc(); }
+            const row = document.querySelector(`#legsBody tr[data-id="${id}"]`);
+            if (row) {
+                row.remove();
+                renumberRows();
+                updateAddBtn();
+                recalc();
+            }
         }
 
         window.addEventListener('scroll', () => {
@@ -681,12 +753,12 @@
             }
         });
 
-        document.querySelector('.add-row-btn').onclick = function () {
-            const defaults = format === 'decimal' ? ['1.909', '1.909'] : ['-110', '-110'];
-            addRow(defaults[0], defaults[1], null);
+        document.getElementById('addLegBtn').onclick = function () {
+            addRow(format === 'decimal' ? '1.909' : '-110', null);
         };
 
-        for (let i = 0; i < 5; i++) addRow('-110', '-110', null);
+        addRow('-110', null);
+        addRow('-110', null);
     </script>
 
 </body>
