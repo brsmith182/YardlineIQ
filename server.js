@@ -551,6 +551,74 @@ app.get('/api/picks', async (req, res) => {
   }
 });
 
+// ===================== HANDLE REPORT (member-gated) =====================
+// The handle report is a snapshot that gets replaced wholesale each time the
+// admin posts fresh numbers, so it lives under a single key instead of the
+// per-id pattern picks use.
+
+// Post/replace handle report — admin only. Body: array of games (or { games: [...] }).
+// Posting an empty array clears the report.
+app.post('/api/handle', requireAuth, async (req, res) => {
+  try {
+    const games = Array.isArray(req.body) ? req.body : req.body.games;
+    if (!Array.isArray(games)) {
+      return res.status(400).json({ error: 'Body must be an array of games (or { games: [...] })' });
+    }
+    for (const g of games) {
+      if (!g || typeof g.game !== 'string' || !g.game.trim()) {
+        return res.status(400).json({ error: 'Every game needs a "game" field, e.g. "Chiefs vs Chargers"' });
+      }
+    }
+
+    const client = await getRedisClient();
+    await client.set('handle_games', JSON.stringify(games));
+
+    console.log('Handle report updated —', games.length, 'games');
+    res.json({ success: true, count: games.length });
+  } catch (error) {
+    console.error('Error saving handle report:', error);
+    res.status(500).json({ error: 'Failed to save handle report' });
+  }
+});
+
+// Get handle report — requires valid member session token
+app.get('/api/handle', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const token = authHeader.slice(7);
+
+    // Allow admin token to bypass member session check
+    const isAdmin = authHeader === 'Bearer admin-authenticated';
+
+    // --- DEV STUB: no Redis locally — admin sees an empty report ---
+    if (!process.env.REDIS_URL) {
+      if (!isAdmin) return res.status(401).json({ error: 'Authentication required' });
+      return res.json([]);
+    }
+    // ----------------------------------------------------------------
+
+    const client = await getRedisClient();
+    const email = isAdmin ? 'admin' : await client.get(`session:${token}`);
+
+    if (!email) {
+      return res.status(401).json({ error: 'Session expired. Please log in again.' });
+    }
+
+    const data = await client.get('handle_games');
+    const games = data ? JSON.parse(data) : [];
+
+    console.log('Handle report requested by', email, '— returning', games.length, 'games');
+    res.json(games);
+  } catch (error) {
+    console.error('Error fetching handle report:', error);
+    res.status(500).json({ error: 'Failed to fetch handle report' });
+  }
+});
+
 // ===================== BETTING TRENDS (member-gated) =====================
 // Curated trend-mining findings. Subscriber-facing set = Tiers 1-3 (spreads)
 // + Totals + Referee leans. Each trend stores the *actionable* side and its cover/hit rate,
@@ -834,6 +902,10 @@ app.get('/picks.html', (req, res) => {
 // Serve trends page for members
 app.get('/trends.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'trends.html'));
+});
+
+app.get('/handle.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'handle.html'));
 });
 
 app.get('/resources.html', (req, res) => {
