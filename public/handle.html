@@ -308,8 +308,9 @@
             });
             let html = '';
             for (const [week, weekGames] of Object.entries(byWeek)) {
+                const label = /^\d+$/.test(week) ? `Week ${week}` : week;
                 html += `<div class="week-section">
-                    <div class="week-label">Week ${week}</div>
+                    <div class="week-label">${escHtml(label)}</div>
                     <div class="picks-grid">`;
                 weekGames.forEach(g => { html += renderHandleCard(g); });
                 html += `</div></div>`;
