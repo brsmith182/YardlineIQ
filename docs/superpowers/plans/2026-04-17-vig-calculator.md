@@ -1,0 +1,860 @@
+# Vig / No-Vig Calculator Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Build `public/vig-calculator.html` — a two-sided vig/no-vig calculator with American/Decimal toggle, multi-row slate view, and summary cards — then wire it into `public/resources.html`.
+
+**Architecture:** Single self-contained HTML file (styles + markup + JS all inline), matching the pattern of `kelly-calculator.html`. No build step, no external dependencies beyond Google Fonts/Analytics already in use. The resources page update is a targeted edit to two elements in `public/resources.html`.
+
+**Tech Stack:** Vanilla HTML/CSS/JS, Inter font (Google Fonts), same dark theme as existing pages (`#0a0a0a` background, `#00ff88` / `#00ccff` accent).
+
+---
+
+## Files
+
+| Action | Path | Responsibility |
+|---|---|---|
+| Create | `public/vig-calculator.html` | Full calculator page |
+| Modify | `public/resources.html` | Flip Vig card to live, update count |
+
+---
+
+### Task 1: Create `vig-calculator.html` — full page scaffold with CSS
+
+Build the complete HTML file: header, nav, page layout, toggle, table structure, summary cards, editorial, and footer. No JS yet — script block is empty. The file should render a static page with correct layout.
+
+**Files:**
+- Create: `public/vig-calculator.html`
+
+- [ ] **Step 1: Create the file**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L6R1V0FNXH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-L6R1V0FNXH');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vig / No-Vig Calculator | YardlineIQ</title>
+    <meta name="description" content="Free vig calculator for sports bettors. Strip the sportsbook's juice to see the true implied probability and fair odds on each side of any two-sided market.">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+
+        /* ── Header ── */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 2rem 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .header.scrolled {
+            background: rgba(8, 10, 12, 0.97);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.12);
+            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 3rem;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 3rem;
+        }
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+            letter-spacing: 0.02em;
+        }
+        .nav-links a:hover,
+        .nav-links a.active { color: #00ff88; }
+        .login-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+        }
+        .login-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        /* ── Page layout ── */
+        .page-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 120px 2rem 4rem;
+        }
+
+        /* ── Breadcrumb ── */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.28);
+            margin-bottom: 1.5rem;
+        }
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.38);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .breadcrumb a:hover { color: #00ff88; }
+
+        .page-header { margin-bottom: 2.5rem; }
+        .page-header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        .page-header p {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 0.95rem;
+        }
+
+        /* ── Format toggle ── */
+        .fmt-toggle {
+            display: flex;
+            margin-bottom: 1.25rem;
+            border: 0.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            overflow: hidden;
+            width: fit-content;
+        }
+        .fmt-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.45);
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 8px 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.02em;
+        }
+        .fmt-btn.active {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+        }
+        .fmt-btn:not(.active):hover { color: rgba(255, 255, 255, 0.75); }
+
+        /* ── Slate table ── */
+        .slate-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+
+        table.slate-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            table-layout: fixed;
+        }
+        .slate-table thead th {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: rgba(255, 255, 255, 0.3);
+            padding: 0 8px 10px;
+            text-align: left;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .slate-table thead th.right { text-align: right; }
+
+        .slate-table tbody tr {
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+        .slate-table tbody tr td { padding: 6px 8px; vertical-align: middle; }
+
+        td.row-num {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 11px;
+            width: 28px;
+            padding-right: 4px;
+        }
+        td input.slate-input {
+            background: rgba(255, 255, 255, 0.04);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            padding: 5px 8px;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+        td input.slate-input:focus { border-color: rgba(0, 255, 136, 0.35); }
+        td input.matchup-input { width: 100%; }
+        td input.odds-a-input,
+        td input.odds-b-input { text-align: right; }
+
+        td.odds-cell { width: 82px; text-align: right; }
+
+        td.output-cell {
+            font-size: 13px;
+            text-align: right;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.55);
+            width: 75px;
+        }
+        td.vig-pct {
+            font-weight: 600;
+            font-size: 13px;
+            text-align: right;
+            white-space: nowrap;
+            width: 70px;
+        }
+        td.fair-a,
+        td.fair-b {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 12px;
+            width: 75px;
+        }
+
+        td.remove-cell { width: 32px; text-align: center; }
+        .remove-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.18);
+            cursor: pointer;
+            font-size: 13px;
+            padding: 3px 5px;
+            transition: color 0.2s;
+            border-radius: 4px;
+            line-height: 1;
+        }
+        .remove-btn:hover { color: #ff6b6b; }
+
+        /* ── Add row button ── */
+        .add-row-btn {
+            background: transparent;
+            border: 0.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.4);
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.02em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .add-row-btn:hover {
+            border-color: rgba(0, 255, 136, 0.35);
+            color: #00ff88;
+        }
+
+        /* ── Summary grid ── */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .summary-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+        }
+        .summary-card-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 0.4rem;
+        }
+        .summary-card-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+        }
+        .summary-card-value.green {
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── Editorial content ── */
+        .editorial {
+            margin-top: 3.5rem;
+            padding-top: 3rem;
+            border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+        }
+        .editorial-section { margin-bottom: 2.75rem; }
+        .editorial-section h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        .editorial-section p {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.75;
+            margin-bottom: 0.9rem;
+            max-width: 760px;
+        }
+        .editorial-section p:last-child { margin-bottom: 0; }
+        .editorial-section ol {
+            padding-left: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+        .editorial-section li {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.7;
+            max-width: 760px;
+        }
+        .editorial-section li strong {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 600;
+        }
+        .inline-highlight { color: #00ff88; font-weight: 600; }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            margin-top: 4rem;
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 900px) {
+            .summary-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .nav-container { padding: 0 1.5rem; }
+            td.fair-a, td.fair-b { display: none; }
+        }
+        @media (max-width: 480px) {
+            td.vig-pct { display: none; }
+            .summary-grid { grid-template-columns: 1fr 1fr; }
+            .page-wrapper { padding: 100px 1.25rem 3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header" id="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">YARDLINEIQ</a>
+            <ul class="nav-links">
+                <li><a href="/#home">Home</a></li>
+                <li><a href="/#free-pick">Free Picks</a></li>
+                <li><a href="/#pricing">Packages</a></li>
+                <li><a href="/resources.html" class="active">Resources</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="mailto:admin@yardlineiq.com">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-btn" aria-label="Open mobile menu">☰</button>
+            <a href="/picks.html" class="login-btn">Member Login</a>
+        </nav>
+    </header>
+
+    <main class="page-wrapper">
+
+        <div class="breadcrumb">
+            <a href="/resources.html">Resources</a>
+            <span>›</span>
+            <span>Vig Calculator</span>
+        </div>
+
+        <div class="page-header">
+            <h1>Vig / No-Vig Calculator</h1>
+            <p>Strip the sportsbook's juice to see the true implied probability and fair odds on each side</p>
+        </div>
+
+        <div class="vig-calculator">
+
+            <div class="fmt-toggle">
+                <button class="fmt-btn active" data-fmt="american" onclick="setFormat('american')">American</button>
+                <button class="fmt-btn" data-fmt="decimal" onclick="setFormat('decimal')">Decimal</button>
+            </div>
+
+            <div class="slate-table-wrap">
+                <table class="slate-table">
+                    <thead>
+                        <tr>
+                            <th style="width:28px">#</th>
+                            <th style="width:140px">Matchup</th>
+                            <th class="right" style="width:82px">Odds A</th>
+                            <th class="right" style="width:82px">Odds B</th>
+                            <th class="right" style="width:70px">Vig %</th>
+                            <th class="right" style="width:75px">Prob A</th>
+                            <th class="right" style="width:75px">Prob B</th>
+                            <th class="right" style="width:75px">Fair A</th>
+                            <th class="right" style="width:75px">Fair B</th>
+                            <th style="width:32px"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="vigBody"></tbody>
+                </table>
+            </div>
+
+            <button class="add-row-btn" onclick="addRow('-110', '-110', null)">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Add line
+            </button>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-card-label">Avg Vig</div>
+                    <div class="summary-card-value green" id="sumAvgVig">—</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">Highest Vig</div>
+                    <div class="summary-card-value" id="sumHighVig">—</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">Lowest Vig</div>
+                    <div class="summary-card-value" id="sumLowVig">—</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">Total Lines</div>
+                    <div class="summary-card-value" id="sumTotalLines">0</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="editorial">
+
+            <div class="editorial-section">
+                <h2>What is vig (juice)?</h2>
+                <p>Vig — short for vigorish, also called juice — is the commission a sportsbook charges for taking your action. It's baked into every line you see. On a standard NFL ATS bet, both sides are priced at <span class="inline-highlight">–110</span>, meaning you risk $110 to win $100. If the implied probabilities on each side were fair, they'd sum to exactly 100%. At –110/–110, they sum to about <span class="inline-highlight">104.76%</span>. That extra 4.76% is the book's built-in edge — it's what ensures they profit over the long run regardless of outcome.</p>
+                <p>Understanding the vig on any given line is the first step in evaluating whether a price represents genuine value. A line with 8% juice built in starts you at a significant disadvantage before the game even kicks off.</p>
+            </div>
+
+            <div class="editorial-section">
+                <h2>How to use this calculator</h2>
+                <ol>
+                    <li><strong>Choose your odds format.</strong> Toggle between American (e.g. –110) and Decimal (e.g. 1.909) depending on the format your book displays. Switching format converts all existing row values automatically.</li>
+                    <li><strong>Enter the odds for both sides.</strong> Type in the line for Side A and Side B as listed at your sportsbook. For a standard ATS game this is typically –110 on each side, but any line works.</li>
+                    <li><strong>Read the outputs.</strong> <strong>Vig %</strong> shows the book's margin on that game. <strong>Prob A / Prob B</strong> show the true implied probabilities after removing the juice — these sum to exactly 100%. <strong>Fair A / Fair B</strong> show what the odds would be at zero vig.</li>
+                    <li><strong>Add multiple lines.</strong> Use <em>+ Add line</em> to compare vig across your full slate or across multiple books offering the same game. The summary row shows your average, highest, and lowest vig across all entries.</li>
+                    <li><strong>Use the fair odds for line shopping.</strong> If your book has Side A at –115 but the no-vig fair odds are –106, you're paying extra juice. Finding the same side at –108 at another book means you're closer to fair value.</li>
+                </ol>
+            </div>
+
+            <div class="editorial-section">
+                <h2>Why no-vig odds matter</h2>
+                <p>The fair odds this calculator produces are the starting point for evaluating closing line value (CLV). If you consistently bet sides at prices better than the no-vig closing line, you're demonstrating a genuine process edge — not just running hot. Conversely, if you're always paying above fair odds, the vig alone is enough to grind your bankroll down over time regardless of your pick accuracy.</p>
+                <p>No-vig odds are also useful for line shopping. When you know the fair price on a side is <span class="inline-highlight">–106</span>, getting it at –108 is a meaningful improvement even if –108 still looks like "you're paying juice." Relative to the fair line, you're 2 cents better off — and those 2 cents compound significantly over hundreds of bets.</p>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 YardLineIQ. All rights reserved. | Please bet responsibly. Must be 21+.</p>
+        <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+            <a href="/disclaimer.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Disclaimer</a>
+            <a href="/terms.html"      style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Terms</a>
+            <a href="/privacy-policy.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Privacy</a>
+            <a href="mailto:admin@yardlineiq.com" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        // JS added in Task 2
+    </script>
+
+</body>
+</html>
+```
+
+- [ ] **Step 2: Verify the static page loads correctly**
+
+Run: `npm start` then open `http://localhost:3000/vig-calculator.html` in a browser.
+
+Expected: Page renders with correct dark theme, nav, breadcrumb, toggle, empty table, four summary cards, editorial text, and footer. No console errors.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add public/vig-calculator.html
+git commit -m "feat: add vig calculator page scaffold (HTML + CSS)"
+```
+
+---
+
+### Task 2: Add JavaScript — calculation engine and row management
+
+Fill in the `<script>` block with the full working JS: calculation functions, row add/remove, format toggle with value conversion, summary card updates, and initialization.
+
+**Files:**
+- Modify: `public/vig-calculator.html` (replace the `// JS added in Task 2` comment with the full script)
+
+- [ ] **Step 1: Replace the script block contents**
+
+Replace `// JS added in Task 2` with:
+
+```javascript
+let format = 'american';
+let rowCounter = 0;
+
+function toImplied(odds, fmt) {
+    if (fmt === 'decimal') {
+        const d = parseFloat(odds);
+        return isNaN(d) || d <= 1 ? null : 1 / d;
+    }
+    const o = parseFloat(odds);
+    if (isNaN(o) || o === 0) return null;
+    return o > 0 ? 100 / (o + 100) : Math.abs(o) / (Math.abs(o) + 100);
+}
+
+function toFairOdds(prob, fmt) {
+    if (fmt === 'decimal') return (1 / prob).toFixed(3);
+    if (prob >= 0.5) return Math.round(-(prob / (1 - prob)) * 100).toString();
+    return '+' + Math.round(((1 - prob) / prob) * 100);
+}
+
+function vigColor(pct) {
+    if (pct <= 4) return '#00ff88';
+    if (pct <= 6) return '#ffcc00';
+    return '#ff6b6b';
+}
+
+function americanToDecimal(american) {
+    const o = parseFloat(american);
+    if (isNaN(o) || o === 0) return '';
+    return o > 0 ? (o / 100 + 1).toFixed(3) : (100 / Math.abs(o) + 1).toFixed(3);
+}
+
+function decimalToAmerican(decimal) {
+    const d = parseFloat(decimal);
+    if (isNaN(d) || d <= 1) return '';
+    if (d >= 2) return '+' + Math.round((d - 1) * 100);
+    return Math.round(-100 / (d - 1)).toString();
+}
+
+function recalc() {
+    const rows = Array.from(document.querySelectorAll('#vigBody tr'));
+    let totalVig = 0, maxVig = -Infinity, minVig = Infinity, validCount = 0;
+
+    rows.forEach(row => {
+        const impliedA = toImplied(row.querySelector('.odds-a-input').value, format);
+        const impliedB = toImplied(row.querySelector('.odds-b-input').value, format);
+        const vigCell  = row.querySelector('.vig-pct');
+        const probACell = row.querySelector('.prob-a');
+        const probBCell = row.querySelector('.prob-b');
+        const fairACell = row.querySelector('.fair-a');
+        const fairBCell = row.querySelector('.fair-b');
+
+        if (!impliedA || !impliedB || impliedA <= 0 || impliedB <= 0) {
+            vigCell.textContent = '—';
+            vigCell.style.color = 'rgba(255,255,255,0.3)';
+            probACell.textContent = '—';
+            probBCell.textContent = '—';
+            fairACell.textContent = '—';
+            fairBCell.textContent = '—';
+            return;
+        }
+
+        const total  = impliedA + impliedB;
+        const noVigA = impliedA / total;
+        const noVigB = impliedB / total;
+        const vig    = (total - 1) / total * 100;
+
+        vigCell.textContent  = vig.toFixed(2) + '%';
+        vigCell.style.color  = vigColor(vig);
+        probACell.textContent = (noVigA * 100).toFixed(1) + '%';
+        probBCell.textContent = (noVigB * 100).toFixed(1) + '%';
+        fairACell.textContent = toFairOdds(noVigA, format);
+        fairBCell.textContent = toFairOdds(noVigB, format);
+
+        totalVig += vig;
+        if (vig > maxVig) maxVig = vig;
+        if (vig < minVig) minVig = vig;
+        validCount++;
+    });
+
+    document.getElementById('sumAvgVig').textContent    = validCount > 0 ? (totalVig / validCount).toFixed(2) + '%' : '—';
+    document.getElementById('sumHighVig').textContent   = validCount > 0 ? maxVig.toFixed(2) + '%' : '—';
+    document.getElementById('sumLowVig').textContent    = validCount > 0 ? minVig.toFixed(2) + '%' : '—';
+    document.getElementById('sumTotalLines').textContent = validCount;
+}
+
+function setFormat(fmt) {
+    if (fmt === format) return;
+    document.querySelectorAll('#vigBody tr').forEach(row => {
+        const aInput = row.querySelector('.odds-a-input');
+        const bInput = row.querySelector('.odds-b-input');
+        if (fmt === 'decimal') {
+            aInput.value = americanToDecimal(aInput.value);
+            bInput.value = americanToDecimal(bInput.value);
+            aInput.step  = '0.001';
+            bInput.step  = '0.001';
+            aInput.placeholder = '1.909';
+            bInput.placeholder = '1.909';
+        } else {
+            aInput.value = decimalToAmerican(aInput.value);
+            bInput.value = decimalToAmerican(bInput.value);
+            aInput.step  = '5';
+            bInput.step  = '5';
+            aInput.placeholder = '-110';
+            bInput.placeholder = '-110';
+        }
+    });
+    format = fmt;
+    document.querySelectorAll('.fmt-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.fmt === fmt);
+    });
+    recalc();
+}
+
+function addRow(oddsA, oddsB, label) {
+    rowCounter++;
+    const id  = rowCounter;
+    const lbl = label !== null ? label : 'Game ' + id;
+    const step = format === 'decimal' ? '0.001' : '5';
+    const ph   = format === 'decimal' ? '1.909' : '-110';
+
+    const tr = document.createElement('tr');
+    tr.dataset.id = id;
+    tr.innerHTML = `
+        <td class="row-num">${id}</td>
+        <td><input type="text" class="slate-input matchup-input" value="${lbl}" placeholder="Matchup" oninput="recalc()"></td>
+        <td class="odds-cell"><input type="number" class="slate-input odds-a-input" value="${oddsA}" step="${step}" placeholder="${ph}" oninput="recalc()"></td>
+        <td class="odds-cell"><input type="number" class="slate-input odds-b-input" value="${oddsB}" step="${step}" placeholder="${ph}" oninput="recalc()"></td>
+        <td class="vig-pct output-cell">—</td>
+        <td class="prob-a output-cell">—</td>
+        <td class="prob-b output-cell">—</td>
+        <td class="fair-a output-cell">—</td>
+        <td class="fair-b output-cell">—</td>
+        <td class="remove-cell"><button class="remove-btn" onclick="removeRow(${id})" title="Remove">✕</button></td>
+    `;
+    document.getElementById('vigBody').appendChild(tr);
+    recalc();
+}
+
+function removeRow(id) {
+    const row = document.querySelector(`#vigBody tr[data-id="${id}"]`);
+    if (row) { row.remove(); recalc(); }
+}
+
+window.addEventListener('scroll', () => {
+    document.getElementById('header').classList.toggle('scrolled', window.scrollY > 100);
+});
+
+document.querySelector('.mobile-menu-btn').addEventListener('click', function () {
+    const navLinks = document.querySelector('.nav-links');
+    if (navLinks.style.display === 'flex') {
+        navLinks.style.display = 'none';
+    } else {
+        Object.assign(navLinks.style, {
+            display: 'flex', flexDirection: 'column', position: 'absolute',
+            top: '100%', left: '0', right: '0',
+            background: 'rgba(10, 10, 10, 0.95)', padding: '2rem', backdropFilter: 'blur(20px)'
+        });
+    }
+});
+
+// Also update the add-row-btn onclick to pass correct defaults for active format
+document.querySelector('.add-row-btn').onclick = function () {
+    const defaults = format === 'decimal' ? ['1.909', '1.909'] : ['-110', '-110'];
+    addRow(defaults[0], defaults[1], null);
+};
+
+for (let i = 0; i < 5; i++) addRow('-110', '-110', null);
+```
+
+- [ ] **Step 2: Verify calculator functionality in browser**
+
+With the dev server running, open `http://localhost:3000/vig-calculator.html`.
+
+Check these behaviors:
+1. Five rows appear pre-loaded at –110/–110 with Vig ≈ 4.76%, Prob A ≈ 52.4%, Prob B ≈ 47.6%, Fair A = –105 or –104 (depending on rounding — acceptable), Fair B = –105 or +105
+2. Changing an odds value recalculates instantly
+3. Summary cards update: Avg Vig, Highest Vig, Lowest Vig, Total Lines = 5
+4. Vig % shows green at 4.76%
+5. Entering a vig-heavy line like –130/–130 shows red vig color (≈ 13.3%)
+6. Toggle to Decimal: all row values convert from –110 to 1.909, outputs recalc
+7. Toggle back to American: values convert back to –110
+8. Add Line button adds a row in the correct format
+9. Remove button (✕) removes a row
+10. Vig % and Prob columns display correctly on narrow viewport (≤480px, Vig % column hides)
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add public/vig-calculator.html
+git commit -m "feat: add vig calculator JS — calculation engine, row management, format toggle"
+```
+
+---
+
+### Task 3: Update `resources.html` — flip Vig card to live
+
+Change the Vig/No-Vig card from a static `<div class="tool-card coming-soon">` to a live linked `<a>` tag, and update the section count.
+
+**Files:**
+- Modify: `public/resources.html`
+
+- [ ] **Step 1: Update the section count span**
+
+In `public/resources.html`, find:
+```html
+<span class="section-count">3 tools &nbsp;·&nbsp; 1 live</span>
+```
+
+Replace with:
+```html
+<span class="section-count">3 tools &nbsp;·&nbsp; 2 live</span>
+```
+
+- [ ] **Step 2: Replace the Vig card markup**
+
+Find the entire Vig card block (lines 398–415):
+```html
+            <!-- Vig / No-Vig — Coming Soon -->
+            <div class="tool-card coming-soon">
+                <div class="tool-card-top">
+                    <div class="tool-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="14.31" y1="8" x2="20.05" y2="17.94"/>
+                            <line x1="9.69" y1="8" x2="21.17" y2="8"/>
+                            <line x1="7.38" y1="12" x2="13.12" y2="2.06"/>
+                            <line x1="9.69" y1="16" x2="3.95" y2="6.06"/>
+                            <line x1="14.31" y1="16" x2="2.83" y2="16"/>
+                            <line x1="16.62" y1="12" x2="10.88" y2="21.94"/>
+                        </svg>
+                    </div>
+                    <span class="status-badge soon">Coming Soon</span>
+                </div>
+                <h3>Vig / No-Vig Calculator</h3>
+                <p>Strip the sportsbook's juice to see the true implied probability on each side. Know exactly what fair odds look like before you bet.</p>
+            </div>
+```
+
+Replace with:
+```html
+            <!-- Vig / No-Vig — Live -->
+            <a href="/vig-calculator.html" class="tool-card live">
+                <div class="tool-card-top">
+                    <div class="tool-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="14.31" y1="8" x2="20.05" y2="17.94"/>
+                            <line x1="9.69" y1="8" x2="21.17" y2="8"/>
+                            <line x1="7.38" y1="12" x2="13.12" y2="2.06"/>
+                            <line x1="9.69" y1="16" x2="3.95" y2="6.06"/>
+                            <line x1="14.31" y1="16" x2="2.83" y2="16"/>
+                            <line x1="16.62" y1="12" x2="10.88" y2="21.94"/>
+                        </svg>
+                    </div>
+                    <span class="status-badge live">Live</span>
+                </div>
+                <h3>Vig / No-Vig Calculator</h3>
+                <p>Strip the sportsbook's juice to see the true implied probability on each side. Know exactly what fair odds look like before you bet.</p>
+                <span class="tool-card-link">
+                    Open calculator
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M7 3l3.5 3.5L7 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+            </a>
+```
+
+- [ ] **Step 3: Verify resources page in browser**
+
+Open `http://localhost:3000/resources.html`.
+
+Expected:
+- Section count reads "3 tools · 2 live"
+- Vig card has green icon, "Live" badge, green hover border, and "Open calculator →" link
+- Clicking the Vig card navigates to `/vig-calculator.html`
+- Kelly card and Hedging card unchanged
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add public/resources.html
+git commit -m "feat: flip vig calculator card to live on resources page"
+```
