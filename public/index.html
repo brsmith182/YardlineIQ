@@ -738,11 +738,10 @@
             min-width: 44px;
         }
 
-        #card-element {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 1rem;
+        /* The Payment Element draws its own inputs, so this only spaces it.
+           Colours come from the Appearance API where Elements is created —
+           a wrapper border here would double up on the Element's own. */
+        #payment-element {
             margin: 1rem 0;
         }
 
@@ -1504,7 +1503,7 @@
                     </div>
                 </div>
                 
-                <div id="card-element"></div>
+                <div id="payment-element"></div>
                 <div id="card-errors" role="alert" style="color: #ff6b6b; margin-top: 1rem;"></div>
                 
                 <div style="display: flex; gap: 10px;">
@@ -1544,34 +1543,28 @@
     <script>
         // Stripe initialization — publishable key for acct_1TJdsoCwvbvJRKrd
         // (YardlineIQ). Must stay on the same account as STRIPE_SECRET_KEY in
-        // Vercel; a mismatched pair fails every checkout at confirmCardPayment.
+        // Vercel; a mismatched pair fails every checkout at confirmPayment.
         const stripe = window.Stripe ? Stripe('pk_live_51TJdsoCwvbvJRKrdPEheSL0I0qwrFM5GGXwFP8MIKAKtEuHn2daO88ifUv8OW88GvmyAhwL2p6QfL7HA93tSU0eF00HknB6Zga') : null;
-        const elements = stripe ? stripe.elements() : null;
 
-        const cardElement = elements ? elements.create('card', {
-            style: {
-                base: {
-                    color: '#ffffff',
-                    fontFamily: 'Inter, sans-serif',
-                    fontSmoothing: 'antialiased',
-                    fontSize: '16px',
-                    '::placeholder': {
-                        color: 'rgba(255, 255, 255, 0.5)'
-                    }
-                },
-                invalid: {
-                    color: '#ff6b6b',
-                    iconColor: '#ff6b6b'
-                }
-            }
-        }) : null;
+        // Unlike the old Card Element, the Payment Element is built from a
+        // specific PaymentIntent — it needs that intent's client secret to know
+        // which methods to offer. So Elements is rebuilt per checkout rather
+        // than once at page load.
+        let elements = null;
+        let paymentElement = null;
+        let currentClientSecret = null;
 
-        // Mount card element when modal opens
-        function mountCardElement() {
-            if (cardElement) {
-                cardElement.mount('#card-element');
+        const stripeAppearance = {
+            theme: 'night',
+            variables: {
+                colorPrimary: '#00ff88',
+                colorBackground: '#111111',
+                colorText: '#ffffff',
+                colorDanger: '#ff6b6b',
+                fontFamily: 'Inter, sans-serif',
+                borderRadius: '10px'
             }
-        }
+        };
 
         let currentPackage = null;
         let currentAmount = null;
@@ -1706,14 +1699,25 @@
             document.getElementById('modalTitleStep2').textContent = packageName;
             document.getElementById('modalPriceStep2').textContent = `${amount}`;
             
+            // Drop any intent left over from a previous package, so a $29
+            // weekly intent can't be reused to buy a $199 season pass.
+            teardownPaymentElement();
+
             // Show customer info step first
             showCustomerStep();
-            
+
             document.getElementById('paymentModal').style.display = 'block';
             document.body.style.overflow = 'hidden';
-            
-            // Mount card element after modal is shown
-            setTimeout(mountCardElement, 100);
+        }
+
+        function teardownPaymentElement() {
+            if (paymentElement) {
+                paymentElement.unmount();
+                paymentElement = null;
+            }
+            elements = null;
+            currentClientSecret = null;
+            document.getElementById('card-errors').textContent = '';
         }
 
         function showCustomerStep() {
@@ -1721,7 +1725,7 @@
             document.getElementById('paymentStep').style.display = 'none';
         }
 
-        function showPaymentStep() {
+        async function showPaymentStep() {
             // Get customer info
             const name = document.getElementById('customerName').value.trim();
             const email = document.getElementById('customerEmail').value.trim();
@@ -1745,9 +1749,44 @@
             // Show payment step
             document.getElementById('customerInfoStep').style.display = 'none';
             document.getElementById('paymentStep').style.display = 'block';
-            
-            // Re-mount card element if needed
-            setTimeout(mountCardElement, 100);
+
+            if (!stripe) return;
+
+            // Create the PaymentIntent now rather than on submit — the Payment
+            // Element reads it to decide which methods to show. Stepping back
+            // and forward reuses it instead of stacking up abandoned intents.
+            if (!currentClientSecret) {
+                document.getElementById('card-errors').textContent = '';
+                try {
+                    const response = await fetch('/api/payments/create-payment-intent', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            packageType: currentPackage,
+                            customerInfo: customerInfo
+                        })
+                    });
+                    if (!response.ok) throw new Error('Failed to start payment');
+                    currentClientSecret = (await response.json()).clientSecret;
+                } catch (error) {
+                    console.error('Could not create payment intent:', error);
+                    document.getElementById('card-errors').textContent =
+                        'Could not start checkout. Please try again.';
+                    return;
+                }
+            }
+
+            if (!paymentElement) {
+                elements = stripe.elements({
+                    clientSecret: currentClientSecret,
+                    appearance: stripeAppearance
+                });
+                paymentElement = elements.create('payment', {
+                    layout: 'tabs',
+                    defaultValues: { billingDetails: { name, email } }
+                });
+                paymentElement.mount('#payment-element');
+            }
         }
 
         function closePaymentModal() {
@@ -1761,11 +1800,8 @@
             
             // Uncheck all checkboxes
             document.querySelectorAll('.payment-agreement').forEach(cb => cb.checked = false);
-            
-            // Unmount card element
-            if (cardElement) {
-                cardElement.unmount();
-            }
+
+            teardownPaymentElement();
         }
 
         // Mobile menu functionality
@@ -1786,6 +1822,40 @@
             }
         });
 
+        // Ask the server to fulfil right away so the buyer isn't waiting on
+        // webhook delivery. The webhook is authoritative and idempotent, so a
+        // failure here costs nothing but a short delay.
+        async function recordPayment(paymentIntentId) {
+            try {
+                await fetch('/api/payments/payment-success', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ paymentIntentId })
+                });
+            } catch (error) {
+                console.error('Confirm call failed; webhook will fulfil:', error);
+            }
+        }
+
+        // Only fired for payments that actually succeeded. ACH sits in
+        // 'processing' for days and may still fail, so counting it as revenue
+        // here would overstate sales.
+        function trackPurchase(paymentIntentId) {
+            if (typeof gtag === 'undefined') return;
+            gtag('event', 'purchase', {
+                'transaction_id': paymentIntentId,
+                'value': currentAmount,
+                'currency': 'USD',
+                'items': [{
+                    'item_id': currentPackage,
+                    'item_name': document.getElementById('modalTitle').textContent,
+                    'category': 'NFL Picks',
+                    'quantity': 1,
+                    'price': currentAmount
+                }]
+            });
+        }
+
         // Updated payment processing
         document.getElementById('submit-payment').addEventListener('click', async (event) => {
             event.preventDefault();
@@ -1799,68 +1869,41 @@
             spinner.style.display = 'inline';
 
             try {
-                // Create payment intent. The server looks the price up from
-                // packageType — sending an amount from here would be ignored.
-                const response = await fetch('/api/payments/create-payment-intent', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        packageType: currentPackage,
-                        customerInfo: customerInfo
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to create payment');
-                }
-
-                const { clientSecret, paymentIntentId } = await response.json();
-
-                // Confirm payment with Stripe
-                const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-                    payment_method: {
-                        card: cardElement,
-                        billing_details: {
-                            name: customerInfo.name,
-                            email: customerInfo.email
-                        }
-                    }
+                // The PaymentIntent already exists — showPaymentStep created it
+                // so the Payment Element could offer the right methods.
+                //
+                // redirect: 'if_required' keeps cards, Apple/Google/Samsung Pay
+                // and Link inline in this modal. Only methods that must leave
+                // the site (Amazon Pay) actually redirect, and those land on
+                // payment-complete.html instead of returning here.
+                const { error, paymentIntent } = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: window.location.origin + '/payment-complete.html'
+                    },
+                    redirect: 'if_required'
                 });
 
                 if (error) {
                     document.getElementById('card-errors').textContent = error.message;
                 } else if (paymentIntent.status === 'succeeded') {
-                    // The card has been charged. Past this point we never tell
-                    // the customer to try again — if this call fails, the Stripe
+                    // Money has moved. Past this point we never tell the
+                    // customer to try again — if this call fails, the Stripe
                     // webhook still grants access.
-                    try {
-                        await fetch('/api/payments/payment-success', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ paymentIntentId: paymentIntent.id })
-                        });
-                    } catch (confirmError) {
-                        console.error('Confirm call failed; webhook will fulfill:', confirmError);
-                    }
+                    await recordPayment(paymentIntent.id);
+                    trackPurchase(paymentIntent.id);
 
                     alert(`Payment successful! Welcome ${customerInfo.name}! Check your email (${customerInfo.email}) for NFL picks access and login details.`);
                     closePaymentModal();
-
-                    // Google Analytics tracking
-                    if (typeof gtag !== 'undefined') {
-                        gtag('event', 'purchase', {
-                            'transaction_id': paymentIntent.id,
-                            'value': currentAmount,
-                            'currency': 'USD',
-                            'items': [{
-                                'item_id': currentPackage,
-                                'item_name': document.getElementById('modalTitle').textContent,
-                                'category': 'NFL Picks',
-                                'quantity': 1,
-                                'price': currentAmount
-                            }]
-                        });
-                    }
+                } else if (paymentIntent.status === 'processing') {
+                    // Bank debits (ACH) clear over several business days. The
+                    // webhook grants access when the payment actually succeeds,
+                    // so don't tell them they're in yet — they aren't.
+                    alert(`Thanks ${customerInfo.name}! Bank payments take a few business days to clear. We'll email ${customerInfo.email} the moment it does, and your access starts then.`);
+                    closePaymentModal();
+                } else {
+                    document.getElementById('card-errors').textContent =
+                        'That payment could not be completed. Please try another method.';
                 }
             } catch (error) {
                 console.error('Payment error:', error);

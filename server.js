@@ -99,6 +99,11 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
         console.log('Payment failed:', event.data.object.id,
           event.data.object.last_payment_error?.message || '');
         break;
+      case 'payment_intent.processing':
+        // ACH debits sit here for days. Deliberately no fulfillment — access
+        // is granted on payment_intent.succeeded, which may be days away.
+        console.log('Payment processing (not yet fulfilled):', event.data.object.id);
+        break;
       case 'charge.refunded':
       case 'charge.dispute.created':
         console.log(`${event.type} for intent:`, event.data.object.payment_intent);
@@ -361,6 +366,11 @@ app.post('/api/payments/create-payment-intent', async (req, res) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: pkg.amount,
       currency: 'usd',
+      // Offer whatever is enabled in the Dashboard — cards, Apple/Google/
+      // Samsung Pay, Link, Amazon Pay, ACH. This is the API default on our
+      // pinned version, but stating it makes the behaviour explicit and
+      // survives an SDK upgrade.
+      automatic_payment_methods: { enabled: true },
       // Stripe sends the receipt itself once the charge succeeds. Passing
       // receipt_email explicitly is required here because we create no Stripe
       // Customer records, and it sends regardless of the Dashboard's
@@ -1111,6 +1121,13 @@ app.get('/middling-arbitrage.html', (req, res) => {
 
 app.get('/hedging.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'hedging.html'));
+});
+
+// Where redirect-based payment methods (Amazon Pay) land after authorisation.
+// Needs an explicit route for the same reason the other pages do — the
+// catch-all below would otherwise serve the homepage instead.
+app.get('/payment-complete.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'payment-complete.html'));
 });
 
 // Serve main page

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Payment Status | YardlineIQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .card {
+            width: 100%;
+            max-width: 520px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        .badge {
+            font-size: 2.5rem;
+            line-height: 1;
+            margin-bottom: 1.25rem;
+        }
+        h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.75rem; }
+        p { color: rgba(255, 255, 255, 0.65); line-height: 1.6; margin-bottom: 0.75rem; }
+        .ok { color: #00ff88; }
+        .warn { color: #ffcc4d; }
+        .bad { color: #ff6b6b; }
+        .actions { margin-top: 1.75rem; display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+        a.btn {
+            display: inline-block;
+            padding: 0.85rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            min-height: 44px;
+            line-height: 1.4;
+        }
+        .btn-primary { background: #00ff88; color: #000; }
+        .btn-ghost { border: 1px solid rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.8); }
+        .ref {
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.35);
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="badge" id="badge">⏳</div>
+        <h1 id="heading">Checking your payment…</h1>
+        <p id="detail">One moment while we confirm this with Stripe.</p>
+        <div class="actions" id="actions" style="display: none;">
+            <a class="btn btn-primary" href="/picks.html">Go to Picks</a>
+            <a class="btn btn-ghost" href="/">Back to Home</a>
+        </div>
+        <div class="ref" id="ref"></div>
+    </div>
+
+    <script>
+        // Where redirect-based methods (Amazon Pay) land after the customer
+        // authorises off-site. Cards and wallets never reach this page — they
+        // confirm inline in the checkout modal.
+        //
+        // This page only reports status. Access is granted server-side by the
+        // Stripe webhook, so nothing here is load-bearing for fulfilment.
+        const stripe = Stripe('pk_live_51TJdsoCwvbvJRKrdPEheSL0I0qwrFM5GGXwFP8MIKAKtEuHn2daO88ifUv8OW88GvmyAhwL2p6QfL7HA93tSU0eF00HknB6Zga');
+
+        const badge = document.getElementById('badge');
+        const heading = document.getElementById('heading');
+        const detail = document.getElementById('detail');
+        const actions = document.getElementById('actions');
+
+        function render(icon, cls, title, body, showActions) {
+            badge.textContent = icon;
+            heading.textContent = title;
+            heading.className = cls;
+            detail.innerHTML = body;
+            actions.style.display = showActions ? 'flex' : 'none';
+        }
+
+        // Belt and braces: the webhook fulfils this anyway, but calling here
+        // means a customer who lands on this page immediately isn't waiting on
+        // webhook delivery. The endpoint is idempotent.
+        async function recordPayment(paymentIntentId) {
+            try {
+                await fetch('/api/payments/payment-success', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ paymentIntentId })
+                });
+            } catch (error) {
+                console.error('Confirm call failed; webhook will fulfil:', error);
+            }
+        }
+
+        (async () => {
+            const clientSecret = new URLSearchParams(window.location.search)
+                .get('payment_intent_client_secret');
+
+            if (!clientSecret) {
+                render('❓', 'warn', 'Nothing to show here',
+                    'This page confirms a payment after checkout. If you were buying a package, start from the <a href="/" style="color:#00ff88">packages page</a>.',
+                    true);
+                return;
+            }
+
+            let paymentIntent;
+            try {
+                ({ paymentIntent } = await stripe.retrievePaymentIntent(clientSecret));
+            } catch (error) {
+                console.error('Could not retrieve payment intent:', error);
+            }
+
+            if (!paymentIntent) {
+                render('⚠️', 'warn', 'We could not read this payment',
+                    'If you were charged, your access is still being set up automatically. Email <a href="mailto:admin@yardlineiq.com" style="color:#00ff88">admin@yardlineiq.com</a> if you do not hear from us shortly.',
+                    true);
+                return;
+            }
+
+            document.getElementById('ref').textContent = 'Reference: ' + paymentIntent.id;
+
+            switch (paymentIntent.status) {
+                case 'succeeded':
+                    await recordPayment(paymentIntent.id);
+                    render('✅', 'ok', 'Payment successful',
+                        'You are all set. Check your email for your receipt and login details, then head to the picks page.',
+                        true);
+                    break;
+
+                case 'processing':
+                    // ACH and other delayed methods. Access starts when the
+                    // payment actually clears, not now.
+                    render('⏳', 'warn', 'Payment is clearing',
+                        'Bank payments take a few business days to settle. We will email you the moment it clears, and your access starts then. No further action needed.',
+                        true);
+                    break;
+
+                case 'requires_payment_method':
+                    render('❌', 'bad', 'Payment was not completed',
+                        'That payment method was declined or cancelled, and you have not been charged. You can try again with a different method.',
+                        true);
+                    break;
+
+                default:
+                    render('⚠️', 'warn', 'Payment is still pending',
+                        'This payment has not finished yet. If you were charged, your access will be set up automatically — no need to pay again.',
+                        true);
+            }
+        })();
+    </script>
+</body>
+</html>
