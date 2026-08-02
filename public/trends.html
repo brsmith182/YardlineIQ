@@ -455,10 +455,12 @@
         </div>
 
         <h1 class="page-title">Betting Trends</h1>
-        <p class="page-sub">Edges surfaced from our trend-mining engine across the 2020–25 regular seasons. Sorted by cover rate, with sample size and statistical confidence so you can weight them yourself.</p>
+        <p class="page-sub">Edges surfaced from our trend-mining engine across the 2018–2025 seasons — 2,227 games, all game types. Sorted by cover rate, with sample size and statistical confidence so you can weight them yourself.</p>
 
         <div class="methodology">
             <strong>How to read this:</strong> ATS% is the cover rate for the listed side. Break-even at standard −110 juice is <span class="breakeven">52.38%</span> — anything above that is a long-run edge. <strong>n</strong> is the sample size (number of games). <strong>Confidence</strong> reflects how unlikely the result is to be random (exact binomial test): Very High = p&lt;0.01, High = p&lt;0.05, Moderate = p&lt;0.10, Speculative = thinner evidence. Bigger samples + higher confidence = sturdier edges. These are research signals, not guaranteed outcomes — bet responsibly.
+            <br><br>
+            <strong>Sample:</strong> every trend below was recomputed on the 2018–2025 seasons (2,227 games, all game types; pushes excluded — 2,175 graded ATS, 2,205 graded totals). Confidence is the raw per-trend p-value. Because a large number of candidate rules were tested, treat a single "Very High" badge as evidence rather than proof — the trends carrying the biggest samples are the ones that hold up best after correcting for multiple testing.
         </div>
 
         <div id="trendsContainer">
@@ -649,7 +651,7 @@
             if (referees.length) {
                 html += `<div class="trend-section">
                     <div class="section-label">Referee Leans</div>
-                    <div class="section-desc">Home-team ATS cover rate by head referee. A scheduling quirk, not a cause — weight the sample size accordingly.</div>
+                    <div class="section-desc">ATS cover rate for the listed side by head referee. A scheduling quirk, not a cause — weight the sample size accordingly.</div>
                     <div class="trends-grid">
                         ${referees.map(renderTrendCard).join('')}
                     </div>
@@ -659,11 +661,12 @@
             container.innerHTML = html;
         }
 
-        function tierName(tier, category) {
-            if (category === 'total') return 'Totals';
-            if (category === 'referee') return 'Referee';
+        function tierName(t) {
+            if (t.group) return t.group;
+            if (t.category === 'total') return 'Totals';
+            if (t.category === 'referee') return 'Referee';
             const map = { 1: 'Tier 1 · Core', 2: 'Tier 2 · Historical', 3: 'Tier 3 · Secondary' };
-            return map[tier] || 'Trend';
+            return map[t.tier] || 'Trend';
         }
 
         function renderTrendCard(t) {
@@ -676,7 +679,7 @@
             return `
                 <div class="trend-card">
                     <div class="trend-card-top">
-                        <span class="tier-label">${escHtml(tierName(t.tier, t.category))}</span>
+                        <span class="tier-label">${escHtml(tierName(t))}</span>
                         <span class="confidence-badge ${conf.cls}">${conf.label}</span>
                     </div>
                     <div class="trend-name">${escHtml(t.trend)}</div>

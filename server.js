@@ -620,126 +620,144 @@ app.get('/api/handle', async (req, res) => {
 });
 
 // ===================== BETTING TRENDS (member-gated) =====================
-// Curated trend-mining findings. Subscriber-facing set = Tiers 1-3 (spreads)
-// + Totals + Referee leans. Each trend stores the *actionable* side and its cover/hit rate,
-// the sample size (n), and the binomial p-value. The frontend converts p into
-// a Confidence label (Very High / High / Moderate / Speculative).
-// Source: "Master ATS list — reconciled", regular season 2020–25.
-const STARTER_TRENDS = [
-  // --- Tier 1: CORE (the real edge, multiple confirmations) ---
-  { category: 'spread', tier: 1, trend: 'Home dog +7 or more (fade road favorites of 7+)', side: 'Home dog', n: 146, rate: 61.6, p: 0.0061 },
-  { category: 'spread', tier: 1, trend: 'Home dog +7 or more AND home implied total ≤17', side: 'Home dog', n: 54, rate: 74.1, p: 0.0005 },
-  { category: 'spread', tier: 1, trend: 'Home dog +7.5 to +10', side: 'Home dog', n: 70, rate: 65.7, p: 0.0115 },
-  { category: 'spread', tier: 1, trend: 'Home team with implied total ≤17 (any spread)', side: 'Home', n: 91, rate: 62.6, p: 0.0206 },
-  { category: 'spread', tier: 1, trend: 'Home favorite −10.5 or more', side: 'Home favorite', n: 123, rate: 56.1, p: 0.2066 },
-  // --- Tier 2: HISTORICAL / ROLE (engineered situations) ---
-  { category: 'spread', tier: 2, trend: 'Team was a dog last week, now a favorite — fade them (bet the opponent)', side: 'Fade', n: 556, rate: 53.6, p: 0.098 },
-  { category: 'spread', tier: 2, trend: 'Home dog off an ATS loss of 14+', side: 'Home dog', n: 104, rate: 59.6, p: 0.0619 },
-  { category: 'spread', tier: 2, trend: 'Weeks 1–4, team off an ATS loss', side: 'The team', n: 270, rate: 55.9, p: 0.059 },
-  // --- Tier 3: POCKET / SECONDARY (real-ish, thinner) ---
-  { category: 'spread', tier: 3, trend: 'Away team, non-grass surface, spread under 3', side: 'Away', n: 171, rate: 60.2, p: 0.0091 },
-  { category: 'spread', tier: 3, trend: 'Road dog +4.5 to +6', side: 'Road dog', n: 130, rate: 60.8, p: 0.0175 },
-  { category: 'spread', tier: 3, trend: 'Home team, weeks 14–18, spread ≥7', side: 'Home', n: 149, rate: 59.1, p: 0.0328 },
-  { category: 'spread', tier: 3, trend: 'Divisional underdog', side: 'Underdog', n: 567, rate: 53.8, p: 0.0777 },
-  { category: 'spread', tier: 3, trend: 'Underdog +7.5 to +9.5 (home or road)', side: 'Underdog', n: 181, rate: 55.2, p: 0.1808 },
-  { category: 'spread', tier: 3, trend: 'Off a bye AND an underdog', side: 'Underdog', n: 169, rate: 55.0, p: 0.2183 },
-  { category: 'spread', tier: 3, trend: 'Home underdog off a straight-up loss', side: 'Home dog', n: 385, rate: 53.8, p: 0.1386 },
-  // --- Totals (shade the number, directional lean) ---
-  { category: 'total', tier: 4, trend: 'Wind 11–15 mph', side: 'Under', n: 189, rate: 60.3, p: 0.0056 },
-  { category: 'total', tier: 4, trend: 'Prime-time games (SNF / MNF / TNF)', side: 'Under', n: 330, rate: 55.2, p: 0.0691 },
-  { category: 'total', tier: 4, trend: 'Outdoor games', side: 'Under', n: 1082, rate: 52.6, p: 0.0945 },
-  { category: 'total', tier: 4, trend: 'Underdog with wind 10–14 mph', side: 'Underdog', n: 209, rate: 56.9, p: 0.0525 },
-  // --- Referee leans (home team ATS by head referee) ---
-  { category: 'referee', tier: 5, trend: 'John Hussey refereeing — home team ATS', side: 'Home', n: 98, rate: 62.2, p: 0.0197 },
-  { category: 'referee', tier: 5, trend: 'Alan Eck refereeing — home team ATS', side: 'Home', n: 50, rate: 58.0, p: 0.3222 },
-  { category: 'referee', tier: 5, trend: 'Carl Cheffers refereeing — home team ATS', side: 'Home', n: 99, rate: 55.6, p: 0.3149 },
-  { category: 'referee', tier: 5, trend: 'Bill Vinovich refereeing — road team ATS', side: 'Road', n: 100, rate: 58.0, p: 0.1096 },
-  { category: 'referee', tier: 5, trend: 'Scott Novak refereeing — road team ATS', side: 'Road', n: 96, rate: 56.3, p: 0.2207 }
+// Verified trend-mining findings — the single source of truth for /trends.html.
+// Update this array from the workbook and deploy; there is no separate trend store.
+// Each trend records the *actionable* side and its
+// cover/hit rate, the sample size (n), and the exact-binomial p-value. The frontend
+// converts p into a Confidence label (Very High / High / Moderate / Speculative) and
+// uses `group` for the card label.
+//
+// Source: NFL_Betting_Trends_MASTER_VERIFIED_2018_2025.xlsx — 490 trends recomputed on
+// 2018–2025 data (2,227 games, all game types; 2,175 ATS-graded / 2,205 totals-graded,
+// pushes excluded). Published set = every "as documented" row with p < 0.05, plus the
+// previously published trends (values refreshed even where they no longer clear p < 0.05).
+// Deliberately excluded: the 142 "flipped to winner" rows, whose winning side was chosen
+// post hoc so their p-values are optimistic; and "Spread of exactly 14 ... prices not
+// equal" (84.6%, n=26), which the workbook flags as an isolated artifact — the
+// neighbouring 13 / 13.5 / 14.5 buckets run 47.8 / 52.6 / 58.3%.
+const TRENDS = [
+  // ─── Against the spread ─────────────────────────────────────────────
+  { category: 'spread', tier: 1, group: 'Cross-market', trend: 'Totals/spread avg-ticket pctile > 14.55%; Over ticket % ≤ 76.13%; dog sharp gap > 6.47%', side: 'Underdog', n: 455, rate: 60.66, p: 6e-06 },
+  { category: 'spread', tier: 1, group: 'Cross-market', trend: 'Sharp dog ≥ 6 pts; Over tickets ≤ 75%; totals/spread average-ticket percentile ≥ 30%', side: 'Underdog', n: 395, rate: 60.76, p: 2.2e-05 },
+  { category: 'spread', tier: 1, group: 'Sharp divergence', trend: 'Adaptive: dog-side sharp gap in the top quartile of the season', side: 'Underdog', n: 545, rate: 58.9, p: 3.8e-05 },
+  { category: 'spread', tier: 1, group: 'Sharp divergence', trend: 'Sharp money on the underdog: dog-side (cash% − ticket%) ≥ 6 pts', side: 'Underdog', n: 720, rate: 57.64, p: 4.7e-05 },
+  { category: 'spread', tier: 1, group: 'Sharp divergence', trend: 'Sharp money on the underdog: dog-side (cash% − ticket%) ≥ 5 pts', side: 'Underdog', n: 850, rate: 56.47, p: 0.000182 },
+  { category: 'spread', tier: 1, group: 'Cross-market', trend: 'Sharp dog gap ≥ 6 pts AND totals sharp gap toward UNDER ≥ 8 pts', side: 'Underdog', n: 240, rate: 61.25, p: 0.000595 },
+  { category: 'spread', tier: 1, group: 'Cross-market', trend: 'Sharp dog ≥5 + sharp UNDER ≥8', side: 'Underdog', n: 279, rate: 60.22, p: 0.000771 },
+  { category: 'spread', tier: 1, group: 'Sharp divergence', trend: 'Sharp dog with a mid implied total: gap ≥ 6 pts AND dog implied team total 17.5–21', side: 'Underdog', n: 331, rate: 59.21, p: 0.000946 },
+  { category: 'spread', tier: 1, group: 'Sharp divergence', trend: 'Sharp dog the experts hate: gap ≥ 6 pts AND expert ATS consensus on the dog ≤ 40%', side: 'Underdog', n: 492, rate: 57.52, p: 0.000979 },
+  { category: 'spread', tier: 1, group: 'Key numbers', trend: 'Sharp dog (gap ≥ 5 pts) with spread 7–9.5', side: 'Underdog', n: 165, rate: 63.03, p: 0.001016 },
+  { category: 'spread', tier: 1, group: 'Sharp divergence', trend: 'Broad divergence: absolute sharp gap ≥ 6 pts', side: 'Sharp side', n: 948, rate: 55.38, p: 0.001027 },
+  { category: 'spread', tier: 1, group: 'Situational', trend: 'Away team, weeks 5–9, spread < 3', side: 'Away team', n: 146, rate: 63.7, p: 0.001173 },
+  { category: 'spread', tier: 1, group: 'Liquidity & attention', trend: 'Sharp side in a high average-wager market: gap ≥ 6 pts AND top-30% average ticket size', side: 'Sharp side', n: 241, rate: 60.58, p: 0.001232 },
+  { category: 'spread', tier: 1, group: 'Sharp divergence', trend: 'Silent sharp dog: gap ≥ 8 pts on the dog with dog cash share < 60%', side: 'Underdog', n: 478, rate: 57.32, p: 0.001573 },
+  { category: 'spread', tier: 1, group: 'Sharp divergence', trend: 'Sharp money on the away side: gap toward away ≥ 5 pts', side: 'Away team', n: 469, rate: 57.36, p: 0.001661 },
+  { category: 'spread', tier: 1, group: 'Spread price', trend: 'Spread of 10 or more (either side) and the two spread prices are not equal', side: 'More expensive side', n: 246, rate: 60.16, p: 0.001727 },
+  { category: 'spread', tier: 1, group: 'Sharp divergence', trend: 'Sharp money on the underdog: dog-side (cash% − ticket%) ≥ 4 pts', side: 'Underdog', n: 980, rate: 55, p: 0.00193 },
+  { category: 'spread', tier: 1, group: 'Cross-market', trend: 'Sharp dog gap ≥ 6 pts AND totals sharp gap toward UNDER ≥ 6 pts', side: 'Underdog', n: 305, rate: 59.02, p: 0.001939 },
+  { category: 'spread', tier: 1, group: 'Public money', trend: 'Big bets on away: log bet-size ratio ≤ −0.15', side: 'Away team', n: 309, rate: 58.9, p: 0.002077 },
+  { category: 'spread', tier: 1, group: 'Situational', trend: 'Sharp dog on the road (gap ≥ 5 pts)', side: 'Road underdog', n: 421, rate: 57.48, p: 0.002473 },
+  { category: 'spread', tier: 1, group: 'Sharp divergence', trend: 'Sharp dog in a low-scoring game: gap ≥ 6 pts AND game total ≤ 42', side: 'Underdog', n: 181, rate: 61.33, p: 0.002844 },
+  { category: 'spread', tier: 2, group: 'Sharp divergence', trend: 'Sharp money on the underdog: dog-side (cash% − ticket%) ≥ 8 pts', side: 'Underdog', n: 511, rate: 56.56, p: 0.003464 },
+  { category: 'spread', tier: 2, group: 'Sharp divergence', trend: 'Sharp money on the away side: gap toward away ≥ 10 pts', side: 'Away team', n: 173, rate: 61.27, p: 0.003738 },
+  { category: 'spread', tier: 2, group: 'Cross-market', trend: 'Sharp dog ≥5 + sharp UNDER ≥6', side: 'Underdog', n: 357, rate: 57.7, p: 0.004199 },
+  { category: 'spread', tier: 2, group: 'Streaks & form', trend: 'Team was an underdog last game and is now a favorite', side: 'Fade that team', n: 827, rate: 55.02, p: 0.004324 },
+  { category: 'spread', tier: 2, group: 'Line movement', trend: 'Sharp dog (≥5 pts) and the line stays flat (< 1 point)', side: 'Underdog', n: 265, rate: 58.87, p: 0.004625 },
+  { category: 'spread', tier: 2, group: 'Cross-market', trend: 'Sharp dog ≥6 + sharp UNDER ≥4', side: 'Underdog', n: 358, rate: 57.54, p: 0.005022 },
+  { category: 'spread', tier: 2, group: 'Cross-market', trend: 'Sharp dog ≥5 + public OVER tickets ≥60%', side: 'Underdog', n: 572, rate: 55.94, p: 0.005044 },
+  { category: 'spread', tier: 2, group: 'Spread price', trend: 'Home team favored by 10 or more and the home side carries the more expensive price', side: 'Home team', n: 53, rate: 69.81, p: 0.005486 },
+  { category: 'spread', tier: 2, group: 'Situational', trend: 'Away team on non-grass surface with spread < 3', side: 'Away team', n: 220, rate: 59.55, p: 0.005584 },
+  { category: 'spread', tier: 2, group: 'Cross-market', trend: 'Sharp dog ≥5 + sharp UNDER ≥4', side: 'Underdog', n: 421, rate: 56.77, p: 0.00628 },
+  { category: 'spread', tier: 2, group: 'Liquidity & attention', trend: 'Low-handle games with sharp divergence ≥ 5 pts either side', side: 'Sharp side', n: 254, rate: 58.66, p: 0.006858 },
+  { category: 'spread', tier: 2, group: 'Spread price', trend: 'Spread of 10 or more (either side) and the HOME side carries the more expensive price', side: 'Home team', n: 102, rate: 63.73, p: 0.007206 },
+  { category: 'spread', tier: 2, group: 'Cross-market', trend: 'Sharp dog ≥8 + sharp UNDER ≥8', side: 'Underdog', n: 172, rate: 60.47, p: 0.007434 },
+  { category: 'spread', tier: 2, group: 'Cross-market', trend: 'Sharp dog ≥6 + public OVER tickets ≥60%', side: 'Underdog', n: 479, rate: 56.16, p: 0.007981 },
+  { category: 'spread', tier: 2, group: 'Sharp divergence', trend: 'Silent sharp meeting line resistance: silent sharp AND line moves against the sharp side ≥ 0.5', side: 'Sharp side', n: 277, rate: 58.12, p: 0.008085 },
+  { category: 'spread', tier: 2, group: 'Spread price', trend: 'Cash leans to the away side by 5+ pts AND the away side carries the more expensive price', side: 'Away team', n: 255, rate: 58.43, p: 0.008407 },
+  { category: 'spread', tier: 2, group: 'Spread price', trend: 'Home spread price is even money or better (≥ −100)', side: 'Away team', n: 395, rate: 56.71, p: 0.008802 },
+  { category: 'spread', tier: 2, group: 'Spread price', trend: 'Cash leans to the away side by 10+ pts AND the away side carries the more expensive price', side: 'Away team', n: 108, rate: 62.96, p: 0.009058 },
+  { category: 'spread', tier: 2, group: 'Coach / QB', trend: 'Dan Campbell-coached teams against the spread', side: 'Dan Campbell\'s team', n: 87, rate: 64.37, p: 0.009673 },
+  { category: 'spread', tier: 3, group: 'Situational', trend: 'Divisional dog with sharp money on the dog', side: 'Underdog', n: 308, rate: 57.47, p: 0.010228 },
+  { category: 'spread', tier: 3, group: 'Sharp divergence', trend: 'Broad divergence: absolute sharp gap ≥ 4 pts', side: 'Sharp side', n: 1317, rate: 53.53, p: 0.011214 },
+  { category: 'spread', tier: 3, group: 'Line movement', trend: 'Sharp dog (≥5 pts) and the line moves against the dog by ≥ 1 point', side: 'Underdog', n: 376, rate: 56.65, p: 0.011406 },
+  { category: 'spread', tier: 3, group: 'Liquidity & attention', trend: 'Totals average wager low relative to the spread (bottom 20%)', side: 'Underdog', n: 431, rate: 56.15, p: 0.012165 },
+  { category: 'spread', tier: 3, group: 'Sharp divergence', trend: 'Silent sharp: divergence ≥ 8 pts while the sharp side\'s cash share stays under 60%', side: 'Sharp side', n: 577, rate: 55.29, p: 0.012429 },
+  { category: 'spread', tier: 3, group: 'Weather', trend: 'Underdog in an indoor/closed-roof September game (week ≤ 4)', side: 'Underdog', n: 165, rate: 60, p: 0.012496 },
+  { category: 'spread', tier: 3, group: 'Key numbers', trend: 'Sharp side sitting on key number 7: gap ≥ 6 pts AND closing spread within 0.5 of 7', side: 'Sharp side', n: 147, rate: 60.54, p: 0.013078 },
+  { category: 'spread', tier: 3, group: 'Streaks & form', trend: 'On a 3+ straight-up losing streak and now an underdog', side: 'The team', n: 496, rate: 55.65, p: 0.013447 },
+  { category: 'spread', tier: 3, group: 'Sharp divergence', trend: 'Sharp money on the away side: gap toward away ≥ 8 pts', side: 'Away team', n: 252, rate: 57.94, p: 0.013859 },
+  { category: 'spread', tier: 3, group: 'Coach / QB', trend: 'Jared Goff\'s team against the spread', side: 'Jared Goff\'s team', n: 133, rate: 60.9, p: 0.014873 },
+  { category: 'spread', tier: 3, group: 'Sharp divergence', trend: 'Sharp money on the underdog: dog-side (cash% − ticket%) ≥ 3 pts', side: 'Underdog', n: 1112, rate: 53.69, p: 0.015102 },
+  { category: 'spread', tier: 3, group: 'Sharp divergence', trend: 'Sharp money on the underdog: dog-side (cash% − ticket%) ≥ 10 pts', side: 'Underdog', n: 352, rate: 56.53, p: 0.01634 },
+  { category: 'spread', tier: 3, group: 'Public money', trend: 'Bet-size ratio ≤ 0.67 (away average wager much larger)', side: 'Away team', n: 244, rate: 57.79, p: 0.017671 },
+  { category: 'spread', tier: 3, group: 'Situational', trend: 'Home underdog +7.5 to +10', side: 'Home underdog', n: 87, rate: 63.22, p: 0.017828 },
+  { category: 'spread', tier: 3, group: 'Sharp divergence', trend: 'Away divisional side with sharp money: divisional AND gap toward away ≥ 4 pts', side: 'Away team', n: 198, rate: 58.59, p: 0.018789 },
+  { category: 'spread', tier: 3, group: 'Liquidity & attention', trend: 'Sharp dog ≥6 + top 30% totals/spread dollar ratio', side: 'Underdog', n: 154, rate: 59.74, p: 0.01915 },
+  { category: 'spread', tier: 3, group: 'Situational', trend: 'Away favorite of 7+ with home tickets ≤ 35%', side: 'Home underdog', n: 178, rate: 58.99, p: 0.019892 },
+  { category: 'spread', tier: 3, group: 'Cross-market', trend: 'Sharp dog ≥8 + sharp UNDER ≥6', side: 'Underdog', n: 216, rate: 57.87, p: 0.024519 },
+  { category: 'spread', tier: 3, group: 'Situational', trend: 'Sharp dog at home (gap ≥ 5 pts)', side: 'Home underdog', n: 429, rate: 55.48, p: 0.026243 },
+  { category: 'spread', tier: 3, group: 'Liquidity & attention', trend: 'Low-handle games (bottom 20% of season dollars)', side: 'Underdog', n: 433, rate: 55.43, p: 0.026947 },
+  { category: 'spread', tier: 3, group: 'Line movement', trend: 'Sharp buyback: sharp gap toward away ≥ 5 pts and line moves toward home ≥ 1', side: 'Away team', n: 169, rate: 58.58, p: 0.030948 },
+  { category: 'spread', tier: 3, group: 'Liquidity & attention', trend: 'Sharp dog ≥6 + top 19% totals ticket volume', side: 'Underdog', n: 87, rate: 62.07, p: 0.031418 },
+  { category: 'spread', tier: 3, group: 'Key numbers', trend: 'Sharp dog (gap ≥ 5 pts) with spread 0.5–3', side: 'Underdog', n: 266, rate: 56.77, p: 0.03168 },
+  { category: 'spread', tier: 3, group: 'Sharp divergence', trend: 'Sharp money on the underdog: dog-side (cash% − ticket%) ≥ 2 pts', side: 'Underdog', n: 1248, rate: 53.04, p: 0.033711 },
+  { category: 'spread', tier: 3, group: 'Key numbers', trend: 'Home underdog 7+ AND normalized-spread top quintile (low total)', side: 'Home underdog', n: 118, rate: 60.17, p: 0.033788 },
+  { category: 'spread', tier: 3, group: 'Cross-market', trend: 'Sharp dog ≥6 + sharp OVER ≥4', side: 'Underdog', n: 111, rate: 60.36, p: 0.036306 },
+  { category: 'spread', tier: 3, group: 'Spread price', trend: 'Underdog\'s spread price is even money or better (≥ −100)', side: 'Away team', n: 331, rate: 55.89, p: 0.036578 },
+  { category: 'spread', tier: 3, group: 'Situational', trend: 'Away team, total ≥ 48, weeks 5–9', side: 'Away team', n: 181, rate: 58.01, p: 0.03712 },
+  { category: 'spread', tier: 3, group: 'Totals context', trend: 'Game total line < 40', side: 'Home team', n: 209, rate: 57.42, p: 0.037719 },
+  { category: 'spread', tier: 3, group: 'Key numbers', trend: 'Normalized-spread top quintile AND home underdog', side: 'Home underdog', n: 119, rate: 59.66, p: 0.043268 },
+  { category: 'spread', tier: 3, group: 'Liquidity & attention', trend: 'Sharp dog ≥8 + bottom 19% totals/spread dollar ratio', side: 'Underdog', n: 143, rate: 58.74, p: 0.044373 },
+  { category: 'spread', tier: 3, group: 'Spread price', trend: 'Home and away spread prices differ by 20 cents or more', side: 'Away team', n: 695, rate: 53.81, p: 0.048478 },
+  { category: 'spread', tier: 3, group: 'Situational', trend: 'Home underdog of 7 or more (fade the road favorite −7+)', side: 'Home underdog', n: 191, rate: 57.07, p: 0.059648 },
+  { category: 'spread', tier: 3, group: 'Streaks & form', trend: 'Weeks 1–4, off an ATS loss', side: 'The team', n: 505, rate: 54.26, p: 0.061519 },
+  { category: 'spread', tier: 3, group: 'Situational', trend: 'Home team implied total ≤ 17 (any spread)', side: 'Home team', n: 118, rate: 58.47, p: 0.079834 },
+  { category: 'spread', tier: 3, group: 'Situational', trend: 'Home underdog of 7+ with home implied total ≤ 17', side: 'Home underdog', n: 74, rate: 60.81, p: 0.080507 },
+  { category: 'spread', tier: 3, group: 'Situational', trend: 'Divisional underdog', side: 'Underdog', n: 770, rate: 53.12, p: 0.090245 },
+  { category: 'spread', tier: 3, group: 'Weather', trend: 'Underdog with wind 10–14 mph', side: 'Underdog', n: 317, rate: 54.89, p: 0.091837 },
+  { category: 'spread', tier: 3, group: 'Situational', trend: 'Road underdog +4.5 to +6', side: 'Road underdog', n: 198, rate: 56.06, p: 0.101904 },
+  { category: 'spread', tier: 3, group: 'Situational', trend: 'Any underdog +7.5 to +9.5', side: 'Underdog', n: 242, rate: 54.55, p: 0.176916 },
+  { category: 'spread', tier: 3, group: 'Schedule & rest', trend: 'Off a bye (rest ≥ 10 days) AND an underdog', side: 'Underdog', n: 244, rate: 53.69, p: 0.276427 },
+  { category: 'spread', tier: 3, group: 'Streaks & form', trend: 'Home underdog after a straight-up loss', side: 'Home underdog', n: 532, rate: 52.07, p: 0.36259 },
+  { category: 'spread', tier: 3, group: 'Streaks & form', trend: 'Home underdog off an ATS loss of 14+', side: 'Home underdog', n: 224, rate: 53.12, p: 0.385111 },
+  { category: 'spread', tier: 3, group: 'Situational', trend: 'Home team, weeks 14–18, |spread| ≥ 7', side: 'Home team', n: 201, rate: 53.23, p: 0.397378 },
+  { category: 'spread', tier: 3, group: 'Situational', trend: 'Home favorite of 10.5 or more', side: 'Home favorite', n: 173, rate: 52.6, p: 0.54316 },
+
+  // ─── Totals ─────────────────────────────────────────────────────────
+  { category: 'total', tier: 4, group: 'Cross-market', trend: 'Wind > 9.5; totals/spread dollar pctile > 37.69%; Cover Difficulty ≤ 0.4957', side: 'Under', n: 214, rate: 65.89, p: 4e-06 },
+  { category: 'total', tier: 4, group: 'Cross-market', trend: 'Wind ≥ 10 mph AND relative totals/spread dollar percentile ≥ 40%', side: 'Under', n: 308, rate: 62.99, p: 6e-06 },
+  { category: 'total', tier: 4, group: 'Cross-market', trend: 'Wind ≥ 10 mph; totals/spread dollar percentile ≥ 40%; Cover Difficulty Index ≤ 0.50', side: 'Under', n: 208, rate: 65.87, p: 6e-06 },
+  { category: 'total', tier: 4, group: 'Cross-market', trend: 'Wind > 9.5 AND totals/spread dollar pctile > 37.69%', side: 'Under', n: 316, rate: 62.66, p: 8e-06 },
+  { category: 'total', tier: 4, group: 'Cross-market', trend: 'Totals sharp gap toward UNDER ≥ 4 pts AND relative totals/spread dollars bottom 40%', side: 'Over', n: 448, rate: 58.04, p: 0.000777 },
+  { category: 'total', tier: 4, group: 'Totals context', trend: 'Wind 11–15 mph', side: 'Under', n: 278, rate: 60.07, p: 0.000938 },
+  { category: 'total', tier: 4, group: 'Liquidity & attention', trend: 'Relative totals/spread dollar percentile > 40%', side: 'Under', n: 1324, rate: 54.46, p: 0.001294 },
+  { category: 'total', tier: 4, group: 'Cross-market', trend: 'Totals sharp gap toward UNDER ≥ 4 pts AND spread 7–9.5', side: 'Over', n: 162, rate: 62.35, p: 0.002087 },
+  { category: 'total', tier: 4, group: 'Cross-market', trend: 'Totals sharp-gap percentile bottom 40% AND relative totals/spread dollar percentile bottom 40%', side: 'Over', n: 388, rate: 57.73, p: 0.002696 },
+  { category: 'total', tier: 4, group: 'Cross-market', trend: 'Totals sharp gap toward UNDER ≥ 4 pts AND wind ≥ 10 mph', side: 'Under', n: 259, rate: 57.92, p: 0.012787 },
+  { category: 'total', tier: 4, group: 'Liquidity & attention', trend: 'Sharp UNDER ≥4 pts + top 30% totals/spread ticket ratio', side: 'Under', n: 253, rate: 57.71, p: 0.016722 },
+  { category: 'total', tier: 4, group: 'Cross-market', trend: 'Totals sharp gap toward UNDER ≥ 4 pts AND wind < 10 mph', side: 'Over', n: 771, rate: 54.35, p: 0.017401 },
+  { category: 'total', tier: 4, group: 'Totals context', trend: 'Wind ≥10 + public OVER tickets ≥60%', side: 'Under', n: 312, rate: 56.73, p: 0.020131 },
+  { category: 'total', tier: 4, group: 'Cross-market', trend: 'Totals sharp gap toward UNDER ≥ 4 pts AND game total > 49', side: 'Under', n: 181, rate: 58.56, p: 0.025483 },
+  { category: 'total', tier: 4, group: 'Liquidity & attention', trend: 'Relative totals/spread dollar percentile 20–40%', side: 'Over', n: 441, rate: 55.33, p: 0.028376 },
+  { category: 'total', tier: 4, group: 'Totals context', trend: 'Primetime + public OVER tickets ≥60%', side: 'Under', n: 396, rate: 55.56, p: 0.030579 },
+  { category: 'total', tier: 4, group: 'Totals context', trend: 'Primetime game', side: 'Under', n: 579, rate: 54.58, p: 0.030603 },
+  { category: 'total', tier: 4, group: 'Liquidity & attention', trend: 'Both spread and totals ticket volume in the top 30% of the season', side: 'Under', n: 478, rate: 55.02, p: 0.031469 },
+  { category: 'total', tier: 4, group: 'Totals sharp money', trend: 'Totals sharp-gap season percentile 60–80%', side: 'Under', n: 445, rate: 54.83, p: 0.04636 },
+  { category: 'total', tier: 4, group: 'Totals context', trend: 'Outdoor game', side: 'Under', n: 1505, rate: 52.43, p: 0.063426 },
+
+  // ─── Referee leans ──────────────────────────────────────────────────
+  { category: 'referee', tier: 5, group: 'Referee', trend: 'John Hussey refereeing crew', side: 'Home team', n: 130, rate: 60, p: 0.027945 },
+  { category: 'referee', tier: 5, group: 'Referee', trend: 'Scott Novak refereeing crew', side: 'Away team', n: 110, rate: 59.09, p: 0.069565 },
+  { category: 'referee', tier: 5, group: 'Referee', trend: 'Bill Vinovich refereeing crew', side: 'Away team', n: 133, rate: 57.14, p: 0.11824 },
+  { category: 'referee', tier: 5, group: 'Referee', trend: 'Alan Eck refereeing crew', side: 'Home team', n: 50, rate: 58, p: 0.322236 },
+  { category: 'referee', tier: 5, group: 'Referee', trend: 'Carl Cheffers refereeing crew', side: 'Home team', n: 130, rate: 53.08, p: 0.53942 }
 ];
 
-// Post a new trend (admin)
-app.post('/api/trends', requireAuth, async (req, res) => {
-  try {
-    const { trend, side, n, rate, p, category, tier } = req.body;
-
-    if (!trend || !side || rate === undefined || rate === '') {
-      return res.status(400).json({ error: 'Trend, side, and rate are required' });
-    }
-
-    const newTrend = {
-      id: Date.now().toString(),
-      category: (category === 'total' ? 'total' : 'spread'),
-      tier: tier ? parseInt(tier, 10) : 3,
-      trend: trend.toString().trim(),
-      side: side.toString().trim(),
-      n: n !== undefined && n !== '' ? parseInt(n, 10) : null,
-      rate: parseFloat(rate),
-      p: p !== undefined && p !== '' ? parseFloat(p) : null,
-      datePosted: new Date().toISOString()
-    };
-
-    const client = await getRedisClient();
-    await client.set(`trend:${newTrend.id}`, JSON.stringify(newTrend));
-    await client.sAdd('all_trends', newTrend.id);
-
-    console.log('Trend saved to Redis:', newTrend.id);
-    res.json({ success: true, message: 'Trend posted successfully!', trend: newTrend });
-  } catch (error) {
-    console.error('Error adding trend:', error);
-    res.status(500).json({ error: 'Failed to post trend' });
-  }
-});
-
-// Seed the starter trend set from the reconciled workbook (admin, idempotent unless ?force=true)
-app.post('/api/trends/seed', requireAuth, async (req, res) => {
-  try {
-    if (!process.env.REDIS_URL) {
-      return res.json({ success: true, seeded: 0, message: 'No Redis configured — dev stub serves starter trends automatically.' });
-    }
-    const client = await getRedisClient();
-    const force = req.query.force === 'true' || req.body.force === true;
-    const existing = await client.sMembers('all_trends');
-
-    if (existing.length > 0 && !force) {
-      return res.json({ success: false, message: `${existing.length} trends already exist. Re-seed with force to replace them.` });
-    }
-
-    // When forcing, clear the existing set first
-    if (force && existing.length > 0) {
-      for (const id of existing) await client.del(`trend:${id}`);
-      await client.del('all_trends');
-    }
-
-    let seeded = 0;
-    for (let i = 0; i < STARTER_TRENDS.length; i++) {
-      const t = { id: `seed-${Date.now()}-${i}`, datePosted: new Date().toISOString(), ...STARTER_TRENDS[i] };
-      await client.set(`trend:${t.id}`, JSON.stringify(t));
-      await client.sAdd('all_trends', t.id);
-      seeded++;
-    }
-
-    console.log(`Seeded ${seeded} starter trends to Redis`);
-    res.json({ success: true, seeded, message: `Imported ${seeded} starter trends.` });
-  } catch (error) {
-    console.error('Error seeding trends:', error);
-    res.status(500).json({ error: 'Failed to seed trends' });
-  }
-});
-
-// Delete a trend (admin)
-app.delete('/api/trends/:id', requireAuth, async (req, res) => {
-  try {
-    const client = await getRedisClient();
-    await client.del(`trend:${req.params.id}`);
-    await client.sRem('all_trends', req.params.id);
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting trend:', error);
-    res.status(500).json({ error: 'Failed to delete trend' });
-  }
-});
-
-// Get trends — requires valid member session token (same gate as picks)
+// Get trends — requires a valid member session token (same gate as picks).
+//
+// Read-only by design: the TRENDS array above is the single source of truth. Trends only
+// change when the verified workbook is regenerated, which is already a code change and a
+// deploy — so there is no runtime copy to keep in sync and nothing to import by hand.
 app.get('/api/trends', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -750,28 +768,21 @@ app.get('/api/trends', async (req, res) => {
     const token = authHeader.slice(7);
     const isAdmin = authHeader === 'Bearer admin-authenticated';
 
-    // --- DEV STUB: serve the starter set when Redis is unavailable ---
-    if (!process.env.REDIS_URL) {
-      if (!isAdmin) return res.status(401).json({ error: 'Authentication required' });
-      return res.json(STARTER_TRENDS.map((t, i) => ({ id: `stub-${i}`, datePosted: new Date().toISOString(), ...t })));
-    }
-    // ----------------------------------------------------------------
-
-    const client = await getRedisClient();
-    const email = isAdmin ? 'admin' : await client.get(`session:${token}`);
-    if (!email) {
-      return res.status(401).json({ error: 'Session expired. Please log in again.' });
-    }
-
-    const ids = await client.sMembers('all_trends');
-    const trends = [];
-    for (const id of ids) {
-      const data = await client.get(`trend:${id}`);
-      if (data) trends.push(JSON.parse(data));
+    // Member sessions live in Redis; without it only the admin token gets through (local dev).
+    let email = 'admin';
+    if (!isAdmin) {
+      if (!process.env.REDIS_URL) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      const client = await getRedisClient();
+      email = await client.get(`session:${token}`);
+      if (!email) {
+        return res.status(401).json({ error: 'Session expired. Please log in again.' });
+      }
     }
 
-    console.log('Trends requested by', email, '— returning', trends.length, 'trends');
-    res.json(trends);
+    console.log('Trends requested by', email, '— returning', TRENDS.length, 'trends');
+    res.json(TRENDS.map((t, i) => ({ id: `trend-${i}`, ...t })));
   } catch (error) {
     console.error('Error fetching trends:', error);
     res.status(500).json({ error: 'Failed to fetch trends' });
