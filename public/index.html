@@ -1542,8 +1542,10 @@
     </footer>
 
     <script>
-        // Stripe initialization
-        const stripe = window.Stripe ? Stripe('pk_live_51Rv8QgAZmmH10g2fFM4mXKPxN2RIEiKdyPMFblwMpGjE82jglj46u2kgr4ketvKkl12VQaW2T4G8mGLLTFMMMC5U00ZLLQ2AVv') : null;
+        // Stripe initialization — publishable key for acct_1TJdsoCwvbvJRKrd
+        // (YardlineIQ). Must stay on the same account as STRIPE_SECRET_KEY in
+        // Vercel; a mismatched pair fails every checkout at confirmCardPayment.
+        const stripe = window.Stripe ? Stripe('pk_live_51TJdsoCwvbvJRKrdPEheSL0I0qwrFM5GGXwFP8MIKAKtEuHn2daO88ifUv8OW88GvmyAhwL2p6QfL7HA93tSU0eF00HknB6Zga') : null;
         const elements = stripe ? stripe.elements() : null;
 
         const cardElement = elements ? elements.create('card', {
@@ -1797,13 +1799,12 @@
             spinner.style.display = 'inline';
 
             try {
-                // Create payment intent with customer info
+                // Create payment intent. The server looks the price up from
+                // packageType — sending an amount from here would be ignored.
                 const response = await fetch('/api/payments/create-payment-intent', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        amount: currentAmount,
-                        currency: 'usd',
                         packageType: currentPackage,
                         customerInfo: customerInfo
                     })
@@ -1829,38 +1830,36 @@
                 if (error) {
                     document.getElementById('card-errors').textContent = error.message;
                 } else if (paymentIntent.status === 'succeeded') {
-                    // Confirm payment in database
-                    const confirmResponse = await fetch('/api/payments/payment-success', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            paymentIntentId: paymentIntent.id,
-                            customerInfo: customerInfo,
-                            packageType: currentPackage
-                        })
-                    });
+                    // The card has been charged. Past this point we never tell
+                    // the customer to try again — if this call fails, the Stripe
+                    // webhook still grants access.
+                    try {
+                        await fetch('/api/payments/payment-success', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+                        });
+                    } catch (confirmError) {
+                        console.error('Confirm call failed; webhook will fulfill:', confirmError);
+                    }
 
-                    if (confirmResponse.ok) {
-                        alert(`Payment successful! Welcome ${customerInfo.name}! Check your email (${customerInfo.email}) for NFL picks access and login details.`);
-                        closePaymentModal();
-                        
-                        // Google Analytics tracking
-                        if (typeof gtag !== 'undefined') {
-                            gtag('event', 'purchase', {
-                                'transaction_id': paymentIntent.id,
-                                'value': currentAmount,
-                                'currency': 'USD',
-                                'items': [{
-                                    'item_id': currentPackage,
-                                    'item_name': document.getElementById('modalTitle').textContent,
-                                    'category': 'NFL Picks',
-                                    'quantity': 1,
-                                    'price': currentAmount
-                                }]
-                            });
-                        }
-                    } else {
-                        throw new Error('Payment succeeded but failed to save customer data');
+                    alert(`Payment successful! Welcome ${customerInfo.name}! Check your email (${customerInfo.email}) for NFL picks access and login details.`);
+                    closePaymentModal();
+
+                    // Google Analytics tracking
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'purchase', {
+                            'transaction_id': paymentIntent.id,
+                            'value': currentAmount,
+                            'currency': 'USD',
+                            'items': [{
+                                'item_id': currentPackage,
+                                'item_name': document.getElementById('modalTitle').textContent,
+                                'category': 'NFL Picks',
+                                'quantity': 1,
+                                'price': currentAmount
+                            }]
+                        });
                     }
                 }
             } catch (error) {

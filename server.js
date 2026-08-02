@@ -9,6 +9,23 @@ const PORT = process.env.PORT || 3000;
 // Admin password
 const ADMIN_PASSWORD = 'yardline2025';
 
+// Pricing — the server is the only source of truth for what a package costs.
+// The browser may choose a packageType; it never gets to send an amount.
+// Amounts are in cents.
+const PACKAGES = {
+  weekly:  { label: 'Weekly Pass',      amount: 2900,  durationDays: 7 },
+  monthly: { label: 'Monthly Pass',     amount: 8900,  durationDays: 30 },
+  season:  { label: 'Full Season Pass', amount: 19900, endsOn: '2027-02-15' }
+};
+
+function subscriptionEndFor(packageType) {
+  const pkg = PACKAGES[packageType];
+  if (!pkg) return null;
+  return pkg.endsOn
+    ? new Date(pkg.endsOn)
+    : new Date(Date.now() + pkg.durationDays * 24 * 60 * 60 * 1000);
+}
+
 // Initialize Redis client
 let redisClient;
 
@@ -26,6 +43,72 @@ async function getRedisClient() {
   }
   return redisClient;
 }
+
+// Stripe webhook — registered before express.json() so the raw request body
+// survives for signature verification. This is the authoritative fulfillment
+// path: it runs even if the customer closes the tab mid-checkout.
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    console.error('Webhook received but STRIPE_WEBHOOK_SECRET is not set');
+    return res.status(500).send('Webhook secret not configured');
+  }
+
+  // Signature verification needs the exact bytes Stripe sent. express.raw
+  // gives us a Buffer, but some hosts (including @vercel/node) can consume
+  // the stream first and hand us an already-parsed object. Re-serializing
+  // that would not be byte-identical, so bail loudly instead of pretending
+  // to verify — an unverified webhook endpoint is worse than a broken one.
+  const rawBody = Buffer.isBuffer(req.body) ? req.body
+    : Buffer.isBuffer(req.rawBody) ? req.rawBody
+    : typeof req.rawBody === 'string' ? Buffer.from(req.rawBody, 'utf8')
+    : null;
+
+  if (!rawBody || rawBody.length === 0) {
+    console.error(
+      'Webhook body was not raw (got %s). Signature cannot be verified.',
+      Object.prototype.toString.call(req.body)
+    );
+    return res.status(500).send('Raw body unavailable');
+  }
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      rawBody,
+      req.headers['stripe-signature'],
+      webhookSecret
+    );
+  } catch (error) {
+    console.error('Webhook signature verification failed:', error.message);
+    return res.status(400).send(`Webhook Error: ${error.message}`);
+  }
+
+  try {
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        await fulfillPurchase(event.data.object, 'webhook');
+        break;
+      case 'payment_intent.payment_failed':
+        console.log('Payment failed:', event.data.object.id,
+          event.data.object.last_payment_error?.message || '');
+        break;
+      case 'charge.refunded':
+      case 'charge.dispute.created':
+        console.log(`${event.type} for intent:`, event.data.object.payment_intent);
+        break;
+      default:
+        console.log('Unhandled webhook event:', event.type);
+    }
+  } catch (error) {
+    // Non-2xx tells Stripe to retry, so a transient Redis failure doesn't
+    // silently lose a paid customer.
+    console.error('Webhook handler error:', event.type, error);
+    return res.status(500).send('Handler error');
+  }
+
+  res.json({ received: true });
+});
 
 // Basic middleware
 app.use(express.json());
@@ -127,8 +210,15 @@ async function savePurchaseToRedis(purchaseData) {
       purchaseDate: new Date().toISOString()
     };
 
-    // Individual purchase record keyed by Stripe payment intent ID
-    await client.set(`purchase:${pid}`, JSON.stringify(record));
+    // Individual purchase record keyed by Stripe payment intent ID.
+    // NX makes this the idempotency claim: the webhook and the browser both
+    // try to record the same payment, and only the first one wins. Without
+    // it, revenue would be double-counted.
+    const claimed = await client.set(`purchase:${pid}`, JSON.stringify(record), { NX: true });
+    if (claimed === null) {
+      console.log(`Purchase ${pid} already recorded, skipping`);
+      return { success: true, duplicate: true };
+    }
 
     // Per-customer purchase index
     await client.sAdd(`purchases:${email}`, pid);
@@ -140,7 +230,7 @@ async function savePurchaseToRedis(purchaseData) {
     await client.incrByFloat('total_revenue', purchaseData.amount || 0);
 
     console.log(`Purchase saved: ${pid} for ${email} — $${purchaseData.amount}`);
-    return { success: true };
+    return { success: true, duplicate: false };
   } catch (error) {
     console.error('Redis purchase save error:', error);
     return { success: false, error: error.message };
@@ -247,18 +337,25 @@ app.post('/api/email/*', (req, res) => {
 // Create payment intent
 app.post('/api/payments/create-payment-intent', async (req, res) => {
   try {
-    const { amount, currency, packageType, customerInfo } = req.body;
-    
+    const { packageType, customerInfo } = req.body;
+
     if (!customerInfo || !customerInfo.name || !customerInfo.email) {
       return res.status(400).json({ error: 'Customer name and email are required' });
     }
-    
+
+    // Any `amount` in the request body is ignored — the price is looked up
+    // here so a modified client can't pick its own.
+    const pkg = PACKAGES[packageType];
+    if (!pkg) {
+      return res.status(400).json({ error: 'Unknown package' });
+    }
+
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100,
-      currency: currency || 'usd',
+      amount: pkg.amount,
+      currency: 'usd',
       metadata: {
         packageType,
-        userEmail: customerInfo.email,
+        userEmail: customerInfo.email.toLowerCase().trim(),
         userName: customerInfo.name,
         purchaseDate: new Date().toISOString()
       }
@@ -274,73 +371,108 @@ app.post('/api/payments/create-payment-intent', async (req, res) => {
   }
 });
 
-// Handle successful payment - Redis version
+// Owner notification hook. Email delivery was never implemented — this used
+// to be an undefined call that threw mid-fulfillment. Logging keeps the seam
+// without pretending mail is wired up.
+async function sendNotificationEmail(type, data) {
+  console.log(`[notify:${type}]`, JSON.stringify(data));
+}
+
+// The one fulfillment path, shared by the Stripe webhook and the browser's
+// post-checkout call. Package and buyer come from the PaymentIntent metadata
+// the server wrote at creation time, never from the caller — so a modified
+// client can't pay for a weekly pass and claim a season one. Safe to run
+// twice for the same intent.
+async function fulfillPurchase(paymentIntent, source) {
+  if (paymentIntent.status !== 'succeeded') {
+    return { fulfilled: false, error: 'Payment not successful' };
+  }
+
+  const packageType = paymentIntent.metadata?.packageType;
+  const email = (paymentIntent.metadata?.userEmail || '').toLowerCase().trim();
+  const name = paymentIntent.metadata?.userName || '';
+
+  if (!PACKAGES[packageType] || !email) {
+    console.error(`Intent ${paymentIntent.id} has no usable package metadata`);
+    return { fulfilled: false, error: 'Payment is missing package details' };
+  }
+
+  // Doubles as the idempotency claim — whichever of the webhook or the
+  // browser arrives first does the work.
+  const purchase = await savePurchaseToRedis({
+    paymentIntentId: paymentIntent.id,
+    email,
+    name,
+    packageType,
+    amount: paymentIntent.amount / 100
+  });
+
+  if (purchase.duplicate) {
+    let subscriptionEnd = subscriptionEndFor(packageType);
+    try {
+      const client = await getRedisClient();
+      const existing = await client.get(`customer:${email}`);
+      if (existing) subscriptionEnd = JSON.parse(existing).subscriptionEnd;
+    } catch (error) {
+      console.error('Could not read existing customer record:', error);
+    }
+    return { fulfilled: true, subscriptionEnd };
+  }
+
+  const subscriptionEnd = subscriptionEndFor(packageType);
+  const customer = {
+    id: Date.now(),
+    name,
+    email,
+    packageType,
+    purchaseDate: new Date(),
+    subscriptionEnd,
+    paymentId: paymentIntent.id,
+    status: 'active'
+  };
+
+  const saved = await saveCustomerToRedis(customer);
+  if (!saved.success) {
+    // Throwing gives the webhook a 500, which makes Stripe retry rather than
+    // leaving a paid customer with no access.
+    throw new Error(`Failed to save customer: ${saved.error}`);
+  }
+
+  // Best-effort — a notification failure must not cost the buyer access.
+  try {
+    await sendNotificationEmail('payment', {
+      name, email, packageType, amount: paymentIntent.amount / 100, source
+    });
+  } catch (error) {
+    console.error('Notification failed for', paymentIntent.id, error);
+  }
+
+  console.log(`Fulfilled ${packageType} for ${email} via ${source}`);
+  return { fulfilled: true, userId: customer.id, subscriptionEnd };
+}
+
+// Browser confirmation. The webhook is authoritative; this exists so the
+// buyer sees a result immediately instead of waiting on webhook delivery.
 app.post('/api/payments/payment-success', async (req, res) => {
   try {
-    const { paymentIntentId, customerInfo, packageType } = req.body;
-    
-    if (!customerInfo || !customerInfo.email || !customerInfo.name) {
-      return res.status(400).json({ error: 'Customer information is required' });
+    const { paymentIntentId } = req.body;
+    if (!paymentIntentId) {
+      return res.status(400).json({ error: 'paymentIntentId is required' });
     }
-    
-    // Verify payment with Stripe
+
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    
-    if (paymentIntent.status === 'succeeded') {
-      // Calculate subscription end date
-      let subscriptionEnd;
-      if (packageType === 'weekly') {
-        subscriptionEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-      } else if (packageType === 'monthly') {
-        subscriptionEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-      } else if (packageType === 'season') {
-        subscriptionEnd = new Date('2027-02-15');
-      }
-      
-      // Create customer object
-      const customer = {
-        id: Date.now(),
-        name: customerInfo.name,
-        email: customerInfo.email,
-        packageType: packageType,
-        purchaseDate: new Date(),
-        subscriptionEnd: subscriptionEnd,
-        paymentId: paymentIntentId,
-        status: 'active'
-      };
-      
-      // Save/update customer subscription record
-      const result = await saveCustomerToRedis(customer);
-      if (!result.success) {
-        console.error('Failed to save customer to Redis:', result.error);
-      }
+    const result = await fulfillPurchase(paymentIntent, 'browser');
 
-      // Save individual purchase record for history and revenue tracking
-      await savePurchaseToRedis({
-        paymentIntentId: paymentIntentId,
-        email: customerInfo.email,
-        name: customerInfo.name,
-        packageType: packageType,
-        amount: paymentIntent.amount / 100
-      });
-
-      // Send notification email
-      await sendNotificationEmail('payment', {
-        name: customerInfo.name,
-        email: customerInfo.email,
-        packageType: packageType,
-        amount: paymentIntent.amount / 100
-      });
-      
-      res.json({
-        success: true,
-        message: 'Payment processed successfully!',
-        userId: customer.id,
-        subscriptionEnd: subscriptionEnd
-      });
-    } else {
-      res.status(400).json({ error: 'Payment not successful' });
+    if (!result.fulfilled) {
+      return res.status(400).json({ error: result.error });
     }
+
+    res.json({
+      success: true,
+      message: 'Payment processed successfully!',
+      userId: result.userId,
+      subscriptionEnd: result.subscriptionEnd
+    });
   } catch (error) {
     console.error('Payment success error:', error);
     res.status(500).json({ error: error.message });
