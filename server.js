@@ -86,9 +86,15 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
 
   try {
     switch (event.type) {
-      case 'payment_intent.succeeded':
-        await fulfillPurchase(event.data.object, 'webhook');
+      case 'payment_intent.succeeded': {
+        // Re-fetch from Stripe instead of trusting the event payload. The
+        // payload is only as trustworthy as the signing secret, and anyone
+        // holding that secret could otherwise forge a succeeded intent whose
+        // metadata claims a season pass and be granted one for free.
+        const intent = await stripe.paymentIntents.retrieve(event.data.object.id);
+        await fulfillPurchase(intent, 'webhook');
         break;
+      }
       case 'payment_intent.payment_failed':
         console.log('Payment failed:', event.data.object.id,
           event.data.object.last_payment_error?.message || '');
