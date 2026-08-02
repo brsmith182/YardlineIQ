@@ -356,12 +356,19 @@ app.post('/api/payments/create-payment-intent', async (req, res) => {
       return res.status(400).json({ error: 'Unknown package' });
     }
 
+    const email = customerInfo.email.toLowerCase().trim();
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: pkg.amount,
       currency: 'usd',
+      // Stripe sends the receipt itself once the charge succeeds. Passing
+      // receipt_email explicitly is required here because we create no Stripe
+      // Customer records, and it sends regardless of the Dashboard's
+      // "successful payments" email setting.
+      receipt_email: email,
       metadata: {
         packageType,
-        userEmail: customerInfo.email.toLowerCase().trim(),
+        userEmail: email,
         userName: customerInfo.name,
         purchaseDate: new Date().toISOString()
       }
