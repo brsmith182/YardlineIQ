@@ -24,26 +24,49 @@ const PACKAGES = {
   season:  { label: 'Full Season Pass', amount: 19900, endsOn: '2027-02-15' }
 };
 
-// A purchase extends whatever the customer already has; it never replaces it.
-// Renewing mid-term stacks on top of the remaining time, and a lapsed
-// subscription restarts from today. Fixed-date packages (the season pass) take
-// the later of their end date and the existing one, so buying a $29 weekly pass
-// can no longer truncate a $199 season pass.
-//
-// Called with one argument it behaves as it always did: a fresh entitlement.
-function subscriptionEndFor(packageType, currentEnd) {
-  const pkg = PACKAGES[packageType];
-  if (!pkg) return null;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
-  const now = Date.now();
-  const existing = currentEnd ? new Date(currentEnd).getTime() : 0;
-  // Only unexpired time carries forward. An invalid or past date restarts now.
-  const base = Number.isFinite(existing) && existing > now ? existing : now;
+// Apply a single purchase to a running entitlement. `atMs` is when that purchase
+// was made — not "now" — so replaying a history always produces the same answer
+// regardless of when the replay happens.
+//
+// Unexpired time carries forward, so a purchase extends rather than replaces. A
+// lapsed subscription restarts at the moment of purchase. Fixed-date packages
+// (the season pass) take the later of their end date and what is already held,
+// so a $29 weekly pass can never truncate a $199 season pass.
+function applyPurchase(packageType, currentEndMs, atMs) {
+  const pkg = PACKAGES[packageType];
+  if (!pkg) return currentEndMs;
+
+  const at = Number.isFinite(atMs) ? atMs : 0;
+  const base = currentEndMs > at ? currentEndMs : at;
 
   if (pkg.endsOn) {
-    return new Date(Math.max(base, new Date(pkg.endsOn).getTime()));
+    return Math.max(base, new Date(pkg.endsOn).getTime());
   }
-  return new Date(base + pkg.durationDays * 24 * 60 * 60 * 1000);
+  return base + pkg.durationDays * DAY_MS;
+}
+
+// The entitlement is a pure function of the customer's non-refunded purchase
+// history. Deriving it instead of incrementally patching a stored value is what
+// makes fulfillment safe to retry — replaying after a partial failure converges
+// on the same answer rather than double-granting or skipping — and it is what
+// lets a refund hand back exactly the time that purchase bought.
+function entitlementFromPurchases(purchases) {
+  const applied = (purchases || [])
+    .filter(p => p && !p.refunded && PACKAGES[p.packageType])
+    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+  let endMs = 0;
+  for (const p of applied) {
+    endMs = applyPurchase(p.packageType, endMs, p.timestamp || 0);
+  }
+
+  return {
+    subscriptionEnd: endMs ? new Date(endMs) : null,
+    latestPackage: applied.length ? applied[applied.length - 1].packageType : null,
+    appliedCount: applied.length
+  };
 }
 
 // Initialize Redis client
@@ -121,6 +144,31 @@ function bearerToken(req) {
   return authHeader.slice(7);
 }
 
+// A member session token outlives the customer record that authorised it, so
+// revoking access means deleting the tokens as well. Redis offers no reverse
+// lookup from email to token, hence this index.
+async function trackSession(client, email, token, ttlSeconds) {
+  await client.sAdd(`sessions:${email}`, token);
+  // Don't let the index outlive the tokens it points at.
+  await client.expire(`sessions:${email}`, ttlSeconds);
+}
+
+async function revokeSessions(email) {
+  try {
+    const client = await getRedisClient();
+    const tokens = await client.sMembers(`sessions:${email}`);
+    if (tokens.length) {
+      await client.del(tokens.map(t => `session:${t}`));
+      console.log(`Revoked ${tokens.length} active session(s) for ${email}`);
+    }
+    await client.del(`sessions:${email}`);
+    return tokens.length;
+  } catch (error) {
+    console.error(`Could not revoke sessions for ${email}:`, error);
+    return 0;
+  }
+}
+
 // CSV cells hold attacker-controlled text — name and email arrive from public
 // signup. Escape embedded quotes so a value cannot break out of its field, and
 // prefix a leading =, +, - or @ so Excel treats it as text, not a formula.
@@ -190,10 +238,29 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
         // is granted on payment_intent.succeeded, which may be days away.
         console.log('Payment processing (not yet fulfilled):', event.data.object.id);
         break;
-      case 'charge.refunded':
-      case 'charge.dispute.created':
-        console.log(`${event.type} for intent:`, event.data.object.payment_intent);
+      case 'charge.refunded': {
+        const charge = event.data.object;
+        const refunded = charge.amount_refunded || 0;
+        const total = charge.amount || 0;
+        // A partial refund is usually a goodwill gesture, not a cancellation —
+        // taking the whole subscription away would be wrong. Flag it instead.
+        if (charge.refunded !== true && refunded < total) {
+          console.warn(
+            `Partial refund on ${charge.payment_intent}: ` +
+            `$${(refunded / 100).toFixed(2)} of $${(total / 100).toFixed(2)}. ` +
+            `Access left intact — review manually.`
+          );
+          break;
+        }
+        await revokePurchase(charge.payment_intent, 'refund');
         break;
+      }
+      case 'charge.dispute.created': {
+        // A chargeback contests the entire charge, so access goes immediately;
+        // winning the dispute is rarer than losing the content.
+        await revokePurchase(event.data.object.payment_intent, 'dispute');
+        break;
+      }
       default:
         console.log('Unhandled webhook event:', event.type);
     }
@@ -337,22 +404,25 @@ async function savePurchaseToRedis(purchaseData) {
     // try to record the same payment, and only the first one wins. Without
     // it, revenue would be double-counted.
     const claimed = await client.set(`purchase:${pid}`, JSON.stringify(record), { NX: true });
-    if (claimed === null) {
-      console.log(`Purchase ${pid} already recorded, skipping`);
-      return { success: true, duplicate: true };
-    }
+    const duplicate = claimed === null;
 
-    // Per-customer purchase index
+    // Both sAdds are idempotent, so running them on a duplicate repairs an
+    // earlier attempt that died between claiming the purchase and indexing it.
+    // The entitlement is derived from these indexes, so a missing entry here
+    // would silently under-grant access.
     await client.sAdd(`purchases:${email}`, pid);
-
-    // Global purchase index for revenue calculations
     await client.sAdd('all_purchases', pid);
 
-    // Running revenue total
-    await client.incrByFloat('total_revenue', purchaseData.amount || 0);
+    // Revenue must count exactly once, so it is the one step gated on the NX
+    // claim rather than repeated on every retry.
+    if (!duplicate) {
+      await client.incrByFloat('total_revenue', purchaseData.amount || 0);
+      console.log(`Purchase saved: ${pid} for ${email} — $${purchaseData.amount}`);
+    } else {
+      console.log(`Purchase ${pid} already recorded; indexes reconciled`);
+    }
 
-    console.log(`Purchase saved: ${pid} for ${email} — $${purchaseData.amount}`);
-    return { success: true, duplicate: false };
+    return { success: true, duplicate };
   } catch (error) {
     console.error('Redis purchase save error:', error);
     return { success: false, error: error.message };
@@ -531,23 +601,8 @@ async function fulfillPurchase(paymentIntent, source) {
     return { fulfilled: false, error: 'Payment is missing package details' };
   }
 
-  // Read the current entitlement before claiming the purchase, so the new term
-  // can be stacked on top of it. This runs before the idempotency claim below,
-  // so a failure here costs nothing and Stripe can safely retry.
-  let existing = null;
-  try {
-    const client = await getRedisClient();
-    const raw = await client.get(`customer:${email}`);
-    if (raw) existing = JSON.parse(raw);
-  } catch (error) {
-    // Fail loudly rather than granting a fresh, shorter term — that would
-    // silently destroy access the customer already paid for.
-    console.error(`Could not read existing entitlement for ${email}:`, error);
-    throw new Error('Could not read existing entitlement');
-  }
-
-  // Doubles as the idempotency claim — whichever of the webhook or the
-  // browser arrives first does the work.
+  // Record the purchase. The NX claim inside makes this idempotent, and the
+  // index repair makes a half-finished earlier attempt recoverable.
   const purchase = await savePurchaseToRedis({
     paymentIntentId: paymentIntent.id,
     email,
@@ -556,59 +611,137 @@ async function fulfillPurchase(paymentIntent, source) {
     amount: paymentIntent.amount / 100
   });
 
-  if (purchase.duplicate) {
-    return {
-      fulfilled: true,
-      subscriptionEnd: existing ? existing.subscriptionEnd : subscriptionEndFor(packageType)
-    };
+  if (!purchase.success) {
+    // Never fall through to granting access off an unrecorded purchase, and
+    // never report success — a 500 makes Stripe retry.
+    throw new Error(`Failed to record purchase: ${purchase.error}`);
   }
 
-  const subscriptionEnd = subscriptionEndFor(packageType, existing?.subscriptionEnd);
+  // Rebuild the entitlement from the whole purchase history rather than
+  // patching the stored value. Deliberately run on duplicates too: if an
+  // earlier attempt claimed the purchase and then died before writing the
+  // customer record, this is what repairs it. Recomputing is deterministic, so
+  // the extra work on a genuine duplicate is a no-op rather than a double-grant.
+  const saved = await syncEntitlement(email, { name, source });
+  if (!saved.success) {
+    throw new Error(`Failed to save customer: ${saved.error}`);
+  }
+
+  // Only notify on the attempt that actually claimed the purchase, so webhook
+  // retries do not re-notify. Best-effort — a failure must not cost access.
+  if (!purchase.duplicate) {
+    try {
+      await sendNotificationEmail('payment', {
+        name, email, packageType, amount: paymentIntent.amount / 100, source
+      });
+    } catch (error) {
+      console.error('Notification failed for', paymentIntent.id, error);
+    }
+    console.log(`Fulfilled ${packageType} for ${email} via ${source}`);
+  }
+
+  return { fulfilled: true, userId: saved.customer.id, subscriptionEnd: saved.customer.subscriptionEnd };
+}
+
+// Mark a purchase as reversed and rebuild the entitlement without it. Because
+// the entitlement is derived rather than stored incrementally, this gives back
+// exactly the time that purchase bought and leaves other purchases intact — a
+// customer who bought three passes and refunded one keeps the other two.
+async function revokePurchase(paymentIntentId, reason) {
+  if (!paymentIntentId) {
+    console.error(`${reason} event carried no payment_intent; nothing to revoke`);
+    return { revoked: false };
+  }
+
+  const client = await getRedisClient();
+  const raw = await client.get(`purchase:${paymentIntentId}`);
+  if (!raw) {
+    // Refund of something we never fulfilled (or fulfilled under a different
+    // intent). Worth surfacing, but there is nothing to take back.
+    console.warn(`${reason} for unrecorded purchase ${paymentIntentId}; nothing to revoke`);
+    return { revoked: false };
+  }
+
+  const purchase = JSON.parse(raw);
+  if (purchase.refunded) {
+    console.log(`Purchase ${paymentIntentId} already reversed; skipping`);
+    return { revoked: true, duplicate: true };
+  }
+
+  purchase.refunded = true;
+  purchase.refundedAt = new Date().toISOString();
+  purchase.refundReason = reason;
+  await client.set(`purchase:${paymentIntentId}`, JSON.stringify(purchase));
+
+  // Keep reported revenue honest — the admin stats read this total.
+  await client.incrByFloat('total_revenue', -(purchase.amount || 0));
+
+  const result = await syncEntitlement(purchase.email, { source: reason });
+  if (!result.success) {
+    throw new Error(`Entitlement sync failed after ${reason}: ${result.error}`);
+  }
+
+  console.log(
+    `${reason}: reversed ${purchase.packageType} ($${purchase.amount}) for ${purchase.email}; ` +
+    `access now ends ${result.customer.subscriptionEnd
+      ? new Date(result.customer.subscriptionEnd).toISOString() : 'immediately'}`
+  );
+  return { revoked: true, customer: result.customer };
+}
+
+// Derive the customer's entitlement from their purchase history and persist it.
+// Safe to call repeatedly: the result depends only on the recorded purchases, so
+// it is the single place that both fulfillment and revocation go through.
+async function syncEntitlement(email, { name, source } = {}) {
+  const purchases = await getPurchasesByEmail(email);
+  const { subscriptionEnd, latestPackage, appliedCount } = entitlementFromPurchases(purchases);
+
+  const client = await getRedisClient();
+  const raw = await client.get(`customer:${email}`);
+  const existing = raw ? JSON.parse(raw) : null;
+
+  const stillEntitled = subscriptionEnd && subscriptionEnd.getTime() > Date.now();
+
   const customer = {
     // Carry identity and original signup date across renewals.
     id: existing?.id || Date.now(),
     name: name || existing?.name || '',
     email,
-    packageType,
+    packageType: latestPackage || existing?.packageType || null,
     signupDate: existing?.signupDate,
-    purchaseDate: new Date(),
+    purchaseDate: existing?.purchaseDate || new Date(),
     subscriptionEnd,
-    paymentId: paymentIntent.id,
-    status: 'active'
+    status: stillEntitled ? 'active' : 'expired'
   };
 
-  if (existing) {
+  const previousEnd = existing?.subscriptionEnd ? new Date(existing.subscriptionEnd).getTime() : null;
+  const nextEnd = subscriptionEnd ? subscriptionEnd.getTime() : null;
+
+  if (previousEnd !== nextEnd) {
     console.log(
-      `Extending ${email}: ${existing.subscriptionEnd} -> ${subscriptionEnd.toISOString()} (+${packageType})`
+      `Entitlement for ${email}: ${existing?.subscriptionEnd || 'none'} -> ` +
+      `${subscriptionEnd ? subscriptionEnd.toISOString() : 'none'} ` +
+      `(${appliedCount} purchase${appliedCount === 1 ? '' : 's'}${source ? `, via ${source}` : ''})`
     );
-    // A fixed-date pass bought twice adds nothing. Surface it rather than
-    // quietly keeping the money.
-    if (subscriptionEnd.getTime() === new Date(existing.subscriptionEnd).getTime()) {
-      console.warn(
-        `Purchase ${paymentIntent.id} (${packageType}) for ${email} added no time — ` +
-        `already covered through ${existing.subscriptionEnd}. Likely refund candidate.`
-      );
-    }
+  } else if (previousEnd !== null) {
+    // A purchase that buys no additional time is money taken for nothing.
+    console.warn(
+      `Entitlement for ${email} unchanged at ${subscriptionEnd.toISOString()} — ` +
+      `the latest purchase added no time. Likely refund candidate.`
+    );
   }
 
-  const saved = await saveCustomerToRedis(customer);
-  if (!saved.success) {
-    // Throwing gives the webhook a 500, which makes Stripe retry rather than
-    // leaving a paid customer with no access.
-    throw new Error(`Failed to save customer: ${saved.error}`);
-  }
+  const result = await saveCustomerToRedis(customer);
+  if (!result.success) return result;
 
-  // Best-effort — a notification failure must not cost the buyer access.
-  try {
-    await sendNotificationEmail('payment', {
-      name, email, packageType, amount: paymentIntent.amount / 100, source
-    });
-  } catch (error) {
-    console.error('Notification failed for', paymentIntent.id, error);
-  }
+  // Live session tokens carry a TTL derived from the old expiry, so any
+  // shortening has to drop them too — otherwise a refunded customer keeps
+  // access until their old token happens to expire. Extending is safe to leave
+  // alone: the holder simply logs in again for a longer one.
+  const shortened = previousEnd !== null && nextEnd !== null && nextEnd < previousEnd;
+  if (!stillEntitled || shortened) await revokeSessions(email);
 
-  console.log(`Fulfilled ${packageType} for ${email} via ${source}`);
-  return { fulfilled: true, userId: customer.id, subscriptionEnd };
+  return { success: true, customer };
 }
 
 // Browser confirmation. The webhook is authoritative; this exists so the
@@ -693,6 +826,8 @@ app.post('/api/member/login', async (req, res) => {
     const token = crypto.randomBytes(32).toString('hex');
     const ttlSeconds = Math.floor((subEnd - now) / 1000);
     await client.set(`session:${token}`, emailLower, { EX: ttlSeconds });
+    // Indexed so a refund or dispute can kill this token immediately.
+    await trackSession(client, emailLower, token, ttlSeconds);
 
     res.json({
       success: true,
@@ -718,7 +853,10 @@ app.post('/api/member/logout', async (req, res) => {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.slice(7);
       const client = await getRedisClient();
+      const email = await client.get(`session:${token}`);
       await client.del(`session:${token}`);
+      // Keep the revocation index from accumulating dead tokens.
+      if (email) await client.sRem(`sessions:${email}`, token);
     }
     res.json({ success: true });
   } catch (error) {

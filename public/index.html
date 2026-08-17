@@ -1553,6 +1553,9 @@
         let elements = null;
         let paymentElement = null;
         let currentClientSecret = null;
+        // Identifies whose purchase the live PaymentIntent was created for, so a
+        // corrected name or email can't be paid for against the previous intent.
+        let intentIdentity = null;
 
         const stripeAppearance = {
             theme: 'night',
@@ -1717,6 +1720,7 @@
             }
             elements = null;
             currentClientSecret = null;
+            intentIdentity = null;
             document.getElementById('card-errors').textContent = '';
         }
 
@@ -1737,6 +1741,16 @@
             
             // Store customer info
             customerInfo = { name, email };
+
+            // The server binds the buyer's identity into the PaymentIntent's
+            // metadata and fulfils against that, so reusing an intent created
+            // for a different address would charge this person and grant access
+            // to the old one. Going Back and correcting a typo must start over.
+            const identity = `${currentPackage}|${email.toLowerCase()}|${name}`;
+            if (currentClientSecret && intentIdentity !== identity) {
+                teardownPaymentElement();
+            }
+            intentIdentity = identity;
             
             // Update customer summary
             document.getElementById('customerSummary').innerHTML = `
