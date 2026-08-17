@@ -6,8 +6,14 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Admin password
-const ADMIN_PASSWORD = 'yardline2025';
+// Admin password. Env-only and fail-closed: if it is not configured, login is
+// disabled rather than falling back to a literal. A hardcoded value here is a
+// published credential — this repo is public.
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+// Admin sessions expire; the old scheme handed out a constant string that was
+// valid forever and readable in source.
+const ADMIN_SESSION_TTL_SECONDS = 12 * 60 * 60;
 
 // Pricing — the server is the only source of truth for what a package costs.
 // The browser may choose a packageType; it never gets to send an amount.
@@ -18,12 +24,26 @@ const PACKAGES = {
   season:  { label: 'Full Season Pass', amount: 19900, endsOn: '2027-02-15' }
 };
 
-function subscriptionEndFor(packageType) {
+// A purchase extends whatever the customer already has; it never replaces it.
+// Renewing mid-term stacks on top of the remaining time, and a lapsed
+// subscription restarts from today. Fixed-date packages (the season pass) take
+// the later of their end date and the existing one, so buying a $29 weekly pass
+// can no longer truncate a $199 season pass.
+//
+// Called with one argument it behaves as it always did: a fresh entitlement.
+function subscriptionEndFor(packageType, currentEnd) {
   const pkg = PACKAGES[packageType];
   if (!pkg) return null;
-  return pkg.endsOn
-    ? new Date(pkg.endsOn)
-    : new Date(Date.now() + pkg.durationDays * 24 * 60 * 60 * 1000);
+
+  const now = Date.now();
+  const existing = currentEnd ? new Date(currentEnd).getTime() : 0;
+  // Only unexpired time carries forward. An invalid or past date restarts now.
+  const base = Number.isFinite(existing) && existing > now ? existing : now;
+
+  if (pkg.endsOn) {
+    return new Date(Math.max(base, new Date(pkg.endsOn).getTime()));
+  }
+  return new Date(base + pkg.durationDays * 24 * 60 * 60 * 1000);
 }
 
 // Initialize Redis client
@@ -42,6 +62,72 @@ async function getRedisClient() {
     await redisClient.connect();
   }
   return redisClient;
+}
+
+// Admin sessions. Redis-backed in production; an in-memory map keeps
+// `npm run dev` working without a local Redis. Same token shape as the member
+// sessions issued by /api/member/login.
+const devAdminSessions = new Map();
+
+async function createAdminSession() {
+  const token = crypto.randomBytes(32).toString('hex');
+
+  if (!process.env.REDIS_URL) {
+    devAdminSessions.set(token, Date.now() + ADMIN_SESSION_TTL_SECONDS * 1000);
+    return token;
+  }
+
+  const client = await getRedisClient();
+  await client.set(`admin_session:${token}`, '1', { EX: ADMIN_SESSION_TTL_SECONDS });
+  return token;
+}
+
+async function verifyAdminSession(token) {
+  if (!token) return false;
+
+  if (!process.env.REDIS_URL) {
+    const expiresAt = devAdminSessions.get(token);
+    if (!expiresAt) return false;
+    if (expiresAt < Date.now()) {
+      devAdminSessions.delete(token);
+      return false;
+    }
+    return true;
+  }
+
+  try {
+    const client = await getRedisClient();
+    return (await client.get(`admin_session:${token}`)) !== null;
+  } catch (error) {
+    // Fail closed — a Redis outage must not hand out admin access.
+    console.error('Admin session lookup failed:', error);
+    return false;
+  }
+}
+
+// Constant-time compare so login latency does not leak the password.
+function adminPasswordMatches(candidate) {
+  if (typeof candidate !== 'string' || !ADMIN_PASSWORD) return false;
+  const supplied = Buffer.from(candidate);
+  const expected = Buffer.from(ADMIN_PASSWORD);
+  if (supplied.length !== expected.length) return false;
+  return crypto.timingSafeEqual(supplied, expected);
+}
+
+// Pull the bearer token out of an Authorization header, or null if absent.
+function bearerToken(req) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+  return authHeader.slice(7);
+}
+
+// CSV cells hold attacker-controlled text — name and email arrive from public
+// signup. Escape embedded quotes so a value cannot break out of its field, and
+// prefix a leading =, +, - or @ so Excel treats it as text, not a formula.
+function csvCell(value) {
+  const str = String(value === null || value === undefined ? '' : value);
+  const safe = /^[=+\-@\t\r]/.test(str) ? `'${str}` : str;
+  return `"${safe.replace(/"/g, '""')}"`;
 }
 
 // Stripe webhook — registered before express.json() so the raw request body
@@ -124,28 +210,51 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
 // Basic middleware
 app.use(express.json());
 app.use(express.static('public'));
+// CORS allowlist. The previous wildcard paired `Allow-Origin: *` with
+// `Allow-Headers: *`, which explicitly permitted cross-origin Authorization
+// headers — any site could drive the authenticated API.
+const ALLOWED_ORIGINS = [
+  'https://yardlineiq.com',
+  'https://www.yardlineiq.com',
+  'http://localhost:3000'
+];
+
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', '*');
-  res.header('Access-Control-Allow-Methods', '*');
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Vary', 'Origin');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  }
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
 
 
 // Admin authentication
-app.post('/api/admin/login', (req, res) => {
-  const { password } = req.body;
-  if (password === ADMIN_PASSWORD) {
-    res.json({ success: true, token: 'admin-authenticated' });
-  } else {
-    res.status(401).json({ error: 'Invalid password' });
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    if (!ADMIN_PASSWORD) {
+      console.error('Admin login attempted but ADMIN_PASSWORD is not set');
+      return res.status(503).json({ error: 'Admin login is not configured' });
+    }
+
+    if (!adminPasswordMatches(req.body && req.body.password)) {
+      return res.status(401).json({ error: 'Invalid password' });
+    }
+
+    const token = await createAdminSession();
+    res.json({ success: true, token, expiresIn: ADMIN_SESSION_TTL_SECONDS });
+  } catch (error) {
+    console.error('Admin login failed:', error);
+    res.status(500).json({ error: 'Login failed' });
   }
 });
 
 // Check auth middleware
-function requireAuth(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (authHeader === 'Bearer admin-authenticated') {
+async function requireAuth(req, res, next) {
+  if (await verifyAdminSession(bearerToken(req))) {
     next();
   } else {
     res.status(401).json({ error: 'Unauthorized' });
@@ -189,7 +298,9 @@ async function saveCustomerToRedis(customerData) {
     const subscriberData = {
       ...customerData,
       timestamp: Date.now(),
-      signupDate: new Date().toISOString(),
+      // Preserve the original signup date across renewals; only mint one for a
+      // genuinely new customer.
+      signupDate: customerData.signupDate || new Date().toISOString(),
       type: 'paid_subscriber'
     };
     
@@ -420,6 +531,21 @@ async function fulfillPurchase(paymentIntent, source) {
     return { fulfilled: false, error: 'Payment is missing package details' };
   }
 
+  // Read the current entitlement before claiming the purchase, so the new term
+  // can be stacked on top of it. This runs before the idempotency claim below,
+  // so a failure here costs nothing and Stripe can safely retry.
+  let existing = null;
+  try {
+    const client = await getRedisClient();
+    const raw = await client.get(`customer:${email}`);
+    if (raw) existing = JSON.parse(raw);
+  } catch (error) {
+    // Fail loudly rather than granting a fresh, shorter term — that would
+    // silently destroy access the customer already paid for.
+    console.error(`Could not read existing entitlement for ${email}:`, error);
+    throw new Error('Could not read existing entitlement');
+  }
+
   // Doubles as the idempotency claim — whichever of the webhook or the
   // browser arrives first does the work.
   const purchase = await savePurchaseToRedis({
@@ -431,28 +557,39 @@ async function fulfillPurchase(paymentIntent, source) {
   });
 
   if (purchase.duplicate) {
-    let subscriptionEnd = subscriptionEndFor(packageType);
-    try {
-      const client = await getRedisClient();
-      const existing = await client.get(`customer:${email}`);
-      if (existing) subscriptionEnd = JSON.parse(existing).subscriptionEnd;
-    } catch (error) {
-      console.error('Could not read existing customer record:', error);
-    }
-    return { fulfilled: true, subscriptionEnd };
+    return {
+      fulfilled: true,
+      subscriptionEnd: existing ? existing.subscriptionEnd : subscriptionEndFor(packageType)
+    };
   }
 
-  const subscriptionEnd = subscriptionEndFor(packageType);
+  const subscriptionEnd = subscriptionEndFor(packageType, existing?.subscriptionEnd);
   const customer = {
-    id: Date.now(),
-    name,
+    // Carry identity and original signup date across renewals.
+    id: existing?.id || Date.now(),
+    name: name || existing?.name || '',
     email,
     packageType,
+    signupDate: existing?.signupDate,
     purchaseDate: new Date(),
     subscriptionEnd,
     paymentId: paymentIntent.id,
     status: 'active'
   };
+
+  if (existing) {
+    console.log(
+      `Extending ${email}: ${existing.subscriptionEnd} -> ${subscriptionEnd.toISOString()} (+${packageType})`
+    );
+    // A fixed-date pass bought twice adds nothing. Surface it rather than
+    // quietly keeping the money.
+    if (subscriptionEnd.getTime() === new Date(existing.subscriptionEnd).getTime()) {
+      console.warn(
+        `Purchase ${paymentIntent.id} (${packageType}) for ${email} added no time — ` +
+        `already covered through ${existing.subscriptionEnd}. Likely refund candidate.`
+      );
+    }
+  }
 
   const saved = await saveCustomerToRedis(customer);
   if (!saved.success) {
@@ -664,8 +801,9 @@ app.get('/api/picks', async (req, res) => {
 
     const token = authHeader.slice(7);
 
-    // Allow admin token to bypass member session check
-    const isAdmin = authHeader === 'Bearer admin-authenticated';
+    // An admin session may read member content; member sessions never reach
+    // admin routes (requireAuth checks admin_session: keys only).
+    const isAdmin = await verifyAdminSession(token);
 
     // --- DEV STUB: return hardcoded pick when Redis is unavailable ---
     if (!process.env.REDIS_URL) {
@@ -746,8 +884,9 @@ app.get('/api/handle', async (req, res) => {
 
     const token = authHeader.slice(7);
 
-    // Allow admin token to bypass member session check
-    const isAdmin = authHeader === 'Bearer admin-authenticated';
+    // An admin session may read member content; member sessions never reach
+    // admin routes (requireAuth checks admin_session: keys only).
+    const isAdmin = await verifyAdminSession(token);
 
     // --- DEV STUB: no Redis locally — admin sees an empty report ---
     if (!process.env.REDIS_URL) {
@@ -921,9 +1060,9 @@ app.get('/api/trends', async (req, res) => {
     }
 
     const token = authHeader.slice(7);
-    const isAdmin = authHeader === 'Bearer admin-authenticated';
+    const isAdmin = await verifyAdminSession(token);
 
-    // Member sessions live in Redis; without it only the admin token gets through (local dev).
+    // Member sessions live in Redis; without it only an admin session gets through (local dev).
     let email = 'admin';
     if (!isAdmin) {
       if (!process.env.REDIS_URL) {
@@ -1000,7 +1139,7 @@ app.get('/api/export/users', requireAuth, async (req, res) => {
     const csvHeader = 'Email,Name,Signup Date,Type,Package Type,Status,Total Purchases,Total Spent\n';
     const csvRows = await Promise.all(allUsers.map(async (user) => {
       const email = user.email || '';
-      const name = (user.name || '').replace(/,/g, ';');
+      const name = user.name || '';
       const date = user.signupDate || user.date || '';
       const type = user.type || 'email_signup';
       const packageType = user.packageType || '';
@@ -1012,7 +1151,8 @@ app.get('/api/export/users', requireAuth, async (req, res) => {
         purchaseCount = purchases.length;
         totalSpent = purchases.reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2);
       }
-      return `"${email}","${name}","${date}","${type}","${packageType}","${status}","${purchaseCount}","${totalSpent}"`;
+      return [email, name, date, type, packageType, status, purchaseCount, totalSpent]
+        .map(csvCell).join(',');
     }));
     const csvContent = csvHeader + csvRows.join('\n');
     
@@ -1039,7 +1179,7 @@ app.get('/api/export/emails', requireAuth, async (req, res) => {
       const date = user.signupDate || user.date || '';
       const type = user.type || 'free_pick';
       
-      return `"${email}","${date}","${type}"`;
+      return [email, date, type].map(csvCell).join(',');
     }).join('\n');
     
     const csvContent = csvHeader + csvRows;
@@ -1143,7 +1283,7 @@ app.listen(PORT, () => {
   console.log('YardlineIQ server running on port', PORT);
   console.log('Stripe configured:', !!process.env.STRIPE_SECRET_KEY);
   console.log('Redis email system enabled');
-  console.log('Admin password:', ADMIN_PASSWORD);
+  console.log('Admin login configured:', !!ADMIN_PASSWORD);
 });
 
 module.exports = app;

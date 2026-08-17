@@ -389,15 +389,28 @@
             document.getElementById('passwordInput').value = '';
         }
 
-        // Helper function for authenticated requests
-        function fetchWithAuth(url, options = {}) {
-            return fetch(url, {
+        // Helper function for authenticated requests. Admin sessions now expire,
+        // so a 401 on any call drops us back to the login form rather than
+        // leaving empty panels on screen.
+        async function fetchWithAuth(url, options = {}) {
+            const response = await fetch(url, {
                 ...options,
                 headers: {
                     ...options.headers,
                     'Authorization': `Bearer ${authToken}`
                 }
             });
+
+            if (response.status === 401 && authToken) {
+                logout();
+                const loginError = document.getElementById('loginError');
+                if (loginError) {
+                    loginError.textContent = 'Session expired. Please log in again.';
+                    loginError.style.display = 'block';
+                }
+            }
+
+            return response;
         }
 
         // Load stats with authentication
@@ -469,7 +482,7 @@
                     <div class="user-item">
                         <strong>${escapeHtml(p.week || '')}</strong> — ${escapeHtml(p.game || '')}
                         <span class="email-badge">${escapeHtml(p.pick || '')}</span>
-                        <select onchange="gradePick('${p.id}', this.value)" style="float:right;padding:0.2rem 0.5rem;">
+                        <select onchange="gradePick('${escapeHtml(p.id)}', this.value)" style="float:right;padding:0.2rem 0.5rem;">
                             ${opts.map(o => `<option value="${o}"${o === result ? ' selected' : ''}>${o.charAt(0).toUpperCase() + o.slice(1)}</option>`).join('')}
                         </select>
                     </div>`;
@@ -524,7 +537,7 @@
         }
 
         function escapeHtml(str) {
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
         // Refresh users with authentication
@@ -542,9 +555,9 @@
                             <div class="user-list">
                                 ${users.map(user => `
                                     <div class="user-item">
-                                        <strong>${user.email}</strong>
-                                        ${user.name ? `(${user.name})` : ''}
-                                        <span class="email-badge">${user.type || 'user'}</span>
+                                        <strong>${escapeHtml(user.email)}</strong>
+                                        ${user.name ? `(${escapeHtml(user.name)})` : ''}
+                                        <span class="email-badge">${escapeHtml(user.type || 'user')}</span>
                                         <br>
                                         <small>Signed up: ${new Date(user.date || user.signupDate).toLocaleDateString()}</small>
                                     </div>
@@ -578,8 +591,8 @@
                             <div class="user-list">
                                 ${emailUsers.map(user => `
                                     <div class="user-item">
-                                        <strong>${user.email}</strong>
-                                        ${user.name ? `(${user.name})` : ''}
+                                        <strong>${escapeHtml(user.email)}</strong>
+                                        ${user.name ? `(${escapeHtml(user.name)})` : ''}
                                         <br>
                                         <small>Signed up: ${new Date(user.date || user.signupDate).toLocaleDateString()}</small>
                                     </div>
