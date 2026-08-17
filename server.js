@@ -276,7 +276,9 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
 
 // Basic middleware
 app.use(express.json());
-app.use(express.static('public'));
+// Absolute path — a relative one resolves against process.cwd(), which is not
+// guaranteed to be the project root in a serverless runtime.
+app.use(express.static(path.join(__dirname, 'public')));
 // CORS allowlist. The previous wildcard paired `Allow-Origin: *` with
 // `Allow-Headers: *`, which explicitly permitted cross-origin Authorization
 // headers — any site could drive the authenticated API.

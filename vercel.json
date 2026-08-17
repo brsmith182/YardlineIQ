@@ -3,7 +3,15 @@
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "//": "Every request except /images goes to server.js, which serves the",
+        "//2": "site through express.static. Static assets are invisible to the",
+        "//3": "bundler's dependency tracing, so without this they are dropped",
+        "//4": "from the function and requests fall through to the catch-all,",
+        "//5": "silently returning the homepage with HTTP 200.",
+        "includeFiles": "public/**"
+      }
     },
     {
       "src": "public/**",
