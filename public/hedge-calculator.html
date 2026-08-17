@@ -505,7 +505,7 @@
                     <div class="result-sub" id="resHedgeStakeSub"></div>
                 </div>
                 <div class="result-card">
-                    <div class="result-label">Guaranteed Profit</div>
+                    <div class="result-label" id="resGuaranteedLabel">Guaranteed Profit</div>
                     <div class="result-value" id="resGuaranteed">—</div>
                     <div class="result-sub" id="resGuaranteedSub"></div>
                 </div>
@@ -667,23 +667,37 @@
             document.getElementById('resHedgeStakeSub').textContent =
                 mode === 'lock' ? 'to lock equal profit' : 'custom amount';
 
-            // Guaranteed profit card
+            // Guaranteed profit card. These figures are signed net P/L and are
+            // routinely negative — hedging at worse odds than the original bet
+            // locks in a guaranteed loss. Stripping the sign with Math.abs()
+            // presented "-$12.50 guaranteed either way" as "$12.50" under the
+            // heading "Guaranteed Profit", which reads as the opposite of the
+            // truth. fmtMoney keeps the sign; the heading follows it.
             const guarEl = document.getElementById('resGuaranteed');
+            const guarLabelEl = document.getElementById('resGuaranteedLabel');
             if (hedgeStake > 0) {
                 if (isLocked) {
-                    guarEl.textContent = '$' + Math.abs(guaranteedMin).toFixed(2);
+                    // Cents matter on a locked figure, so keep two decimals
+                    // rather than using fmtMoney's adaptive precision.
+                    guarEl.textContent = (guaranteedMin < 0 ? '-' : '+') +
+                        '$' + Math.abs(guaranteedMin).toFixed(2);
                     guarEl.className   = 'result-value ' + (guaranteedMin >= 0 ? 'green' : 'red');
+                    guarLabelEl.textContent = guaranteedMin >= 0 ? 'Guaranteed Profit' : 'Guaranteed Loss';
                     document.getElementById('resGuaranteedSub').textContent = 'guaranteed either way';
                 } else {
                     const lo = Math.min(profitIfOrigWins, profitIfOrigLoses);
                     const hi = Math.max(profitIfOrigWins, profitIfOrigLoses);
-                    guarEl.textContent = '$' + Math.abs(lo).toFixed(0) + ' – $' + Math.abs(hi).toFixed(0);
+                    guarEl.textContent = fmtMoney(lo) + ' – ' + fmtMoney(hi);
                     guarEl.className   = 'result-value ' + (lo >= 0 ? 'green' : 'red');
+                    // A range spanning zero is neither a guaranteed profit nor a
+                    // guaranteed loss, so it must not claim to be either.
+                    guarLabelEl.textContent = lo >= 0 ? 'Guaranteed Profit' : 'Outcome Range';
                     document.getElementById('resGuaranteedSub').textContent = 'range across outcomes';
                 }
             } else {
                 guarEl.textContent = '—';
                 guarEl.className = 'result-value dim';
+                guarLabelEl.textContent = 'Guaranteed Profit';
                 document.getElementById('resGuaranteedSub').textContent = '';
             }
 

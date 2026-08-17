@@ -413,10 +413,7 @@ async function savePurchaseToRedis(purchaseData) {
     await client.sAdd(`purchases:${email}`, pid);
     await client.sAdd('all_purchases', pid);
 
-    // Revenue must count exactly once, so it is the one step gated on the NX
-    // claim rather than repeated on every retry.
     if (!duplicate) {
-      await client.incrByFloat('total_revenue', purchaseData.amount || 0);
       console.log(`Purchase saved: ${pid} for ${email} — $${purchaseData.amount}`);
     } else {
       console.log(`Purchase ${pid} already recorded; indexes reconciled`);
@@ -445,6 +442,31 @@ async function getPurchasesByEmail(email) {
     console.error('Redis purchase retrieval error:', error);
     return [];
   }
+}
+
+// Revenue is derived from the purchase records rather than kept in a running
+// counter. A counter drifts: an interrupted write, a reversed charge, or a
+// cleaned-up test purchase leaves it reporting money that corresponds to
+// nothing. Deriving costs one read per purchase and can never disagree with
+// the records it is reporting on.
+async function getRevenueTotals() {
+  const client = await getRedisClient();
+  const ids = await client.sMembers('all_purchases');
+
+  let gross = 0, refunded = 0, refundedCount = 0;
+  for (const id of ids) {
+    const raw = await client.get(`purchase:${id}`);
+    if (!raw) continue;
+    const purchase = JSON.parse(raw);
+    const amount = purchase.amount || 0;
+    gross += amount;
+    if (purchase.refunded) {
+      refunded += amount;
+      refundedCount++;
+    }
+  }
+
+  return { gross, refunded, net: gross - refunded, count: ids.length, refundedCount };
 }
 
 async function getAllEmailsFromRedis() {
@@ -672,9 +694,6 @@ async function revokePurchase(paymentIntentId, reason) {
   purchase.refundedAt = new Date().toISOString();
   purchase.refundReason = reason;
   await client.set(`purchase:${paymentIntentId}`, JSON.stringify(purchase));
-
-  // Keep reported revenue honest — the admin stats read this total.
-  await client.incrByFloat('total_revenue', -(purchase.amount || 0));
 
   const result = await syncEntitlement(purchase.email, { source: reason });
   if (!result.success) {
@@ -1230,16 +1249,19 @@ app.get('/api/admin/stats', requireAuth, async (req, res) => {
     const client = await getRedisClient();
     const pickIds = await client.sMembers('all_picks');
 
-    const totalRevenue = parseFloat(await client.get('total_revenue') || '0');
-    const allPurchaseIds = await client.sMembers('all_purchases');
+    const revenue = await getRevenueTotals();
 
     const stats = {
       totalUsers: emails.length + customers.length,
       emailSignups: emails.length,
       paidSubscribers: customers.length,
       totalPicks: pickIds.length,
-      totalPurchases: allPurchaseIds.length,
-      totalRevenue: totalRevenue.toFixed(2),
+      totalPurchases: revenue.count,
+      refundedPurchases: revenue.refundedCount,
+      grossRevenue: revenue.gross.toFixed(2),
+      refundedRevenue: revenue.refunded.toFixed(2),
+      // Net of refunds — this is the figure the admin panel shows.
+      totalRevenue: revenue.net.toFixed(2),
       overallWinRate: 61
     };
     

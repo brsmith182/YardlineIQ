@@ -683,6 +683,10 @@
             font-size: 0.9rem;
         }
 
+        /* The overlay itself scrolls. Body scrolling is locked while the modal
+           is open, so without this a checkout taller than the viewport — step 2
+           carries an order summary, four consent boxes and the Stripe element —
+           would put the Complete Payment button somewhere unreachable. */
         .payment-modal {
             display: none;
             position: fixed;
@@ -693,13 +697,21 @@
             background: rgba(0, 0, 0, 0.8);
             z-index: 10000;
             backdrop-filter: blur(10px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            /* JS switches this to flex when opening. */
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
         }
 
+        /* `margin: auto` inside a flex container centres the dialog when it
+           fits and, unlike align-items:center, still lets it scroll fully into
+           view when it does not. A translate-based centre would push the top of
+           a tall dialog off-screen where no amount of scrolling reaches it. */
         .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: relative;
+            margin: auto;
             background: #1a1a1a;
             border-radius: 20px;
             padding: 3rem;
@@ -1114,7 +1126,9 @@
             }
 
             .modal-content {
-                margin: 1rem;
+                /* Must stay `auto` — a fixed margin re-enables flex centring,
+                   which clips the top of a dialog taller than the viewport. */
+                margin: auto;
                 width: calc(100% - 2rem);
                 padding: 2rem 1.5rem;
             }
@@ -1498,7 +1512,7 @@
                         </label>
                         <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 0.875rem; color: rgba(255,255,255,0.6);">
                             <input type="checkbox" class="payment-agreement" data-type="terms" required style="margin-top: 2px; accent-color: #00ff88;">
-                            <span>I agree to the Terms of Service and refund policy</span>
+                            <span>I agree to the <a href="/terms.html" target="_blank" style="color: #00ff88; text-decoration: none; border-bottom: 1px solid rgba(0,255,136,0.3);">Terms of Service</a> and <a href="/terms.html#refunds" target="_blank" style="color: #00ff88; text-decoration: none; border-bottom: 1px solid rgba(0,255,136,0.3);">refund policy</a></span>
                         </label>
                     </div>
                 </div>
@@ -1625,25 +1639,12 @@
                 emailInput.addEventListener('input', validateCustomerInfo);
             }
             
-            // Payment agreements validation
-            function checkPaymentAgreements() {
-                const paymentAgreements = document.querySelectorAll('.payment-agreement');
-                const paymentButton = document.getElementById('submit-payment');
-                const allChecked = Array.from(paymentAgreements).every(checkbox => checkbox.checked);
-                if (paymentButton) {
-                    paymentButton.disabled = !allChecked;
-                    paymentButton.style.opacity = allChecked ? '1' : '0.5';
-                }
-            }
-            
-            // Add event listeners to payment agreements when they exist
-            setTimeout(() => {
-                const paymentAgreements = document.querySelectorAll('.payment-agreement');
-                paymentAgreements.forEach(checkbox => {
-                    checkbox.addEventListener('change', checkPaymentAgreements);
-                });
-                checkPaymentAgreements();
-            }, 100);
+            // The checkboxes are static markup and DOMContentLoaded has already
+            // fired, so bind directly rather than guessing at a timeout.
+            document.querySelectorAll('.payment-agreement').forEach(checkbox => {
+                checkbox.addEventListener('change', checkPaymentAgreements);
+            });
+            checkPaymentAgreements();
         });
 
         // Enhanced form submission with better UX
@@ -1709,8 +1710,30 @@
             // Show customer info step first
             showCustomerStep();
 
-            document.getElementById('paymentModal').style.display = 'block';
+            // Belt and braces: never open with a live submit button over
+            // unchecked agreements, whatever left the DOM in that state.
+            document.querySelectorAll('.payment-agreement').forEach(cb => cb.checked = false);
+            checkPaymentAgreements();
+
+            // flex, not block — the overlay centres and scrolls the dialog.
+            document.getElementById('paymentModal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
+        }
+
+        // Kept at top level so the modal open/close handlers can re-sync the
+        // submit button. Previously this lived inside the DOMContentLoaded
+        // scope, so closing the modal unchecked the boxes without ever
+        // re-disabling the button — reopening left it clickable with nothing
+        // agreed to, which meant paying without the 21+ attestation.
+        function checkPaymentAgreements() {
+            const agreements = document.querySelectorAll('.payment-agreement');
+            const paymentButton = document.getElementById('submit-payment');
+            const allChecked = agreements.length > 0 &&
+                Array.from(agreements).every(checkbox => checkbox.checked);
+            if (paymentButton) {
+                paymentButton.disabled = !allChecked;
+                paymentButton.style.opacity = allChecked ? '1' : '0.5';
+            }
         }
 
         function teardownPaymentElement() {
@@ -1812,8 +1835,10 @@
             document.getElementById('customerName').value = '';
             document.getElementById('customerEmail').value = '';
             
-            // Uncheck all checkboxes
+            // Uncheck all checkboxes, then re-sync the submit button to match.
+            // Unchecking alone would leave it enabled on the next open.
             document.querySelectorAll('.payment-agreement').forEach(cb => cb.checked = false);
+            checkPaymentAgreements();
 
             teardownPaymentElement();
         }
