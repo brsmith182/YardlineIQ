@@ -278,7 +278,11 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
 app.use(express.json());
 // Absolute path — a relative one resolves against process.cwd(), which is not
 // guaranteed to be the project root in a serverless runtime.
-app.use(express.static(path.join(__dirname, 'public')));
+//
+// `extensions` resolves /privacy-policy to privacy-policy.html. Extensionless
+// links exist on the site and used to be absorbed by the catch-all; now that
+// unknown paths return a real 404, they have to resolve properly.
+app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 // CORS allowlist. The previous wildcard paired `Allow-Origin: *` with
 // `Allow-Headers: *`, which explicitly permitted cross-origin Authorization
 // headers — any site could drive the authenticated API.
@@ -1437,8 +1441,19 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Unknown paths must fail loudly. This previously answered everything with the
+// homepage and a 200, which told search engines every mistyped URL was a real
+// page — and, worse, silently hid five pages that were missing from the
+// deployed bundle. A wrong page that looks fine is harder to find than one that
+// says it is wrong.
+//
+// app.use rather than app.get('*') so non-GET methods get the same treatment
+// instead of falling through to Express's default handler.
+app.use((req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'Not found', path: req.path });
+  }
+  res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
 
 app.listen(PORT, () => {

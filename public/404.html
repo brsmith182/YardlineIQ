@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found | YardLineIQ</title>
+    <meta name="robots" content="noindex">
+    <meta name="description" content="The page you were looking for does not exist.">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JQS2L9YJ63"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-JQS2L9YJ63');
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notfound-container {
+            max-width: 640px;
+            width: 100%;
+            margin: auto;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .code {
+            font-size: 7rem;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin: 0 0 14px 0;
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 36px;
+        }
+
+        .links {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 36px;
+            text-align: left;
+        }
+
+        .links-title {
+            color: rgba(255, 255, 255, 0.45);
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 16px;
+        }
+
+        .links ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 24px;
+        }
+
+        .links a {
+            color: #00ccff;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .links a:hover { text-decoration: underline; }
+
+        .back-button {
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            .code { font-size: 5rem; }
+            .links ul { grid-template-columns: 1fr; }
+            .notfound-container { padding: 40px 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="notfound-container">
+        <div class="code">404</div>
+        <h1>That page doesn't exist</h1>
+        <p>The link may be out of date, or the address may have a typo.</p>
+
+        <div class="links">
+            <div class="links-title">Try one of these</div>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/picks.html">NFL Picks</a></li>
+                <li><a href="/trends.html">Betting Trends</a></li>
+                <li><a href="/resources.html">Resources &amp; Guides</a></li>
+                <li><a href="/hedge-calculator.html">Hedge Calculator</a></li>
+                <li><a href="/kelly-calculator.html">Kelly Calculator</a></li>
+                <li><a href="/vig-calculator.html">Vig Calculator</a></li>
+                <li><a href="/parlay-calculator.html">Parlay Calculator</a></li>
+            </ul>
+        </div>
+
+        <a href="/" class="back-button">← Back to Home</a>
+    </div>
+</body>
+</html>
