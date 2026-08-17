@@ -3,265 +3,365 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YardlineIQ Admin</title>
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin — YardLineIQ</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e1e2e 0%, #16213e 100%);
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
             color: white;
             min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.4;
         }
 
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .login-form {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 3rem;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            text-align: center;
-            min-width: 350px;
-        }
-
-        .login-title {
-            font-size: 2rem;
-            color: #00ff94;
-            margin-bottom: 2rem;
-        }
-
-        .login-input {
-            width: 100%;
-            padding: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .login-input::placeholder {
-            color: #aaa;
-        }
-
-        .login-btn {
-            width: 100%;
-            background: #00ff94;
-            color: #1e1e2e;
-            padding: 1rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        .login-btn:hover {
-            background: #00cc75;
-        }
-
-        .admin-content {
-            display: none;
-        }
-
+        /* ── Header ── */
         .header {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 2rem;
-            background: rgba(0, 0, 0, 0.3);
+            padding: 0 2rem;
         }
-
         .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #00ff94;
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
         }
-
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .admin-tag {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            border: 0.5px solid rgba(0, 255, 136, 0.3);
+            padding: 3px 9px;
+            border-radius: 20px;
+        }
         .logout-btn {
-            background: #ff6b6b;
-            color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 25px;
-            font-weight: bold;
+            background: rgba(255, 255, 255, 0.06);
+            border: 0.5px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.55);
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover {
+            border-color: rgba(255, 107, 107, 0.4);
+            color: #ff6b6b;
         }
 
+        /* ── Login screen ── */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 65px);
+            padding: 2rem;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+        }
+        .login-card h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.4rem;
+        }
+        .login-sub {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 2rem;
+        }
+
+        /* ── Forms ── */
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.35);
+            margin-bottom: 0.4rem;
+        }
+        .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 0.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            padding: 11px 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 1.25rem;
+        }
+        .form-input:focus { border-color: rgba(0, 255, 136, 0.45); }
+        .form-input::placeholder { color: rgba(255, 255, 255, 0.2); }
+
+        .login-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            color: #000;
+            border: none;
+            padding: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+            letter-spacing: 0.02em;
+        }
+        .login-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+        .login-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* ── Messages ── */
+        .error-message {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 107, 107, 0.08);
+            border: 0.5px solid rgba(255, 107, 107, 0.25);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #ff9999;
+        }
+        .success-message {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 255, 136, 0.06);
+            border: 0.5px solid rgba(0, 255, 136, 0.2);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #00ff88;
+        }
+        .empty-message {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ── Dashboard shell ── */
+        .admin-content {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem 5rem;
+        }
+        .page-title {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.4rem;
+        }
+        .page-sub {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+            margin-bottom: 2.5rem;
+        }
+
+        /* ── Stats ── */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
         }
-
         .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            border-radius: 15px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.03);
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.4rem;
+            transition: border-color 0.2s;
         }
-
+        .stat-card:hover { border-color: rgba(0, 255, 136, 0.2); }
         .stat-number {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #00ff94;
-            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #00ff88;
+            margin-bottom: 0.35rem;
         }
-
         .stat-label {
-            color: #ccc;
-            font-size: 1.1rem;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.35);
         }
 
+        /* ── Content sections ── */
         .content-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 2rem;
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1rem;
+            align-items: start;
         }
-
         .content-section {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.03);
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.6rem;
         }
-
         .section-title {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            color: #00ff94;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #ccc;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 0.4rem;
         }
-
-        .form-group input::placeholder {
-            color: #aaa;
+        .section-sub {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.35);
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
         }
+        .section-sub strong { color: rgba(255, 255, 255, 0.6); font-weight: 600; }
 
+        /* ── Buttons ── */
         .btn {
-            background: #00ff94;
-            color: #1e1e2e;
-            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            color: #000;
             border: none;
-            border-radius: 8px;
-            font-weight: bold;
+            padding: 0.6rem 1.1rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            border-radius: 10px;
             cursor: pointer;
-            margin-right: 1rem;
-            margin-bottom: 0.5rem;
+            transition: opacity 0.2s, transform 0.2s;
+            margin: 0 0.5rem 0.5rem 0;
         }
-
-        .btn:hover {
-            background: #00cc75;
-        }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
         .btn-secondary {
-            background: #666;
-            color: white;
+            background: rgba(255, 255, 255, 0.06);
+            border: 0.5px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.7);
         }
-
         .btn-secondary:hover {
-            background: #777;
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(0, 255, 136, 0.35);
+            color: white;
+            transform: translateY(-1px);
         }
 
-        .error-message {
-            color: #ff6b6b;
-            text-align: center;
-            padding: 1rem;
-        }
-
-        .success-message {
-            color: #00ff94;
-            text-align: center;
-            padding: 1rem;
-        }
-
+        /* ── Lists ── */
         .user-list {
-            max-height: 300px;
+            margin-top: 1rem;
+            max-height: 340px;
             overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
         }
-
+        .user-list::-webkit-scrollbar { width: 6px; }
+        .user-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
         .user-item {
-            padding: 0.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.9rem;
+            padding: 0.7rem 0;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.06);
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+            /* Long addresses must wrap rather than scroll the page sideways. */
+            overflow-wrap: anywhere;
         }
+        .user-item:last-child { border-bottom: none; }
+        .user-item strong { color: white; font-weight: 600; }
+        .user-item small { color: rgba(255, 255, 255, 0.3); font-size: 11px; }
 
         .email-badge {
-            background: #00ff94;
-            color: #1e1e2e;
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            margin-left: 0.5rem;
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(0, 255, 136, 0.12);
+            border: 0.5px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
         }
 
-        @media (max-width: 768px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
+        @media (max-width: 600px) {
+            .admin-content { padding: 1.5rem 1.25rem 4rem; }
+            .nav-container { padding: 0 1.25rem; }
+            .stats-grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+            .login-card { padding: 1.75rem; }
+            .btn { width: 100%; margin-right: 0; }
         }
     </style>
 </head>
 <body>
+
+    <header class="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">YARDLINEIQ</a>
+            <div class="nav-right">
+                <span class="admin-tag" id="adminTag" style="display:none;">Admin</span>
+                <button class="logout-btn" id="logoutBtn" onclick="logout()" style="display:none;">Sign out</button>
+            </div>
+        </nav>
+    </header>
+
     <!-- Login Screen -->
     <div class="login-container" id="loginContainer">
-        <form class="login-form" id="loginForm">
-            <h1 class="login-title">YARDLINEIQ ADMIN</h1>
-            <input type="password" class="login-input" id="passwordInput" placeholder="Enter admin password" required>
-            <button type="submit" class="login-btn">LOGIN</button>
+        <form class="login-card" id="loginForm">
+            <h2>Admin Sign In</h2>
+            <p class="login-sub">Enter the admin password to open the control panel.</p>
+            <label class="form-label" for="passwordInput">Password</label>
+            <input type="password" class="form-input" id="passwordInput" placeholder="••••••••" required>
+            <button type="submit" class="login-submit" id="loginSubmit">Sign In</button>
             <div id="loginError" class="error-message" style="display: none;"></div>
         </form>
     </div>
 
     <!-- Admin Dashboard -->
-    <div class="admin-content" id="adminContent">
-        <div class="header">
-            <div class="logo">YARDLINEIQ ADMIN</div>
-            <button class="logout-btn" onclick="logout()">LOGOUT</button>
-        </div>
+    <main class="admin-content" id="adminContent">
+        <h1 class="page-title">Control Panel</h1>
+        <p class="page-sub">Subscriber roster, email list, and member-page previews.</p>
 
         <div class="stats-grid">
             <div class="stat-card">
@@ -288,69 +388,31 @@
 
         <div class="content-grid">
             <div class="content-section">
-                <h2 class="section-title">Post New Pick</h2>
-                <form id="pickForm">
-                    <div class="form-group">
-                        <label>Week</label>
-                        <input type="text" id="week" placeholder="Week 1" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Game</label>
-                        <input type="text" id="game" placeholder="Chiefs vs Patriots" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Pick</label>
-                        <input type="text" id="pick" placeholder="Chiefs -3.5" required>
-                    </div>
-                    <button type="submit" class="btn">Post Pick</button>
-                </form>
-                <div id="pickMessage"></div>
-            </div>
-
-            <div class="content-section">
-                <h2 class="section-title">Manage Picks <span id="pickCount" class="email-badge">0</span></h2>
-                <p style="font-size:0.85rem;color:#aaa;margin-bottom:1rem;">Grade posted picks once games finish. Results show on <strong>/picks.html</strong>.</p>
-                <button class="btn" onclick="refreshPicks()">Refresh Picks</button>
-                <div id="picksList" style="margin-top:1rem;"><div class="error-message">Click "Refresh Picks" to load.</div></div>
-            </div>
-
-            <div class="content-section">
-                <h2 class="section-title">Betting Trends <span id="trendCount" class="email-badge">0</span></h2>
-                <p style="font-size:0.85rem;color:#aaa;margin-bottom:1rem;">Member-gated trend findings shown at <strong>/trends.html</strong>, sorted by cover rate. Read-only — trends are defined in <strong>server.js</strong> and go live on deploy, so there is nothing to import or edit here.</p>
-                <button class="btn btn-secondary" onclick="refreshTrends()">Refresh List</button>
-                <div id="trendsList" style="margin-top:1rem;"></div>
-            </div>
-
-            <div class="content-section">
                 <h2 class="section-title">Member View</h2>
-                <p style="font-size:0.85rem;color:#aaa;margin-bottom:1rem;">Open a member-gated page in a new tab on your admin session — the same screen a paying subscriber sees, without needing a customer account. The page swaps the token into its own session and cleans the URL on load.</p>
+                <p class="section-sub">Open a member-gated page in a new tab on your admin session — the same screen a paying subscriber sees, without needing a customer account.</p>
                 <button class="btn" onclick="viewAsMember('/picks.html')">View Picks</button>
                 <button class="btn btn-secondary" onclick="viewAsMember('/trends.html')">View Trends</button>
                 <button class="btn btn-secondary" onclick="viewAsMember('/handle.html')">View Handle</button>
-                <div id="memberViewMessage" style="margin-top:1rem;"></div>
+                <div id="memberViewMessage"></div>
             </div>
 
             <div class="content-section">
-                <h2 class="section-title">User Management</h2>
+                <h2 class="section-title">Subscribers</h2>
+                <p class="section-sub">Everyone in the customer and email records, newest signups included.</p>
                 <button class="btn" onclick="refreshUsers()">Refresh Users</button>
                 <button class="btn btn-secondary" onclick="exportUsers()">Export CSV</button>
-                
-                <div id="usersList">
-                    <div class="error-message">Click "Refresh Users" to load data</div>
-                </div>
+                <div id="usersList"></div>
             </div>
 
             <div class="content-section">
                 <h2 class="section-title">Email Signups <span id="emailCount" class="email-badge">0</span></h2>
+                <p class="section-sub">Free-pick signups that have not converted to a paid package.</p>
                 <button class="btn" onclick="refreshEmails()">Refresh Emails</button>
                 <button class="btn btn-secondary" onclick="exportEmails()">Export Emails</button>
-                
-                <div id="emailsList">
-                    <div class="error-message">Click "Refresh Emails" to load data</div>
-                </div>
+                <div id="emailsList"></div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script>
         const API_BASE = window.location.origin;
@@ -359,19 +421,19 @@
         // Login functionality
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const password = document.getElementById('passwordInput').value;
             const loginError = document.getElementById('loginError');
-            
+
             try {
                 const response = await fetchWithAuth(`${API_BASE}/api/admin/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     authToken = data.token;
                     showAdminPanel();
@@ -389,12 +451,16 @@
         function showAdminPanel() {
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('adminContent').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'block';
+            document.getElementById('adminTag').style.display = 'block';
         }
 
         function logout() {
             authToken = null;
             document.getElementById('loginContainer').style.display = 'flex';
             document.getElementById('adminContent').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+            document.getElementById('adminTag').style.display = 'none';
             document.getElementById('passwordInput').value = '';
         }
 
@@ -461,109 +527,6 @@
             }
         }
 
-        // Post new pick
-        document.getElementById('pickForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const week = document.getElementById('week').value;
-            const game = document.getElementById('game').value;
-            const pick = document.getElementById('pick').value;
-            
-            try {
-                const response = await fetchWithAuth(`${API_BASE}/api/picks`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ week, game, pick })
-                });
-                
-                const result = await response.json();
-                const messageDiv = document.getElementById('pickMessage');
-                
-                if (response.ok) {
-                    messageDiv.innerHTML = '<div class="success-message">Pick posted successfully!</div>';
-                    document.getElementById('pickForm').reset();
-                    loadStats();
-                } else {
-                    messageDiv.innerHTML = `<div class="error-message">${result.error || 'Failed to post pick'}</div>`;
-                }
-            } catch (error) {
-                document.getElementById('pickMessage').innerHTML = '<div class="error-message">Error posting pick</div>';
-            }
-        });
-
-        // ── Pick grading ──
-        async function refreshPicks() {
-            const list = document.getElementById('picksList');
-            try {
-                const response = await fetchWithAuth(`${API_BASE}/api/picks`);
-                if (response.status === 401) { logout(); return; }
-                const picks = await response.json();
-                document.getElementById('pickCount').textContent = Array.isArray(picks) ? picks.length : 0;
-                if (!Array.isArray(picks) || picks.length === 0) {
-                    list.innerHTML = '<div class="error-message">No picks posted yet.</div>';
-                    return;
-                }
-                const opts = ['pending', 'win', 'loss', 'push'];
-                list.innerHTML = `<div class="user-list">${picks.map(p => {
-                    const result = (p.result || 'pending').toLowerCase();
-                    return `
-                    <div class="user-item">
-                        <strong>${escapeHtml(p.week || '')}</strong> — ${escapeHtml(p.game || '')}
-                        <span class="email-badge">${escapeHtml(p.pick || '')}</span>
-                        <select onchange="gradePick('${escapeHtml(p.id)}', this.value)" style="float:right;padding:0.2rem 0.5rem;">
-                            ${opts.map(o => `<option value="${o}"${o === result ? ' selected' : ''}>${o.charAt(0).toUpperCase() + o.slice(1)}</option>`).join('')}
-                        </select>
-                    </div>`;
-                }).join('')}</div>`;
-            } catch (error) {
-                list.innerHTML = '<div class="error-message">Error loading picks</div>';
-            }
-        }
-
-        async function gradePick(id, result) {
-            try {
-                const response = await fetchWithAuth(`${API_BASE}/api/picks/${id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ result })
-                });
-                if (response.status === 401) { logout(); return; }
-                if (response.ok) {
-                    refreshPicks();
-                } else {
-                    const r = await response.json();
-                    alert(r.error || 'Failed to update pick');
-                }
-            } catch (error) {
-                alert('Error updating pick');
-            }
-        }
-
-        // ── Betting Trends (read-only — defined in server.js, published on deploy) ──
-        async function refreshTrends() {
-            const list = document.getElementById('trendsList');
-            try {
-                const response = await fetchWithAuth(`${API_BASE}/api/trends`);
-                if (response.status === 401) { logout(); return; }
-                const trends = await response.json();
-                document.getElementById('trendCount').textContent = Array.isArray(trends) ? trends.length : 0;
-                if (!Array.isArray(trends) || trends.length === 0) {
-                    list.innerHTML = '<div class="error-message">No trends returned — check the TRENDS array in server.js.</div>';
-                    return;
-                }
-                trends.sort((a, b) => b.rate - a.rate);
-                list.innerHTML = `<div class="user-list">${trends.map(t => `
-                    <div class="user-item">
-                        <strong>${t.rate}%</strong> — ${escapeHtml(t.trend)}
-                        <span class="email-badge">${escapeHtml(t.side)}</span>
-                        ${t.n ? `<small> · n=${t.n}</small>` : ''}
-                        ${t.p !== null && t.p !== undefined ? `<small> · p=${t.p}</small>` : ''}
-                    </div>`).join('')}</div>`;
-            } catch (error) {
-                list.innerHTML = '<div class="error-message">Error loading trends</div>';
-            }
-        }
-
         function escapeHtml(str) {
             return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
@@ -575,9 +538,9 @@
                 if (response.ok) {
                     const users = await response.json();
                     const usersList = document.getElementById('usersList');
-                    
+
                     if (users.length === 0) {
-                        usersList.innerHTML = '<div class="error-message">No users found</div>';
+                        usersList.innerHTML = '<div class="empty-message">No users found.</div>';
                     } else {
                         usersList.innerHTML = `
                             <div class="user-list">
@@ -611,9 +574,9 @@
                     const users = await response.json();
                     const emailUsers = users.filter(user => user.type === 'email_signup' || !user.type);
                     const emailsList = document.getElementById('emailsList');
-                    
+
                     if (emailUsers.length === 0) {
-                        emailsList.innerHTML = '<div class="error-message">No email signups found</div>';
+                        emailsList.innerHTML = '<div class="empty-message">No email signups found.</div>';
                     } else {
                         emailsList.innerHTML = `
                             <div class="user-list">
@@ -669,7 +632,7 @@
                     const users = await response.json();
                     const emailUsers = users.filter(user => user.type === 'email_signup' || !user.type);
                     const emailList = emailUsers.map(user => user.email).join('\n');
-                    
+
                     const blob = new Blob([emailList], { type: 'text/plain' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -689,5 +652,3 @@
     </script>
 </body>
 </html>
-
-
