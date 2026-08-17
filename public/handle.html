@@ -458,8 +458,12 @@
 
         // ── Init ──────────────────────────────────────────────────
         window.addEventListener('load', () => {
+            // Prefer the fragment: browsers never send it to the server, so an
+            // admin token stays out of the access logs. The query form still
+            // works for older links. Either way replaceState strips it below.
+            const hashParams = new URLSearchParams(window.location.hash.slice(1));
             const params = new URLSearchParams(window.location.search);
-            const adminToken = params.get('admin');
+            const adminToken = hashParams.get('admin') || params.get('admin');
             if (adminToken) {
                 const adminUser = { email: 'admin', packageType: 'admin', subscriptionEnd: null };
                 saveSession(adminToken, adminUser);

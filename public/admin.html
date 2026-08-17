@@ -399,8 +399,9 @@
         }
 
         // Open a member-gated page on the current admin session. The member pages
-        // read ?admin=<token>, store it as their own session and strip it from the
-        // URL, so the tab behaves exactly like a logged-in subscriber's.
+        // read #admin=<token>, store it as their own session and strip it from the
+        // URL, so the tab behaves exactly like a logged-in subscriber's. The token
+        // rides in the fragment so it never reaches the server or its access logs.
         function viewAsMember(path) {
             const message = document.getElementById('memberViewMessage');
             message.innerHTML = '';
@@ -410,7 +411,7 @@
                 return;
             }
 
-            const url = `${path}?admin=${encodeURIComponent(authToken)}`;
+            const url = `${path}#admin=${encodeURIComponent(authToken)}`;
             if (!window.open(url, '_blank')) {
                 message.innerHTML = '<div class="error-message">Your browser blocked the new tab. Allow pop-ups for this site and try again.</div>';
             }
