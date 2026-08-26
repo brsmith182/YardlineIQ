@@ -54,11 +54,79 @@
     }
     </script>
     
+    <!-- Yard lines, with the one you have to beat picked out. -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305070a'/%3E%3Cg stroke='%2300ff88' stroke-linecap='round'%3E%3Cpath d='M8 9v14' stroke-opacity='.3' stroke-width='2'/%3E%3Cpath d='M14 9v14' stroke-opacity='.3' stroke-width='2'/%3E%3Cpath d='M20 6v20' stroke-width='3.5'/%3E%3Cpath d='M26 9v14' stroke-opacity='.3' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://js.stripe.com">
+    <!-- Weights listed here are the ones actually used below. Barlow Semi
+         Condensed carries every figure on the page; see --font-num. -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow+Semi+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap">
+
     <script src="https://js.stripe.com/v3/"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
-        
+        /* ── Lighting model ─────────────────────────────────────
+           One key light: above, slightly front-left. Every shadow
+           and rim below is derived from it. As elevation rises the
+           cast shadow gets larger AND softer, and the rim gets
+           brighter — that pairing is what reads as height. */
+        :root {
+            /* cast shadow ladder: contact + key + ambient */
+            --lift-1: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.35);
+            --lift-2: 0 1px 2px rgba(0, 0, 0, 0.55), 0 8px 20px rgba(0, 0, 0, 0.4), 0 20px 44px rgba(0, 0, 0, 0.26);
+            --lift-3: 0 2px 4px rgba(0, 0, 0, 0.55), 0 16px 34px rgba(0, 0, 0, 0.45), 0 34px 72px rgba(0, 0, 0, 0.3);
+            --lift-4: 0 2px 6px rgba(0, 0, 0, 0.6), 0 22px 46px rgba(0, 0, 0, 0.5), 0 48px 96px rgba(0, 0, 0, 0.34);
+
+            /* top edge catching the key light */
+            --rim-1: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            --rim-2: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+            --rim-3: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+            --rim-4: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+            /* carved into the surface rather than sitting on it */
+            --recess: inset 0 2px 4px rgba(0, 0, 0, 0.65), inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+            --recess-sm: inset 0 1px 2px rgba(0, 0, 0, 0.7), inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+
+            /* a lit face is brighter at the top and falls off downward */
+            --face-1: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.012) 100%);
+            --face-2: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.018) 100%);
+
+            /* Numbers are the product, so they get their own face. Condensed
+               and tabular, the way an odds board sets them. */
+            --font-num: 'Barlow Semi Condensed', 'Inter', sans-serif;
+
+            /* Camera angle on the ground plane. Registered via @property below
+               so the load sequence can interpolate it; declared here so the
+               plane still resolves where @property is unsupported. */
+            --plane-angle: 68deg;
+
+            --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        @property --plane-angle {
+            syntax: '<angle>';
+            initial-value: 68deg;
+            inherits: false;
+        }
+
+        /* Every figure on the page. Tabular so the three chart rows line up
+           on scan instead of drifting with proportional digits. */
+        .stat-number,
+        .chart-record,
+        .chart-pct,
+        .chart-roi,
+        .chart-breakeven-label,
+        .price-amount,
+        .price-period,
+        .savings-callout,
+        .feature-stat {
+            font-family: var(--font-num);
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: 'tnum' 1;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -88,7 +156,7 @@
             -webkit-backdrop-filter: blur(24px);
             padding: 1rem 0;
             border-bottom: 1px solid rgba(0, 255, 136, 0.12);
-            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
+            box-shadow: var(--lift-3);
         }
 
         .nav-container {
@@ -171,16 +239,51 @@
         }
 
         
-        /* Hex grid + radar glow background layers */
+        /* The ground plane: a field seen from a low sideline camera.
+           Diagrammatic, not pictorial — correct geometry, no turf colour and
+           no painted numerals, because both would collide with the brand green
+           and tip this from analytics product to banner ad. The hash row and
+           the single sideline are what make it read as football rather than as
+           a generic perspective grid. The far sideline is deliberately absent:
+           a camera this low loses it in the haze.
+           This is the floor everything else on the page sits above. */
         .hero::before {
             content: '';
             position: absolute;
-            inset: -60px;
+            left: -60%;
+            right: -60%;
+            bottom: 0;
+            /* Fixed height, not a percentage: the plane must stay shorter than
+               the perspective distance or the far end folds back past the
+               vanishing point and inverts. */
+            height: 1400px;
             pointer-events: none;
-            opacity: 0.35;
-            mix-blend-mode: soft-light;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='184' viewBox='0 0 160 184'%3E%3Cdefs%3E%3Cpattern id='hex' x='0' y='0' width='20' height='34.64' patternUnits='userSpaceOnUse'%3E%3Cpath d='M10 0L20 5.77v11.54L10 23.08 0 17.31V5.77z' fill='none' stroke='%2300ffc3' stroke-width='0.5' stroke-opacity='0.16'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='160' height='184' fill='url(%23hex)'/%3E%3C/svg%3E");
-            background-size: 260px 300px;
+            opacity: 0.95;
+            transform-origin: 50% 100%;
+            transform: perspective(1600px) rotateX(var(--plane-angle)) translateY(var(--plane-shift, 0px));
+            will-change: transform;
+            animation: planeSettle 800ms var(--ease-out) both;
+            /* Three layers. Their order has to match across background-image,
+               -size, -position and -repeat or the bands land in the wrong place. */
+            background-image:
+                /* One hash row. Two reads as hatching at this camera angle, and
+                   a camera this low would lose the far row in the haze anyway. */
+                repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.26) 0 2px, transparent 2px 14.8px),
+                /* the sideline: brightest paint on the field, and only one of it */
+                linear-gradient(rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.42)),
+                /* yard lines converging toward the vanishing point — the 10s
+                   heavier than the 5s, same total ink as a single weight */
+                repeating-linear-gradient(90deg,
+                    rgba(255, 255, 255, 0.34) 0 2.5px,
+                    transparent 2.5px 74px,
+                    rgba(255, 255, 255, 0.18) 74px 75.5px,
+                    transparent 75.5px 148px);
+            /* repeat-x confines a band to one row instead of tiling it upward */
+            background-size: auto 18px, auto 3px, auto auto;
+            background-position: 0 1020px, 0 1200px, 0 0;
+            background-repeat: repeat-x, no-repeat, repeat;
+            -webkit-mask-image: radial-gradient(ellipse 65% 58% at 50% 100%, #000 0%, rgba(0, 0, 0, 0.55) 42%, transparent 78%);
+            mask-image: radial-gradient(ellipse 65% 58% at 50% 100%, #000 0%, rgba(0, 0, 0, 0.55) 42%, transparent 78%);
         }
         
         /* glowing radar-style blobs */
@@ -191,6 +294,7 @@
             pointer-events: none;
             opacity: 0.75;
             mix-blend-mode: screen;
+            transform: translateY(var(--haze-shift, 0px));
             background:
                 radial-gradient(circle at 20% 0%, rgba(0, 255, 136, 0.35) 0, transparent 55%),
                 radial-gradient(circle at 80% 120%, rgba(0, 204, 255, 0.28) 0, transparent 60%),
@@ -216,11 +320,16 @@
             line-height: 0.88;
             letter-spacing: -0.01em;
             margin-bottom: 2rem;
+            filter: drop-shadow(0 2px 24px rgba(0,0,0,0.6));
+        }
+
+        .hero-content h1 .hero-line,
+        .hero-content h1 .highlight {
+            display: block;
             background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            filter: drop-shadow(0 2px 24px rgba(0,0,0,0.6));
         }
 
         .hero-content .highlight {
@@ -269,8 +378,9 @@
         }
 
         .stat-number {
-            font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 800;
+            font-size: clamp(2.35rem, 4.7vw, 3.5rem);
+            font-weight: 700;
+            letter-spacing: 0.005em;
             color: #00ff88;
             line-height: 1;
         }
@@ -466,7 +576,8 @@
         }
 
         .pricing-card {
-            background: rgba(255, 255, 255, 0.025);
+            background-color: rgba(255, 255, 255, 0.025);
+            background-image: var(--face-1);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px;
             padding: 3rem 2.5rem;
@@ -474,35 +585,39 @@
             transition: all 0.4s ease;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            box-shadow: var(--rim-2), var(--lift-2);
             will-change: transform;
             display: flex;
             flex-direction: column;
+            /* transform is composed from parts so the reveal, the hover lift
+               and the featured scale can coexist instead of overwriting */
+            transform: translateY(calc(var(--reveal-y, 0px) + var(--lift-y, 0px))) scale(var(--card-scale, 1));
         }
 
         .pricing-card:hover {
-            transform: translateY(-10px);
+            --lift-y: -10px;
             border-color: rgba(0, 255, 136, 0.3);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 255, 136, 0.1);
+            box-shadow: var(--rim-3), var(--lift-3), 0 0 0 1px rgba(0, 255, 136, 0.1);
         }
 
         .pricing-card.featured {
+            --card-scale: 1.06;
             border: 1px solid rgba(0, 255, 136, 0.55);
-            background: linear-gradient(160deg, rgba(0, 255, 136, 0.07) 0%, rgba(0, 204, 255, 0.03) 100%);
-            transform: scale(1.06);
+            background-image: var(--face-2), linear-gradient(160deg, rgba(0, 255, 136, 0.07) 0%, rgba(0, 204, 255, 0.03) 100%);
             box-shadow:
+                var(--rim-4),
                 0 0 0 1px rgba(0, 255, 136, 0.35),
                 0 0 50px rgba(0, 255, 136, 0.14),
-                0 40px 80px rgba(0, 0, 0, 0.55);
+                var(--lift-4);
             z-index: 2;
         }
 
         .pricing-card.featured:hover {
-            transform: scale(1.06) translateY(-10px);
             box-shadow:
+                var(--rim-4),
                 0 0 0 1px rgba(0, 255, 136, 0.6),
                 0 0 70px rgba(0, 255, 136, 0.22),
-                0 50px 100px rgba(0, 0, 0, 0.55);
+                var(--lift-4);
         }
 
         .featured-badge {
@@ -547,9 +662,9 @@
             background: rgba(0, 255, 136, 0.1);
             border: 1px solid rgba(0, 255, 136, 0.3);
             color: #00ff88;
-            font-size: 0.8rem;
+            font-size: 0.88rem;
             font-weight: 700;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
             padding: 0.35rem 0.9rem;
             border-radius: 20px;
@@ -562,15 +677,16 @@
         }
 
         .price-amount {
-            font-size: 3.5rem;
-            font-weight: 900;
+            font-size: 4.1rem;
+            font-weight: 700;
+            letter-spacing: 0.005em;
             line-height: 1;
             color: #00ff88;
         }
 
         .price-period {
             color: rgba(255, 255, 255, 0.5);
-            font-size: 1rem;
+            font-size: 1.15rem;
             font-weight: 500;
         }
 
@@ -806,25 +922,102 @@
             margin: 0 auto;
         }
 
+        /* Two tiers, because these six are not six equal things: two are the
+           product, four are the subjects around it. */
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.6rem;
             margin-top: 3rem;
         }
 
+        .features-grid-secondary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.6rem;
+            margin-top: 1.6rem;
+        }
+
+        .feature-card.is-lead {
+            padding: 2.6rem;
+            background-image: var(--face-2);
+            box-shadow: var(--rim-2), var(--lift-2);
+            /* Column + auto margin on the stat line so both dividers sit on
+               one baseline regardless of how many lines the copy runs to. */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feature-card.is-lead h3 {
+            font-size: 1.45rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .feature-card.is-lead p {
+            font-size: 1rem;
+        }
+
+        .feature-stat {
+            display: block;
+            margin-top: auto;
+            padding-top: 1.6rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.45);
+            letter-spacing: 0.01em;
+        }
+
+        .feature-stat strong {
+            color: #00ff88;
+            font-weight: 700;
+        }
+
+        .features-grid-secondary .feature-card {
+            padding: 1.7rem;
+        }
+
+        .features-grid-secondary .feature-card h3 {
+            font-size: 1.02rem;
+            margin-bottom: 0.7rem;
+        }
+
+        .features-grid-secondary .feature-card p {
+            font-size: 0.88rem;
+        }
+
+        .features-grid-secondary .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .features-grid-secondary .feature-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        @media (max-width: 1080px) {
+            .features-grid-secondary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         .feature-card {
-            background: rgba(255, 255, 255, 0.02);
+            background-color: rgba(255, 255, 255, 0.02);
+            background-image: var(--face-1);
             border: 1px solid rgba(255, 255, 255, 0.07);
             border-left: 3px solid rgba(0, 255, 136, 0.35);
             border-radius: 16px;
             padding: 2rem;
             text-align: left;
-            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease, opacity 0.35s ease;
+            box-shadow: var(--rim-1), var(--lift-1);
             position: relative;
             overflow: hidden;
             will-change: transform;
+            transform: translateY(calc(var(--reveal-y, 0px) + var(--lift-y, 0px)));
         }
 
         .feature-card::before {
@@ -836,10 +1029,10 @@
         }
 
         .feature-card:hover {
-            transform: translateY(-6px);
+            --lift-y: -6px;
             border-left-color: #00ff88;
             border-color: rgba(0, 255, 136, 0.2);
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 255, 136, 0.08);
+            box-shadow: var(--rim-3), var(--lift-3), 0 0 0 1px rgba(0, 255, 136, 0.08);
         }
 
         .feature-icon {
@@ -881,13 +1074,14 @@
         /* ── Performance Chart ─────────────────────── */
 
         .hero-chart {
-            background: rgba(255, 255, 255, 0.03);
+            background-color: rgba(255, 255, 255, 0.03);
+            background-image: var(--face-2);
             border: 1px solid rgba(255, 255, 255, 0.09);
             border-radius: 20px;
             padding: 1.8rem 2rem;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 255, 136, 0.07);
+            box-shadow: var(--rim-2), var(--lift-3), 0 0 0 1px rgba(0, 255, 136, 0.07);
             position: relative;
             z-index: 1;
         }
@@ -935,31 +1129,57 @@
         }
 
         .chart-record {
-            font-size: 0.72rem;
+            font-size: 0.82rem;
             color: rgba(255, 255, 255, 0.4);
             font-weight: 500;
         }
 
+        /* The track is carved into the card face, not drawn on it. */
         .chart-bar-track {
             width: 100%;
-            height: 9px;
-            background: rgba(255, 255, 255, 0.06);
+            height: 10px;
+            background: rgba(0, 0, 0, 0.34);
             border-radius: 6px;
             position: relative;
             margin-bottom: 0.4rem;
+            box-shadow: var(--recess-sm);
         }
 
-        /* 52.38% breakeven marker (-110 vig) */
+        /* 52.38% breakeven (-110 vig) — the line the whole business is about.
+           Rendered as a lit edge standing in the track, brightest where it
+           meets the bar. */
         .chart-bar-track::before {
             content: '';
             position: absolute;
             left: 52.38%;
-            top: -3px;
-            bottom: -3px;
+            top: -7px;
+            bottom: -7px;
             width: 2px;
-            background: rgba(255, 255, 255, 0.6);
-            z-index: 1;
+            background: linear-gradient(180deg,
+                rgba(255, 255, 255, 0.12) 0%,
+                rgba(255, 255, 255, 0.85) 50%,
+                rgba(255, 255, 255, 0.12) 100%);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+            z-index: 3;
             border-radius: 2px;
+            animation: markerStrike 450ms var(--ease-out) 1650ms both;
+        }
+
+        /* Everything past the line: the margin that actually pays. Raised and
+           lit, so clearing breakeven is something you can see, not just read. */
+        .chart-bar-track::after {
+            content: '';
+            position: absolute;
+            left: 52.38%;
+            right: calc(100% - var(--fill-width));
+            top: 0;
+            bottom: 0;
+            border-radius: 0 6px 6px 0;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.13) 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 0 20px rgba(0, 255, 136, 0.4);
+            z-index: 2;
+            pointer-events: none;
+            animation: overLineIn 450ms ease 1750ms both;
         }
 
         @keyframes barGrow {
@@ -967,12 +1187,23 @@
             to   { width: var(--fill-width); }
         }
 
+        @keyframes overLineIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
         .chart-bar-fill {
             height: 100%;
             border-radius: 6px;
             background: linear-gradient(90deg, #00ff88 0%, #00ccff 100%);
             width: var(--fill-width);
-            animation: barGrow 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s both;
+            position: relative;
+            z-index: 1;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.35),
+                0 1px 3px rgba(0, 0, 0, 0.5),
+                0 0 14px rgba(0, 255, 136, 0.22);
+            animation: barGrow 1000ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1000ms both;
         }
 
         .chart-row-footer {
@@ -982,13 +1213,13 @@
         }
 
         .chart-pct {
-            font-size: 0.8rem;
+            font-size: 0.92rem;
             font-weight: 700;
             color: #00ff88;
         }
 
         .chart-roi {
-            font-size: 0.75rem;
+            font-size: 0.86rem;
             font-weight: 600;
             color: rgba(0, 255, 136, 0.65);
         }
@@ -1004,7 +1235,7 @@
         }
 
         .chart-breakeven-label {
-            font-size: 0.68rem;
+            font-size: 0.78rem;
             color: rgba(255, 255, 255, 0.28);
             font-weight: 500;
             white-space: nowrap;
@@ -1069,8 +1300,22 @@
                 padding-right: 1.5rem !important;
             }
 
+            /* The login button used to wrap to two lines, which pushed the
+               fixed header past the hero's top padding and tucked the
+               headline underneath it. Keep it on one line, then clear the
+               real header height. */
+            .login-btn {
+                white-space: nowrap;
+                padding: 0.6rem 1.1rem;
+                font-size: 0.85rem;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
             .hero {
-                padding-top: 100px !important;
+                padding-top: 128px !important;
             }
             
             .hero-content h1 {
@@ -1124,8 +1369,13 @@
                 min-width: auto;
             }
 
-            .features-grid {
+            .features-grid,
+            .features-grid-secondary {
                 grid-template-columns: 1fr;
+            }
+
+            .feature-card.is-lead {
+                padding: 2rem;
             }
 
             .modal-content {
@@ -1151,7 +1401,7 @@
             }
             
             .stat-number {
-                font-size: 1.8rem;
+                font-size: 2.1rem;
             }
         }
 
@@ -1189,6 +1439,113 @@
             0% { transform: translate(-50%, -50%) rotate(0deg); }
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
+
+        /* ── The broadcast open ─────────────────────────────────
+           The page arrives once, in one order: the world, then the
+           title, then the stats, then the data, then the line. The
+           last thing to land is the 52.38% breakeven marker — the
+           number the whole business is about. Nothing here loops,
+           and nothing animates after the sequence resolves. */
+
+        @keyframes planeSettle {
+            from { opacity: 0; --plane-angle: 72deg; }
+            to   { opacity: 0.95; --plane-angle: 68deg; }
+        }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes riseInLg {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes markerStrike {
+            from { opacity: 0; transform: scaleY(0.25); }
+            to   { opacity: 1; transform: scaleY(1); }
+        }
+
+        .hero-content h1 .hero-line { animation: riseInLg 650ms var(--ease-out) 150ms both; }
+        .hero-content h1 .highlight { animation: riseInLg 650ms var(--ease-out) 260ms both; }
+        .hero-subtitle              { animation: riseIn 550ms var(--ease-out) 420ms both; }
+        .hero-stat-badge:nth-child(1) { animation: riseIn 450ms var(--ease-out) 540ms both; }
+        .hero-stat-badge:nth-child(2) { animation: riseIn 450ms var(--ease-out) 600ms both; }
+        .hero-stat-badge:nth-child(3) { animation: riseIn 450ms var(--ease-out) 660ms both; }
+        .stat-footnote              { animation: riseIn 450ms var(--ease-out) 700ms both; }
+        .cta-group                  { animation: riseIn 450ms var(--ease-out) 740ms both; }
+        .hero-chart                 { animation: riseInLg 650ms var(--ease-out) 600ms both; }
+        .chart-row:nth-child(1)     { animation: riseIn 450ms var(--ease-out) 850ms both; }
+        .chart-row:nth-child(2)     { animation: riseIn 450ms var(--ease-out) 930ms both; }
+        .chart-row:nth-child(3)     { animation: riseIn 450ms var(--ease-out) 1010ms both; }
+
+        /* Scroll reveal. Feeds the shared transform via --reveal-y so it
+           composes with the hover lift and the featured card's scale. */
+        .reveal {
+            opacity: 0;
+            --reveal-y: 28px;
+        }
+
+        .reveal.is-revealed {
+            opacity: 1;
+            --reveal-y: 0px;
+        }
+
+        /* Mobile: drop the ground plane and collapse the shadow ladder to
+           two parts. Rim lights stay — they cost nothing and carry most of
+           the depth on their own. */
+        @media (max-width: 900px) {
+            .hero::before {
+                display: none;
+            }
+
+            .feature-card,
+            .pricing-card,
+            .hero-chart {
+                box-shadow: var(--rim-2), 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 20px rgba(0, 0, 0, 0.4);
+            }
+
+            .pricing-card.featured {
+                box-shadow:
+                    var(--rim-4),
+                    0 0 0 1px rgba(0, 255, 136, 0.35),
+                    0 1px 2px rgba(0, 0, 0, 0.5),
+                    0 10px 26px rgba(0, 0, 0, 0.45);
+            }
+
+            .header.scrolled {
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.5);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                /* Without this the load sequence still honours its delays and
+                   the hero sits invisible for 1.65s before snapping in. */
+                animation-delay: 0ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                transition-delay: 0ms !important;
+                scroll-behavior: auto !important;
+            }
+
+            .reveal {
+                opacity: 1;
+                --reveal-y: 0px;
+            }
+
+            .hero::before {
+                transform: perspective(1600px) rotateX(68deg);
+            }
+
+            .hero::after {
+                transform: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1212,7 +1569,7 @@
 <div class="hero-grid">
             <div class="hero-content">
                 <h1>
-                    EXPERT NFL PICKS<br>
+                    <span class="hero-line">EXPERT NFL PICKS</span>
                     <span class="highlight">THAT WIN</span>
                 </h1>
                 <p class="hero-subtitle">
@@ -1253,8 +1610,8 @@
                             <span class="chart-tier-name">VIP Picks</span>
                             <span class="chart-record">48–24 &nbsp;·&nbsp; 72 picks</span>
                         </div>
-                        <div class="chart-bar-track">
-                            <div class="chart-bar-fill" style="--fill-width: 66.67%"></div>
+                        <div class="chart-bar-track" style="--fill-width: 66.67%">
+                            <div class="chart-bar-fill"></div>
                         </div>
                         <div class="chart-row-footer">
                             <span class="chart-pct">66.67% ATS</span>
@@ -1267,8 +1624,8 @@
                             <span class="chart-tier-name">Free Picks</span>
                             <span class="chart-record">11–7 &nbsp;·&nbsp; 18 picks</span>
                         </div>
-                        <div class="chart-bar-track">
-                            <div class="chart-bar-fill" style="--fill-width: 61.11%"></div>
+                        <div class="chart-bar-track" style="--fill-width: 61.11%">
+                            <div class="chart-bar-fill"></div>
                         </div>
                         <div class="chart-row-footer">
                             <span class="chart-pct">61.11% ATS</span>
@@ -1281,8 +1638,8 @@
                             <span class="chart-tier-name">Full Season</span>
                             <span class="chart-record">153–119 &nbsp;·&nbsp; 272 picks</span>
                         </div>
-                        <div class="chart-bar-track">
-                            <div class="chart-bar-fill" style="--fill-width: 56.25%"></div>
+                        <div class="chart-bar-track" style="--fill-width: 56.25%">
+                            <div class="chart-bar-fill"></div>
                         </div>
                         <div class="chart-row-footer">
                             <span class="chart-pct">56.25% ATS</span>
@@ -1309,16 +1666,21 @@
             <p class="section-subtitle">Comprehensive NFL predictions and betting tips for the 2026 season</p>
             
             <div class="features-grid">
-                <div class="feature-card">
+                <div class="feature-card is-lead">
                     <span class="feature-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg></span>
                     <h3>NFL Picks Against the Spread</h3>
                     <p>Weekly ATS picks with detailed analysis and reasoning behind each selection. Our proven system identifies value in NFL spread betting.</p>
+                    <span class="feature-stat">New picks every <strong>Wednesday</strong> and <strong>Saturday</strong></span>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card is-lead">
                     <span class="feature-icon"><svg viewBox="0 0 24 24"><polyline points="3,17 9,11 13,14 21,6"/><polyline points="17,6 21,6 21,10"/></svg></span>
                     <h3>NFL Betting Trends 2026</h3>
                     <p>Track the latest NFL betting patterns and capitalize on market inefficiencies with our data-driven trend analysis.</p>
+                    <span class="feature-stat"><strong>110</strong> trends mined from <strong>2,227</strong> games, 2018&ndash;2025</span>
                 </div>
+            </div>
+
+            <div class="features-grid-secondary">
                 <div class="feature-card">
                     <span class="feature-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="7,16 10,11 13,13 17,8"/></svg></span>
                     <h3>NFL Predictions 2026</h3>
@@ -1598,7 +1960,7 @@
             } else {
                 header.classList.remove('scrolled');
             }
-        });
+        }, { passive: true });
 
         function scrollToFreePick() {
             document.getElementById('free-pick').scrollIntoView({ behavior: 'smooth' });
@@ -1984,38 +2346,66 @@
             rootMargin: '0px 0px -50px 0px'
         };
 
+        // Writing style.transform here would outrank .pricing-card.featured's
+        // scale(). The reveal moves --reveal-y instead, so the card keeps its
+        // scale and its hover lift.
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
+                if (!entry.isIntersecting) return;
+                const card = entry.target;
+                card.classList.add('is-revealed');
+                card.addEventListener('transitionend', () => {
+                    card.style.transitionDelay = '';
+                }, { once: true });
+                observer.unobserve(card);
             });
         }, observerOptions);
 
         // Observe feature cards and pricing cards with staggered reveals
         document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.features-grid, .pricing-grid').forEach(grid => {
+            document.querySelectorAll('.features-grid, .features-grid-secondary, .pricing-grid').forEach(grid => {
                 const cards = grid.querySelectorAll('.feature-card, .pricing-card');
                 cards.forEach((card, i) => {
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateY(28px)';
-                    card.style.transition = `opacity 0.55s ease ${i * 90}ms, transform 0.55s ease ${i * 90}ms`;
+                    card.classList.add('reveal');
+                    card.style.transitionDelay = `${i * 90}ms`;
                     observer.observe(card);
                 });
             });
         });
 
-        // Performance optimization: Preload critical resources
-        const link1 = document.createElement('link');
-        link1.rel = 'preconnect';
-        link1.href = 'https://fonts.googleapis.com';
-        document.head.appendChild(link1);
+        // Parallax: the ground plane dollies while the atmosphere behind it
+        // drifts the other way. Desktop only, tiny amplitude — enough to
+        // separate the layers in depth, not enough to notice as an effect.
+        (function () {
+            const hero = document.querySelector('.hero');
+            if (!hero) return;
 
-        const link2 = document.createElement('link');
-        link2.rel = 'preconnect';
-        link2.href = 'https://js.stripe.com';
-        document.head.appendChild(link2);
+            const wideEnough = window.matchMedia('(min-width: 901px)');
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+            let ticking = false;
+
+            function apply() {
+                ticking = false;
+                if (!wideEnough.matches || reduceMotion.matches) {
+                    hero.style.removeProperty('--plane-shift');
+                    hero.style.removeProperty('--haze-shift');
+                    return;
+                }
+                const y = Math.min(window.scrollY, window.innerHeight);
+                hero.style.setProperty('--plane-shift', (y * 0.06).toFixed(2) + 'px');
+                hero.style.setProperty('--haze-shift', (y * -0.11).toFixed(2) + 'px');
+            }
+
+            window.addEventListener('scroll', () => {
+                if (ticking) return;
+                ticking = true;
+                requestAnimationFrame(apply);
+            }, { passive: true });
+
+            wideEnough.addEventListener('change', apply);
+            reduceMotion.addEventListener('change', apply);
+            apply();
+        })();
 
         // ── Neural Football Animation ──────────────────────────
         (function() {
@@ -2023,10 +2413,16 @@
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
 
+            // Back the bitmap with device pixels, then draw in CSS pixels.
+            // setTransform (not scale) so repeated calls don't compound.
             function initSize() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
                 const size = canvas.offsetWidth || 400;
-                canvas.width = size;
-                canvas.height = size;
+                canvas.width = Math.round(size * dpr);
+                canvas.height = Math.round(size * dpr);
+                canvas.style.width = size + 'px';
+                canvas.style.height = size + 'px';
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
                 return size;
             }
 
@@ -2125,7 +2521,10 @@
                 ctx.globalAlpha = alpha; ctx.stroke(); ctx.globalAlpha = 1;
             }
 
+            let running = false;
+
             function draw(ts) {
+                if (!running) return;
                 requestAnimationFrame(draw);
                 const dt = Math.min(ts - last, 50);
                 last = ts;
@@ -2277,12 +2676,51 @@
                 ctx.beginPath(); ctx.arc(cx, cy, A, 0, Math.PI * 2); ctx.fill();
             }
 
+            function start() {
+                if (running) return;
+                running = true;
+                last = performance.now();
+                requestAnimationFrame(draw);
+            }
+
+            function stop() {
+                running = false;
+            }
+
             // Size canvas once layout is known, then start
             window.addEventListener('load', () => {
                 SIZE = initSize();
                 cx = SIZE / 2; cy = SIZE / 2;
                 A = SIZE * 0.33; B = SIZE * 0.21;
-                requestAnimationFrame(draw);
+
+                const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+                if (reduceMotion.matches) {
+                    // Draw one static frame and leave it there.
+                    running = true;
+                    draw(performance.now());
+                    running = false;
+                    return;
+                }
+
+                // Only spin while it's actually on screen and the tab is
+                // focused — this loop used to run for the life of the page,
+                // including on phones.
+                let inView = true;
+
+                function sync() {
+                    (inView && !document.hidden) ? start() : stop();
+                }
+
+                if ('IntersectionObserver' in window) {
+                    inView = false;
+                    new IntersectionObserver((entries) => {
+                        inView = entries[0].isIntersecting;
+                        sync();
+                    }, { threshold: 0.01 }).observe(canvas);
+                }
+
+                document.addEventListener('visibilitychange', sync);
+                sync();
             });
         })();
     </script>
