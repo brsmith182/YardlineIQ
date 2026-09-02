@@ -1038,6 +1038,7 @@ const UPCOMING_GAMES = [
     spread: { open: -4, current: -3.5, home: -110, away: -110 },
     total: { current: 44.5, over: -110, under: -110 },
     moneyline: { home: -185, away: 154 },
+    split: { moneyHome: 41, ticketsHome: 55 },
   },
   {
     id: '2026-w1-sf-at-lar',
@@ -1049,6 +1050,7 @@ const UPCOMING_GAMES = [
     spread: { open: -2.5, current: -3.5, home: -110, away: -110 },
     total: { current: 48.5, over: -108, under: -112 },
     moneyline: { home: -192, away: 160 },
+    split: { moneyHome: 42, ticketsHome: 48 },
   },
   {
     id: '2026-w1-chi-at-car',
@@ -1059,6 +1061,7 @@ const UPCOMING_GAMES = [
     spread: { open: 2.5, current: 2.5, home: -102, away: -118 },
     total: { current: 46.5, over: -115, under: -105 },
     moneyline: { home: 124, away: -148 },
+    split: { moneyHome: 34, ticketsHome: 68 },
   },
   {
     id: '2026-w1-tb-at-cin',
@@ -1069,6 +1072,7 @@ const UPCOMING_GAMES = [
     spread: { open: -2.5, current: -3.5, home: -115, away: -105 },
     total: { current: 51.5, over: -110, under: -110 },
     moneyline: { home: -198, away: 164 },
+    split: { moneyHome: 36, ticketsHome: 62 },
   },
   {
     id: '2026-w1-no-at-det',
@@ -1079,6 +1083,7 @@ const UPCOMING_GAMES = [
     spread: { open: -6.5, current: -7, home: -110, away: -110 },
     total: { current: 49.5, over: -105, under: -115 },
     moneyline: { home: -325, away: 260 },
+    split: { moneyHome: 31, ticketsHome: 31 },
   },
   {
     id: '2026-w1-buf-at-hou',
@@ -1089,6 +1094,7 @@ const UPCOMING_GAMES = [
     spread: { open: 2.5, current: 1.5, home: -112, away: -108 },
     total: { current: 44.5, over: -110, under: -110 },
     moneyline: { home: 100, away: -120 },
+    split: { moneyHome: 30, ticketsHome: 36 },
   },
   {
     id: '2026-w1-bal-at-ind',
@@ -1099,6 +1105,7 @@ const UPCOMING_GAMES = [
     spread: { open: 3.5, current: 3.5, home: -112, away: -108 },
     total: { current: 48.5, over: -110, under: -110 },
     moneyline: { home: 145, away: -175 },
+    split: { moneyHome: 59, ticketsHome: 56 },
   },
   {
     id: '2026-w1-cle-at-jac',
@@ -1109,6 +1116,7 @@ const UPCOMING_GAMES = [
     spread: { open: -7.5, current: -7.5, home: -110, away: -110 },
     total: { current: 40.5, over: -110, under: -110 },
     moneyline: { home: -375, away: 295 },
+    split: { moneyHome: 55, ticketsHome: 66 },
   },
   {
     id: '2026-w1-atl-at-pit',
@@ -1119,6 +1127,7 @@ const UPCOMING_GAMES = [
     spread: { open: -2, current: -3, home: -120, away: 100 },
     total: { current: 41.5, over: -115, under: -105 },
     moneyline: { home: -175, away: 145 },
+    split: { moneyHome: 58, ticketsHome: 42 },
   },
   {
     id: '2026-w1-nyj-at-ten',
@@ -1129,6 +1138,7 @@ const UPCOMING_GAMES = [
     spread: { open: -1.5, current: -3, home: 100, away: -120 },
     total: { current: 38.5, over: -115, under: -105 },
     moneyline: { home: -155, away: 130 },
+    split: { moneyHome: 51, ticketsHome: 32 },
   },
   {
     id: '2026-w1-ari-at-lac',
@@ -1139,6 +1149,7 @@ const UPCOMING_GAMES = [
     spread: { open: -10.5, current: -10.5, home: -110, away: -110 },
     total: { current: 46.5, over: -110, under: -110 },
     moneyline: { home: -575, away: 425 },
+    split: { moneyHome: 42, ticketsHome: 49 },
   },
   {
     id: '2026-w1-mia-at-lv',
@@ -1149,6 +1160,7 @@ const UPCOMING_GAMES = [
     spread: { open: -3, current: -3.5, home: -110, away: -110 },
     total: { current: 40.5, over: -110, under: -110 },
     moneyline: { home: -192, away: 160 },
+    split: { moneyHome: 40, ticketsHome: 33 },
   },
   {
     id: '2026-w1-gb-at-min',
@@ -1159,6 +1171,7 @@ const UPCOMING_GAMES = [
     spread: { open: 1.5, current: -1.5, home: -102, away: -118 },
     total: { current: 45.5, over: -110, under: -110 },
     moneyline: { home: -118, away: -102 },
+    split: { moneyHome: 61, ticketsHome: 62 },
   },
   {
     id: '2026-w1-wsh-at-phi',
@@ -1169,6 +1182,7 @@ const UPCOMING_GAMES = [
     spread: { open: -4, current: -4.5, home: -110, away: -110 },
     total: { current: 47.5, over: -105, under: -115 },
     moneyline: { home: -218, away: 180 },
+    split: { moneyHome: 38, ticketsHome: 35 },
   },
   {
     id: '2026-w1-dal-at-nyg',
@@ -1179,6 +1193,7 @@ const UPCOMING_GAMES = [
     spread: { open: 2.5, current: 2.5, home: -105, away: -115 },
     total: { current: 48.5, over: -110, under: -110 },
     moneyline: { home: 124, away: -148 },
+    split: { moneyHome: 46, ticketsHome: 30 },
   },
   {
     id: '2026-w1-den-at-kc',
@@ -1189,6 +1204,7 @@ const UPCOMING_GAMES = [
     spread: { open: -3, current: -3, home: -105, away: -115 },
     total: { current: 42.5, over: -110, under: -110 },
     moneyline: { home: -148, away: 124 },
+    split: { moneyHome: 67, ticketsHome: 50 },
   },
 ];
 
@@ -1251,12 +1267,18 @@ app.get('/api/games', async (req, res) => {
 });
 
 // ===================== HANDLE REPORT (member-gated) =====================
-// The handle report is a snapshot that gets replaced wholesale each time the
-// admin posts fresh numbers, so it lives under a single key instead of the
-// per-id pattern picks use.
+// The handle report is now a second view of UPCOMING_GAMES rather than its own
+// store — same games, same lines, showing where the money and the tickets sit.
+// Keeping one source of truth means the two member pages can't drift apart on
+// what the line is.
+//
+// DEPRECATED: POST /api/handle below still writes the `handle_games` Redis key,
+// but nothing reads it any more. It is left in place rather than deleted
+// because the Redis layer is not changed without asking; it can go whenever.
 
 // Post/replace handle report — admin only. Body: array of games (or { games: [...] }).
 // Posting an empty array clears the report.
+// No longer read by GET /api/handle — see the note above.
 app.post('/api/handle', requireAuth, async (req, res) => {
   try {
     const games = Array.isArray(req.body) ? req.body : req.body.games;
@@ -1280,7 +1302,13 @@ app.post('/api/handle', requireAuth, async (req, res) => {
   }
 });
 
-// Get handle report — requires valid member session token
+// Get handle report — requires valid member session token.
+//
+// Served from UPCOMING_GAMES, so it needs no Redis of its own; the only Redis
+// read left is the member session lookup, exactly as /api/games does it. Games
+// with no split recorded are dropped rather than shown as an even 50/50 split,
+// which would be a fabricated number on a page whose whole point is where the
+// money actually is.
 app.get('/api/handle', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -1294,25 +1322,27 @@ app.get('/api/handle', async (req, res) => {
     // admin routes (requireAuth checks admin_session: keys only).
     const isAdmin = await verifyAdminSession(token);
 
-    // --- DEV STUB: no Redis locally — admin sees an empty report ---
-    if (!process.env.REDIS_URL) {
-      if (!isAdmin) return res.status(401).json({ error: 'Authentication required' });
-      return res.json([]);
+    // Member sessions live in Redis; without it only an admin session gets
+    // through, which is what keeps the report testable in local dev.
+    let email = 'admin';
+    if (!isAdmin) {
+      if (!process.env.REDIS_URL) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      const client = await getRedisClient();
+      email = await client.get(`session:${token}`);
+      if (!email) {
+        return res.status(401).json({ error: 'Session expired. Please log in again.' });
+      }
     }
-    // ----------------------------------------------------------------
 
-    const client = await getRedisClient();
-    const email = isAdmin ? 'admin' : await client.get(`session:${token}`);
-
-    if (!email) {
-      return res.status(401).json({ error: 'Session expired. Please log in again.' });
-    }
-
-    const data = await client.get('handle_games');
-    const games = data ? JSON.parse(data) : [];
+    const games = UPCOMING_GAMES
+      .filter((g) => g.split && g.split.moneyHome != null && g.split.ticketsHome != null)
+      .map((g) => ({ ...g, pick: undefined }))
+      .sort((a, b) => new Date(a.kickoff) - new Date(b.kickoff));
 
     console.log('Handle report requested by', email, '— returning', games.length, 'games');
-    res.json(games);
+    res.json({ asOf: GAMES_AS_OF, games });
   } catch (error) {
     console.error('Error fetching handle report:', error);
     res.status(500).json({ error: 'Failed to fetch handle report' });

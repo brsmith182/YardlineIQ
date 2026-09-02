@@ -101,6 +101,9 @@ function splitRow(line) {
 
 const num = (v) => (v === '' || v == null ? null : Number(v));
 
+// The share columns are stored as fractions (0.41); the UI wants whole percents.
+const pct = (v) => (v === '' || v == null ? null : Math.round(Number(v) * 100));
+
 function decode(csvPath) {
   const lines = fs.readFileSync(csvPath, 'utf8').split(/\r?\n/).filter((l) => l.trim());
   const header = splitRow(lines[0]);
@@ -119,6 +122,9 @@ function decode(csvPath) {
     homeSpreadOdds: col('Home Spread Odds'), awaySpreadOdds: col('Away Spread Odds'),
     ou: col('OverUnder'), over: col('Over Odds'), under: col('Under Odds'),
     homeML: col('Home Moneyline'), awayML: col('Away Moneyline'),
+    // Only the home side is populated; the away columns exist but are blank,
+    // so the away share is derived rather than read.
+    moneyHome: col('Home BET %'), ticketsHome: col('Home Ticket %'),
   };
 
   return lines.slice(1).map((line) => {
@@ -146,6 +152,9 @@ function decode(csvPath) {
       },
       total: { current: num(r[c.ou]), over: num(r[c.over]), under: num(r[c.under]) },
       moneyline: { home: num(r[c.homeML]), away: num(r[c.awayML]) },
+      // Feeds the handle report. Stored as whole percents on the home side;
+      // the away share is 100 minus it, so the pair can never disagree.
+      split: { moneyHome: pct(r[c.moneyHome]), ticketsHome: pct(r[c.ticketsHome]) },
     };
   }).sort((a, b) => new Date(a.kickoff) - new Date(b.kickoff));
 }
@@ -165,6 +174,7 @@ function toLiteral(games) {
     '    total: { current: ' + g.total.current + ', over: ' + g.total.over +
       ', under: ' + g.total.under + ' },',
     '    moneyline: { home: ' + g.moneyline.home + ', away: ' + g.moneyline.away + ' },',
+    '    split: { moneyHome: ' + g.split.moneyHome + ', ticketsHome: ' + g.split.ticketsHome + ' },',
     '  },',
   ].filter(Boolean).join('\n')).join('\n');
 
