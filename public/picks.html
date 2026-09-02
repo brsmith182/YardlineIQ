@@ -463,8 +463,9 @@
             text-align: right;
             color: rgba(255, 255, 255, 0.3);
         }
-        /* The side laying points is the one a bettor reads first. */
-        .game-team.favored .game-spread { color: #00ff88; }
+        /* Deliberately no accent on the favored side. Green is the pick colour
+           everywhere else on this page, so tinting a spread reads as a
+           recommendation rather than as which team is laying the points. */
 
         /* Total + movement */
         .game-meta {
@@ -506,33 +507,6 @@
             white-space: nowrap;
         }
         .game-move-delta.moved { color: #00ccff; }
-
-        /* Movement track: centre is the opening number, the fill runs toward
-           the side the number moved. Only drawn when the line actually moved. */
-        .game-move-track {
-            position: relative;
-            height: 6px;
-            border-radius: 4px;
-            background: rgba(0, 0, 0, 0.34);
-            box-shadow: var(--recess-sm);
-        }
-        .game-move-track::before {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: -2px;
-            bottom: -2px;
-            width: 1px;
-            background: rgba(255, 255, 255, 0.18);
-        }
-        .game-move-fill {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            border-radius: 4px;
-            background: linear-gradient(90deg, #00ff88 0%, #00ccff 100%);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 10px rgba(0, 204, 255, 0.25);
-        }
 
         /* Pick slot — always present, so the page reads the same whether or
            not this week's pick is out yet. */
@@ -827,6 +801,7 @@
     </div>
 
     <script src="/js/nfl-teams.js"></script>
+    <script src="/js/odds-format.js"></script>
     <script>
         const SESSION_KEY = 'yiq_session';
 
@@ -990,73 +965,6 @@
             renderHistory(archive, history);
         }
 
-        // ── Formatting ────────────────────────────────────────────
-
-        function fmtNum(n) {
-            if (n == null || isNaN(n)) return '—';
-            const v = Number(n);
-            return v % 1 === 0 ? String(v) : v.toFixed(1);
-        }
-
-        function fmtSpread(n) {
-            if (n == null || isNaN(n)) return '—';
-            const v = Number(n);
-            if (v === 0) return 'PK';
-            return (v > 0 ? '+' : '-') + fmtNum(Math.abs(v));
-        }
-
-        function fmtOdds(n) {
-            if (n == null || isNaN(n)) return '—';
-            const v = Number(n);
-            return (v > 0 ? '+' : '-') + Math.abs(v);
-        }
-
-        // Kickoffs are always rendered in Eastern: the label says ET, so a
-        // member in another zone must see the ET time, not their own.
-        function fmtKickoff(iso) {
-            const d = new Date(iso);
-            if (!iso || isNaN(d)) return '';
-            const zone = { timeZone: 'America/New_York' };
-            const day = d.toLocaleDateString('en-US',
-                Object.assign({ weekday: 'short', month: 'short', day: 'numeric' }, zone));
-            const time = d.toLocaleTimeString('en-US',
-                Object.assign({ hour: 'numeric', minute: '2-digit' }, zone));
-            return day.replace(',', '') + ' · ' + time + ' ET';
-        }
-
-        function fmtAsOf(isoDate) {
-            // Read at midday UTC so a date-only string can't slip a day backwards.
-            const d = new Date(isoDate + 'T12:00:00Z');
-            if (isNaN(d)) return isoDate;
-            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        }
-
-        // Numeric weeks get the "Week" prefix; anything else is already a name.
-        function weekLabel(week) {
-            const w = String(week == null ? '' : week).trim();
-            if (!w) return 'This week';
-            return /^\d+$/.test(w) ? 'Week ' + w : escHtml(w);
-        }
-
-        // Three teams to a row leaves no room for "New England Patriots", and a
-        // truncated city reads worse than none. Every NFL nickname is the last
-        // word of the full name.
-        function nickname(name) {
-            const parts = String(name || '').trim().split(/\s+/);
-            return parts[parts.length - 1] || '';
-        }
-
-        // Spreads are stored from the home side. Name whichever team is laying
-        // the points so the number never has to be read against a hidden side.
-        function spreadLabel(game, homeNumber) {
-            if (homeNumber == null || isNaN(homeNumber)) return '—';
-            const v = Number(homeNumber);
-            if (v === 0) return 'PK';
-            return v < 0
-                ? teamCode(game.home) + ' ' + fmtSpread(v)
-                : teamCode(game.away) + ' ' + fmtSpread(-v);
-        }
-
         // ── Render the board ──────────────────────────────────────
 
         function renderBoard(data, container) {
@@ -1097,9 +1005,9 @@
             container.innerHTML = html;
         }
 
-        function teamRow(name, spread, juice, moneyline, favored) {
+        function teamRow(name, spread, juice, moneyline) {
             const logo = teamLogoUrl(name);
-            return `<div class="game-team${favored ? ' favored' : ''}">
+            return `<div class="game-team">
                 ${logo
                     ? `<img class="team-logo" src="${logo}" alt="" loading="lazy">`
                     : '<span></span>'}
@@ -1128,19 +1036,12 @@
 
             // A falling home number means money came in on the home side.
             const toward = delta < 0 ? teamCode(game.home) : teamCode(game.away);
-            const magnitude = Math.abs(delta);
-            // Three points fills the half — beyond that the bar just pins.
-            const width = Math.min(magnitude / 3, 1) * 50;
-            const fill = delta < 0
-                ? 'left:50%;width:' + width + '%;'
-                : 'right:50%;width:' + width + '%;';
 
             return `<div class="game-meta-row">
                     <span class="game-meta-label">Spread</span>
                     <span class="game-move-line">${escHtml(spreadLabel(game, s.open))} → ${escHtml(spreadLabel(game, s.current))}</span>
-                    <span class="game-move-delta moved">${fmtNum(magnitude)} → ${escHtml(toward)}</span>
-                </div>
-                <div class="game-move-track"><div class="game-move-fill" style="${fill}"></div></div>`;
+                    <span class="game-move-delta moved">${fmtNum(Math.abs(delta))} → ${escHtml(toward)}</span>
+                </div>`;
         }
 
         function resultBadge(result) {
@@ -1204,8 +1105,8 @@
                         <span></span><span></span><span></span>
                         <span>Spread</span><span></span><span>ML</span>
                     </div>
-                    ${teamRow(game.away, awaySpread, spread.away, ml.away, homeSpread != null && homeSpread > 0)}
-                    ${teamRow(game.home, homeSpread, spread.home, ml.home, homeSpread != null && homeSpread < 0)}
+                    ${teamRow(game.away, awaySpread, spread.away, ml.away)}
+                    ${teamRow(game.home, homeSpread, spread.home, ml.home)}
 
                     <div class="game-meta">
                         <div class="game-meta-row">
@@ -1295,14 +1196,6 @@
                     ${resultBadge}
                     ${reasoning}
                 </div>`;
-        }
-
-        function escHtml(str) {
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
         }
 
         // ── Init ──────────────────────────────────────────────────
