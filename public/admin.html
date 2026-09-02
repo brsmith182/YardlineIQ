@@ -439,7 +439,10 @@
                     showAdminPanel();
                     loadStats();
                 } else {
-                    loginError.textContent = 'Invalid password';
+                    // Show the server's own reason. A 503 here means the server
+                    // has no ADMIN_PASSWORD set, which is a different problem
+                    // from a wrong password and was previously indistinguishable.
+                    loginError.textContent = data.error || 'Invalid password';
                     loginError.style.display = 'block';
                 }
             } catch (error) {
