@@ -13,8 +13,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Members Only — NFL Picks | YardLineIQ</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Barlow Semi Condensed carries every figure on the board; see --font-num. -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow+Semi+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        /* ── Lighting model ─────────────────────────────────────
+           Shared with the homepage. One key light: above, slightly
+           front-left. As elevation rises the cast shadow gets larger
+           AND softer while the rim gets brighter — that pairing is
+           what reads as height. */
+        :root {
+            /* cast shadow ladder: contact + key + ambient */
+            --lift-1: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.35);
+            --lift-2: 0 1px 2px rgba(0, 0, 0, 0.55), 0 8px 20px rgba(0, 0, 0, 0.4), 0 20px 44px rgba(0, 0, 0, 0.26);
+            --lift-3: 0 2px 4px rgba(0, 0, 0, 0.55), 0 16px 34px rgba(0, 0, 0, 0.45), 0 34px 72px rgba(0, 0, 0, 0.3);
+
+            /* top edge catching the key light */
+            --rim-1: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            --rim-2: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+            --rim-3: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+
+            /* carved into the surface rather than sitting on it */
+            --recess-sm: inset 0 1px 2px rgba(0, 0, 0, 0.7), inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+
+            /* a lit face is brighter at the top and falls off downward */
+            --face-1: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.012) 100%);
+            --face-2: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.018) 100%);
+
+            /* Numbers are the product, so they get their own face. Condensed
+               and tabular, the way an odds board sets them. */
+            --font-num: 'Barlow Semi Condensed', 'Inter', sans-serif;
+
+            --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        /* Every figure on the page. Tabular so spreads, totals and prices line
+           up in a column on scan instead of drifting with proportional digits. */
+        .game-code,
+        .game-spread,
+        .game-juice,
+        .game-ml,
+        .game-total-num,
+        .game-total-juice,
+        .game-move-line,
+        .game-move-delta,
+        .game-kick,
+        .board-asof {
+            font-family: var(--font-num);
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: 'tnum' 1;
+        }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -278,6 +328,263 @@
             border-bottom: 0.5px solid rgba(255, 255, 255, 0.06);
         }
 
+        /* ── Games board ──────────────────────────────────────────
+           One card per game. The two team rows share a grid so the
+           spread, juice and moneyline columns line up across both
+           rows of a game and straight down the whole board. */
+        .board-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .board-asof {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.02em;
+        }
+        /* The week label supplies its own rule below the board head. */
+        .board-head .week-label {
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 1rem;
+        }
+
+        .game-card {
+            background-color: rgba(255, 255, 255, 0.025);
+            background-image: var(--face-1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.1rem 1.25rem 1.25rem;
+            box-shadow: var(--rim-2), var(--lift-2);
+            transition: border-color 0.25s var(--ease-out),
+                        box-shadow 0.25s var(--ease-out),
+                        transform 0.25s var(--ease-out);
+            transform: translateY(var(--lift-y, 0px));
+        }
+        .game-card:hover {
+            --lift-y: -6px;
+            border-color: rgba(0, 255, 136, 0.3);
+            box-shadow: var(--rim-3), var(--lift-3), 0 0 0 1px rgba(0, 255, 136, 0.1);
+        }
+
+        .game-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.85rem;
+        }
+        .game-kick {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.01em;
+        }
+        .game-tags { display: flex; gap: 0.35rem; flex-shrink: 0; }
+        .game-tag {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            padding: 3px 7px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.4);
+            white-space: nowrap;
+        }
+
+        /* logo | code | name | spread | juice | moneyline */
+        .game-team,
+        .game-col-head {
+            display: grid;
+            /* The numeric columns are sized to their widest real content
+               ("-10.5", "-110", "+425") so the leftover goes to the name,
+               which needs 77px for the longest nickname. */
+            grid-template-columns: 30px 40px minmax(0, 1fr) 48px 40px 48px;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .game-col-head {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: rgba(255, 255, 255, 0.22);
+            margin-bottom: 0.4rem;
+        }
+        .game-col-head span:nth-child(4),
+        .game-col-head span:nth-child(5),
+        .game-col-head span:nth-child(6) { text-align: right; }
+
+        .game-team { padding: 0.3rem 0; }
+        .game-team + .game-team {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        /* Scoped: the archive cards below run their logos larger, and the
+           board's have to stay inside a 30px grid column. */
+        .game-team .team-logo {
+            width: 28px;
+            height: 28px;
+        }
+        .game-code {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .game-name {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.38);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .game-spread, .game-ml {
+            font-size: 15px;
+            font-weight: 600;
+            text-align: right;
+            color: rgba(255, 255, 255, 0.85);
+        }
+        .game-juice {
+            font-size: 12px;
+            text-align: right;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        /* The side laying points is the one a bettor reads first. */
+        .game-team.favored .game-spread { color: #00ff88; }
+
+        /* Total + movement */
+        .game-meta {
+            margin-top: 0.85rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+        }
+        .game-meta-row {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+        .game-meta-label {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: rgba(255, 255, 255, 0.25);
+            width: 52px;
+            flex-shrink: 0;
+        }
+        .game-total-num {
+            font-size: 15px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+        }
+        .game-total-juice, .game-move-line {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.35);
+        }
+        .game-move-delta {
+            margin-left: auto;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.25);
+            white-space: nowrap;
+        }
+        .game-move-delta.moved { color: #00ccff; }
+
+        /* Movement track: centre is the opening number, the fill runs toward
+           the side the number moved. Only drawn when the line actually moved. */
+        .game-move-track {
+            position: relative;
+            height: 6px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.34);
+            box-shadow: var(--recess-sm);
+        }
+        .game-move-track::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: -2px;
+            bottom: -2px;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.18);
+        }
+        .game-move-fill {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #00ff88 0%, #00ccff 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 10px rgba(0, 204, 255, 0.25);
+        }
+
+        /* Pick slot — always present, so the page reads the same whether or
+           not this week's pick is out yet. */
+        .game-pick {
+            margin-top: 0.9rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+        .game-pick-label {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: rgba(255, 255, 255, 0.25);
+        }
+        .game-pick-empty {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.28);
+        }
+        .game-pick-value {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #00ff88;
+            letter-spacing: -0.01em;
+        }
+        .game-pick-reasoning {
+            flex-basis: 100%;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+            line-height: 1.55;
+        }
+        /* The badge stacks in a flex row here, not above a block of copy. */
+        .game-pick .result-badge { margin-bottom: 0; }
+        .game-card.has-pick { border-color: rgba(0, 255, 136, 0.25); }
+
+        /* Past picks strip */
+        .history-head {
+            margin-top: 3.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255, 255, 255, 0.25);
+        }
+
         /* Pick cards grid */
         .picks-grid {
             display: grid;
@@ -286,13 +593,18 @@
         }
 
         .pick-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            background-color: rgba(255, 255, 255, 0.025);
+            background-image: var(--face-1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
             padding: 1.4rem;
-            transition: border-color 0.2s;
+            box-shadow: var(--rim-1), var(--lift-1);
+            transition: border-color 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
         }
-        .pick-card:hover { border-color: rgba(0, 255, 136, 0.2); }
+        .pick-card:hover {
+            border-color: rgba(0, 255, 136, 0.2);
+            box-shadow: var(--rim-2), var(--lift-2);
+        }
         .pick-card.result-win { border-color: rgba(0, 255, 136, 0.2); }
         .pick-card.result-loss { border-color: rgba(255, 107, 107, 0.15); }
         .pick-card.result-push { border-color: rgba(255, 255, 255, 0.12); }
@@ -311,6 +623,7 @@
             gap: 0.5rem;
             margin-bottom: 0.65rem;
         }
+        /* Base for every logo on the page; the board scopes its own size above. */
         .team-logo {
             width: 36px;
             height: 36px;
@@ -442,6 +755,16 @@
             .sub-bar { flex-direction: column; align-items: flex-start; }
             #picksScreen { padding: 1.5rem 1.25rem 4rem; }
             .login-card { padding: 1.75rem; }
+
+            /* Drop the full team name rather than squeezing the odds columns —
+               the logo and the code already identify the side. */
+            .games-grid { grid-template-columns: 1fr; }
+            .game-team,
+            .game-col-head {
+                grid-template-columns: 26px 40px minmax(0, 1fr) 50px 44px 50px;
+            }
+            .game-name { display: none; }
+            .game-card { padding: 1rem; }
         }
     </style>
 </head>
@@ -493,14 +816,17 @@
         </div>
 
         <h1 class="picks-page-title">This Week's Picks</h1>
-        <p class="picks-page-sub">New picks posted every Wednesday and Saturday. Questions? <a href="mailto:admin@yardlineiq.com" style="color:#00ff88;text-decoration:none;">admin@yardlineiq.com</a></p>
+        <p class="picks-page-sub">The full slate with the current line and total. Picks post every Wednesday and Saturday and appear on their game below. Questions? <a href="mailto:admin@yardlineiq.com" style="color:#00ff88;text-decoration:none;">admin@yardlineiq.com</a></p>
 
-        <div id="picksContainer">
-            <div class="picks-loading">Loading picks…</div>
+        <div id="boardContainer">
+            <div class="picks-loading">Loading games…</div>
         </div>
+
+        <div id="historyContainer"></div>
 
     </div>
 
+    <script src="/js/nfl-teams.js"></script>
     <script>
         const SESSION_KEY = 'yiq_session';
 
@@ -576,7 +902,7 @@
                 if (res.ok) {
                     saveSession(data.token, data.user);
                     showPicksScreen(data.user);
-                    loadPicks(data.token);
+                    loadBoard(data.token);
                 } else {
                     err.style.display = 'block';
                     if (data.error === 'paid_required') {
@@ -613,114 +939,312 @@
             showLoginScreen();
         }
 
-        // ── Load picks ────────────────────────────────────────────
+        // ── Load the board ────────────────────────────────────────
 
-        async function loadPicks(token) {
-            const container = document.getElementById('picksContainer');
-            container.innerHTML = '<div class="picks-loading">Loading picks…</div>';
+        const UNAUTHORIZED = 'unauthorized';
 
-            try {
-                const res = await fetch('/api/picks', {
-                    headers: { Authorization: 'Bearer ' + token }
-                });
+        async function fetchJson(url, token) {
+            const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+            if (res.status === 401) throw UNAUTHORIZED;
+            if (!res.ok) throw new Error(url + ' returned ' + res.status);
+            return res.json();
+        }
 
-                if (res.status === 401) {
-                    clearSession();
-                    showLoginScreen();
-                    return;
-                }
+        // The slate and the pick archive are read separately so a member still
+        // gets the board if the pick store is having a bad day, and vice versa.
+        async function loadBoard(token) {
+            const board   = document.getElementById('boardContainer');
+            const history = document.getElementById('historyContainer');
+            board.innerHTML = '<div class="picks-loading">Loading games…</div>';
+            history.innerHTML = '';
 
-                const picks = await res.json();
+            const [boardRes, picksRes] = await Promise.allSettled([
+                fetchJson('/api/games', token),
+                fetchJson('/api/picks', token)
+            ]);
 
-                if (!Array.isArray(picks) || picks.length === 0) {
-                    container.innerHTML = `
-                        <div class="picks-empty">
-                            <h3>No picks posted yet</h3>
-                            <p>Check back Wednesday and Saturday for this week's picks.</p>
-                        </div>`;
-                    return;
-                }
+            // Either endpoint rejecting the token means the session is gone.
+            if (boardRes.reason === UNAUTHORIZED || picksRes.reason === UNAUTHORIZED) {
+                clearSession();
+                showLoginScreen();
+                return;
+            }
 
-                renderPicks(picks, container);
-
-            } catch {
-                container.innerHTML = `
+            if (boardRes.status === 'fulfilled') {
+                renderBoard(boardRes.value, board);
+            } else {
+                board.innerHTML = `
                     <div class="picks-empty">
-                        <h3>Could not load picks</h3>
+                        <h3>Could not load games</h3>
                         <p>Please refresh the page or contact admin@yardlineiq.com.</p>
                     </div>`;
             }
+
+            // A pick already shown on its game row does not repeat in the archive.
+            const games = boardRes.status === 'fulfilled' && Array.isArray(boardRes.value.games)
+                ? boardRes.value.games : [];
+            const onBoard = new Set(games.filter(g => g.pick).map(g => g.pick.id));
+            const archive = picksRes.status === 'fulfilled' && Array.isArray(picksRes.value)
+                ? picksRes.value.filter(p => !onBoard.has(p.id))
+                : [];
+            renderHistory(archive, history);
         }
 
-        // ── Render picks grouped by week ──────────────────────────
+        // ── Formatting ────────────────────────────────────────────
 
-        function renderPicks(picks, container) {
-            // Group by week
-            const byWeek = {};
-            picks.forEach(p => {
-                const w = p.week || 'Current Week';
-                if (!byWeek[w]) byWeek[w] = [];
-                byWeek[w].push(p);
+        function fmtNum(n) {
+            if (n == null || isNaN(n)) return '—';
+            const v = Number(n);
+            return v % 1 === 0 ? String(v) : v.toFixed(1);
+        }
+
+        function fmtSpread(n) {
+            if (n == null || isNaN(n)) return '—';
+            const v = Number(n);
+            if (v === 0) return 'PK';
+            return (v > 0 ? '+' : '-') + fmtNum(Math.abs(v));
+        }
+
+        function fmtOdds(n) {
+            if (n == null || isNaN(n)) return '—';
+            const v = Number(n);
+            return (v > 0 ? '+' : '-') + Math.abs(v);
+        }
+
+        // Kickoffs are always rendered in Eastern: the label says ET, so a
+        // member in another zone must see the ET time, not their own.
+        function fmtKickoff(iso) {
+            const d = new Date(iso);
+            if (!iso || isNaN(d)) return '';
+            const zone = { timeZone: 'America/New_York' };
+            const day = d.toLocaleDateString('en-US',
+                Object.assign({ weekday: 'short', month: 'short', day: 'numeric' }, zone));
+            const time = d.toLocaleTimeString('en-US',
+                Object.assign({ hour: 'numeric', minute: '2-digit' }, zone));
+            return day.replace(',', '') + ' · ' + time + ' ET';
+        }
+
+        function fmtAsOf(isoDate) {
+            // Read at midday UTC so a date-only string can't slip a day backwards.
+            const d = new Date(isoDate + 'T12:00:00Z');
+            if (isNaN(d)) return isoDate;
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // Numeric weeks get the "Week" prefix; anything else is already a name.
+        function weekLabel(week) {
+            const w = String(week == null ? '' : week).trim();
+            if (!w) return 'This week';
+            return /^\d+$/.test(w) ? 'Week ' + w : escHtml(w);
+        }
+
+        // Three teams to a row leaves no room for "New England Patriots", and a
+        // truncated city reads worse than none. Every NFL nickname is the last
+        // word of the full name.
+        function nickname(name) {
+            const parts = String(name || '').trim().split(/\s+/);
+            return parts[parts.length - 1] || '';
+        }
+
+        // Spreads are stored from the home side. Name whichever team is laying
+        // the points so the number never has to be read against a hidden side.
+        function spreadLabel(game, homeNumber) {
+            if (homeNumber == null || isNaN(homeNumber)) return '—';
+            const v = Number(homeNumber);
+            if (v === 0) return 'PK';
+            return v < 0
+                ? teamCode(game.home) + ' ' + fmtSpread(v)
+                : teamCode(game.away) + ' ' + fmtSpread(-v);
+        }
+
+        // ── Render the board ──────────────────────────────────────
+
+        function renderBoard(data, container) {
+            const games = Array.isArray(data.games) ? data.games : [];
+
+            if (games.length === 0) {
+                container.innerHTML = `
+                    <div class="picks-empty">
+                        <h3>No games posted yet</h3>
+                        <p>Check back Wednesday for this week's board.</p>
+                    </div>`;
+                return;
+            }
+
+            const byWeek = new Map();
+            games.forEach(g => {
+                const w = g.week == null ? '' : g.week;
+                if (!byWeek.has(w)) byWeek.set(w, []);
+                byWeek.get(w).push(g);
             });
 
+            const asOf = data.asOf
+                ? `<div class="board-asof">Lines as of ${escHtml(fmtAsOf(data.asOf))}</div>`
+                : '';
+
             let html = '';
-            for (const [week, weekPicks] of Object.entries(byWeek)) {
+            for (const [week, weekGames] of byWeek) {
                 html += `<div class="week-section">
-                    <div class="week-label">Week ${week}</div>
-                    <div class="picks-grid">`;
-
-                weekPicks.forEach(p => { html += renderPickCard(p); });
-
+                    <div class="board-head">
+                        <div class="week-label">${weekLabel(week)}</div>
+                        ${asOf}
+                    </div>
+                    <div class="games-grid">`;
+                weekGames.forEach(g => { html += renderGameCard(g); });
                 html += `</div></div>`;
             }
 
             container.innerHTML = html;
         }
 
-        const NFL_LOGOS = {
-            'patriots': 'ne', 'new england patriots': 'ne',
-            'seahawks': 'sea', 'seattle seahawks': 'sea',
-            'chiefs': 'kc', 'kansas city chiefs': 'kc',
-            'eagles': 'phi', 'philadelphia eagles': 'phi',
-            '49ers': 'sf', 'san francisco 49ers': 'sf',
-            'bills': 'buf', 'buffalo bills': 'buf',
-            'ravens': 'bal', 'baltimore ravens': 'bal',
-            'bengals': 'cin', 'cincinnati bengals': 'cin',
-            'browns': 'cle', 'cleveland browns': 'cle',
-            'steelers': 'pit', 'pittsburgh steelers': 'pit',
-            'texans': 'hou', 'houston texans': 'hou',
-            'colts': 'ind', 'indianapolis colts': 'ind',
-            'jaguars': 'jac', 'jacksonville jaguars': 'jac',
-            'titans': 'ten', 'tennessee titans': 'ten',
-            'broncos': 'den', 'denver broncos': 'den',
-            'raiders': 'lv', 'las vegas raiders': 'lv',
-            'chargers': 'lac', 'los angeles chargers': 'lac',
-            'cowboys': 'dal', 'dallas cowboys': 'dal',
-            'giants': 'nyg', 'new york giants': 'nyg',
-            'jets': 'nyj', 'new york jets': 'nyj',
-            'commanders': 'wsh', 'washington commanders': 'wsh',
-            'bears': 'chi', 'chicago bears': 'chi',
-            'lions': 'det', 'detroit lions': 'det',
-            'packers': 'gb', 'green bay packers': 'gb',
-            'vikings': 'min', 'minnesota vikings': 'min',
-            'falcons': 'atl', 'atlanta falcons': 'atl',
-            'panthers': 'car', 'carolina panthers': 'car',
-            'saints': 'no', 'new orleans saints': 'no',
-            'buccaneers': 'tb', 'tampa bay buccaneers': 'tb',
-            'cardinals': 'ari', 'arizona cardinals': 'ari',
-            'rams': 'lar', 'los angeles rams': 'lar',
-            'dolphins': 'mia', 'miami dolphins': 'mia',
-        };
-
-        function teamLogoUrl(name) {
-            const abbr = NFL_LOGOS[name.toLowerCase().trim()];
-            return abbr ? `https://a.espncdn.com/i/teamlogos/nfl/500/${abbr}.png` : null;
+        function teamRow(name, spread, juice, moneyline, favored) {
+            const logo = teamLogoUrl(name);
+            return `<div class="game-team${favored ? ' favored' : ''}">
+                ${logo
+                    ? `<img class="team-logo" src="${logo}" alt="" loading="lazy">`
+                    : '<span></span>'}
+                <span class="game-code">${escHtml(teamCode(name))}</span>
+                <span class="game-name">${escHtml(nickname(name))}</span>
+                <span class="game-spread">${fmtSpread(spread)}</span>
+                <span class="game-juice">${fmtOdds(juice)}</span>
+                <span class="game-ml">${fmtOdds(moneyline)}</span>
+            </div>`;
         }
 
-        function parseTeams(game) {
-            const parts = game.split(/\s+vs\.?\s+/i);
-            if (parts.length !== 2) return null;
-            return { away: parts[0].trim(), home: parts[1].trim() };
+        // The feature file carries no opening total, so movement is spread-only.
+        function movementHtml(game) {
+            const s = game.spread || {};
+            if (s.open == null || s.current == null) return '';
+
+            const delta = Math.round((Number(s.current) - Number(s.open)) * 10) / 10;
+
+            if (delta === 0) {
+                return `<div class="game-meta-row">
+                    <span class="game-meta-label">Spread</span>
+                    <span class="game-move-line">opened ${escHtml(spreadLabel(game, s.open))}</span>
+                    <span class="game-move-delta">no move</span>
+                </div>`;
+            }
+
+            // A falling home number means money came in on the home side.
+            const toward = delta < 0 ? teamCode(game.home) : teamCode(game.away);
+            const magnitude = Math.abs(delta);
+            // Three points fills the half — beyond that the bar just pins.
+            const width = Math.min(magnitude / 3, 1) * 50;
+            const fill = delta < 0
+                ? 'left:50%;width:' + width + '%;'
+                : 'right:50%;width:' + width + '%;';
+
+            return `<div class="game-meta-row">
+                    <span class="game-meta-label">Spread</span>
+                    <span class="game-move-line">${escHtml(spreadLabel(game, s.open))} → ${escHtml(spreadLabel(game, s.current))}</span>
+                    <span class="game-move-delta moved">${fmtNum(magnitude)} → ${escHtml(toward)}</span>
+                </div>
+                <div class="game-move-track"><div class="game-move-fill" style="${fill}"></div></div>`;
+        }
+
+        function resultBadge(result) {
+            return {
+                win:     '<span class="result-badge result-win-badge">✓ Win</span>',
+                loss:    '<span class="result-badge result-loss-badge">✕ Loss</span>',
+                push:    '<span class="result-badge result-push-badge">Push</span>',
+                pending: '<span class="result-badge result-pending-badge">Pending</span>'
+            }[result] || '<span class="result-badge result-pending-badge">Pending</span>';
+        }
+
+        function confidenceBadge(confidence) {
+            const conf = String(confidence || '').toLowerCase();
+            if (!['high', 'medium', 'low'].includes(conf)) return '';
+            return `<span class="confidence-badge confidence-${conf}">${escHtml(confidence)}</span>`;
+        }
+
+        // Always rendered, so the card reads the same shape whether or not this
+        // week's pick is out yet.
+        function pickSlotHtml(pick) {
+            if (!pick) {
+                return `<div class="game-pick">
+                    <span class="game-pick-label">Pick</span>
+                    <span class="game-pick-empty">Coming soon</span>
+                </div>`;
+            }
+
+            const result = (pick.result || 'pending').toLowerCase();
+            return `<div class="game-pick">
+                <span class="game-pick-label">Pick</span>
+                <span class="game-pick-value">${escHtml(pick.pick)}</span>
+                ${confidenceBadge(pick.confidence)}
+                ${resultBadge(result)}
+                ${pick.reasoning
+                    ? `<div class="game-pick-reasoning">${escHtml(pick.reasoning)}</div>`
+                    : ''}
+            </div>`;
+        }
+
+        function renderGameCard(game) {
+            const spread = game.spread || {};
+            const total = game.total || {};
+            const ml = game.moneyline || {};
+
+            const homeSpread = spread.current == null ? null : Number(spread.current);
+            const awaySpread = homeSpread == null ? null : -homeSpread;
+
+            const tags = [];
+            if (game.neutralSite) tags.push('Neutral site');
+
+            return `
+                <div class="game-card${game.pick ? ' has-pick' : ''}">
+                    <div class="game-card-top">
+                        <div class="game-kick">${escHtml(fmtKickoff(game.kickoff))}</div>
+                        ${tags.length
+                            ? `<div class="game-tags">${tags.map(t => `<span class="game-tag">${escHtml(t)}</span>`).join('')}</div>`
+                            : ''}
+                    </div>
+
+                    <div class="game-col-head">
+                        <span></span><span></span><span></span>
+                        <span>Spread</span><span></span><span>ML</span>
+                    </div>
+                    ${teamRow(game.away, awaySpread, spread.away, ml.away, homeSpread != null && homeSpread > 0)}
+                    ${teamRow(game.home, homeSpread, spread.home, ml.home, homeSpread != null && homeSpread < 0)}
+
+                    <div class="game-meta">
+                        <div class="game-meta-row">
+                            <span class="game-meta-label">O/U</span>
+                            <span class="game-total-num">${fmtNum(total.current)}</span>
+                            <span class="game-total-juice">o ${fmtOdds(total.over)} / u ${fmtOdds(total.under)}</span>
+                        </div>
+                        ${movementHtml(game)}
+                    </div>
+
+                    ${pickSlotHtml(game.pick)}
+                </div>`;
+        }
+
+        // ── Render the pick archive ───────────────────────────────
+
+        function renderHistory(picks, container) {
+            if (!picks.length) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const byWeek = new Map();
+            picks.forEach(p => {
+                const w = p.week || '';
+                if (!byWeek.has(w)) byWeek.set(w, []);
+                byWeek.get(w).push(p);
+            });
+
+            let html = '<div class="history-head">Past picks &amp; results</div>';
+            for (const [week, weekPicks] of byWeek) {
+                html += `<div class="week-section">
+                    <div class="week-label">${weekLabel(week)}</div>
+                    <div class="picks-grid">`;
+                weekPicks.forEach(p => { html += renderPickCard(p); });
+                html += `</div></div>`;
+            }
+
+            container.innerHTML = html;
         }
 
         function renderPickCard(p) {
@@ -795,14 +1319,14 @@
                 saveSession(adminToken, adminUser);
                 history.replaceState(null, '', window.location.pathname);
                 showPicksScreen(adminUser);
-                loadPicks(adminToken);
+                loadBoard(adminToken);
                 return;
             }
 
             const session = loadSession();
             if (session && session.token && session.user) {
                 showPicksScreen(session.user);
-                loadPicks(session.token);
+                loadBoard(session.token);
             } else {
                 showLoginScreen();
             }

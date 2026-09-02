@@ -894,7 +894,7 @@ app.post('/api/picks', requireAuth, async (req, res) => {
   try {
     console.log('Pick submission:', req.body);
 
-    const { week, game, time, pick, confidence, reasoning } = req.body;
+    const { week, game, time, pick, confidence, reasoning, gameId } = req.body;
 
     if (!week || !game || !pick) {
       return res.status(400).json({ error: 'Week, game, and pick are required' });
@@ -904,6 +904,9 @@ app.post('/api/picks', requireAuth, async (req, res) => {
       id: Date.now().toString(),
       week: week.toString().trim(),
       game: game.toString().trim(),
+      // Optional: ties the pick to a row on the /api/games board so the two
+      // render together. Blank on anything posted before the board existed.
+      gameId: (gameId || '').toString().trim(),
       time: time || '',
       pick: pick.toString().trim(),
       confidence: confidence || '',
@@ -1004,6 +1007,246 @@ app.get('/api/picks', async (req, res) => {
   } catch (error) {
     console.error('Error fetching picks:', error);
     res.status(500).json({ error: 'Failed to fetch picks' });
+  }
+});
+
+// ===================== UPCOMING GAMES (member-gated) =====================
+// The week's board — the single source of truth for /picks.html. Regenerate it
+// with `node scripts/csv-to-games.js "<upcoming games csv>"` and paste the
+// output over the array below; that script also documents how the CSV's team
+// ids, Excel serial dates and fractional kickoff times are decoded.
+//
+// Spreads are signed from the HOME team's perspective: negative means the home
+// team is laying points. That is deliberate — it is the only shape that stays
+// correct when a line crosses zero and the favorite flips (Week 1 GB @ MIN
+// moved +1.5 -> -1.5, so Green Bay opened favored and Minnesota closed favored).
+// `total` has no opening number because the feature file does not carry one, so
+// line movement on the board is spread-only.
+//
+// GAMES_AS_OF is the date the slate was pulled. It is rendered on the page: a
+// hardcoded board goes stale between deploys and members are entitled to know
+// how old the numbers are before they act on them.
+const GAMES_AS_OF = '2026-08-25';
+
+const UPCOMING_GAMES = [
+  {
+    id: '2026-w1-ne-at-sea',
+    season: 2026, week: 1,
+    kickoff: '2026-09-09T20:20:00-04:00',
+    away: "New England Patriots",
+    home: "Seattle Seahawks",
+    spread: { open: -4, current: -3.5, home: -110, away: -110 },
+    total: { current: 44.5, over: -110, under: -110 },
+    moneyline: { home: -185, away: 154 },
+  },
+  {
+    id: '2026-w1-sf-at-lar',
+    season: 2026, week: 1,
+    kickoff: '2026-09-10T20:35:00-04:00',
+    away: "San Francisco 49ers",
+    home: "Los Angeles Rams",
+    neutralSite: true,
+    spread: { open: -2.5, current: -3.5, home: -110, away: -110 },
+    total: { current: 48.5, over: -108, under: -112 },
+    moneyline: { home: -192, away: 160 },
+  },
+  {
+    id: '2026-w1-chi-at-car',
+    season: 2026, week: 1,
+    kickoff: '2026-09-13T13:00:00-04:00',
+    away: "Chicago Bears",
+    home: "Carolina Panthers",
+    spread: { open: 2.5, current: 2.5, home: -102, away: -118 },
+    total: { current: 46.5, over: -115, under: -105 },
+    moneyline: { home: 124, away: -148 },
+  },
+  {
+    id: '2026-w1-tb-at-cin',
+    season: 2026, week: 1,
+    kickoff: '2026-09-13T13:00:00-04:00',
+    away: "Tampa Bay Buccaneers",
+    home: "Cincinnati Bengals",
+    spread: { open: -2.5, current: -3.5, home: -115, away: -105 },
+    total: { current: 51.5, over: -110, under: -110 },
+    moneyline: { home: -198, away: 164 },
+  },
+  {
+    id: '2026-w1-no-at-det',
+    season: 2026, week: 1,
+    kickoff: '2026-09-13T13:00:00-04:00',
+    away: "New Orleans Saints",
+    home: "Detroit Lions",
+    spread: { open: -6.5, current: -7, home: -110, away: -110 },
+    total: { current: 49.5, over: -105, under: -115 },
+    moneyline: { home: -325, away: 260 },
+  },
+  {
+    id: '2026-w1-buf-at-hou',
+    season: 2026, week: 1,
+    kickoff: '2026-09-13T13:00:00-04:00',
+    away: "Buffalo Bills",
+    home: "Houston Texans",
+    spread: { open: 2.5, current: 1.5, home: -112, away: -108 },
+    total: { current: 44.5, over: -110, under: -110 },
+    moneyline: { home: 100, away: -120 },
+  },
+  {
+    id: '2026-w1-bal-at-ind',
+    season: 2026, week: 1,
+    kickoff: '2026-09-13T13:00:00-04:00',
+    away: "Baltimore Ravens",
+    home: "Indianapolis Colts",
+    spread: { open: 3.5, current: 3.5, home: -112, away: -108 },
+    total: { current: 48.5, over: -110, under: -110 },
+    moneyline: { home: 145, away: -175 },
+  },
+  {
+    id: '2026-w1-cle-at-jac',
+    season: 2026, week: 1,
+    kickoff: '2026-09-13T13:00:00-04:00',
+    away: "Cleveland Browns",
+    home: "Jacksonville Jaguars",
+    spread: { open: -7.5, current: -7.5, home: -110, away: -110 },
+    total: { current: 40.5, over: -110, under: -110 },
+    moneyline: { home: -375, away: 295 },
+  },
+  {
+    id: '2026-w1-atl-at-pit',
+    season: 2026, week: 1,
+    kickoff: '2026-09-13T13:00:00-04:00',
+    away: "Atlanta Falcons",
+    home: "Pittsburgh Steelers",
+    spread: { open: -2, current: -3, home: -120, away: 100 },
+    total: { current: 41.5, over: -115, under: -105 },
+    moneyline: { home: -175, away: 145 },
+  },
+  {
+    id: '2026-w1-nyj-at-ten',
+    season: 2026, week: 1,
+    kickoff: '2026-09-13T13:00:00-04:00',
+    away: "New York Jets",
+    home: "Tennessee Titans",
+    spread: { open: -1.5, current: -3, home: 100, away: -120 },
+    total: { current: 38.5, over: -115, under: -105 },
+    moneyline: { home: -155, away: 130 },
+  },
+  {
+    id: '2026-w1-ari-at-lac',
+    season: 2026, week: 1,
+    kickoff: '2026-09-13T16:25:00-04:00',
+    away: "Arizona Cardinals",
+    home: "Los Angeles Chargers",
+    spread: { open: -10.5, current: -10.5, home: -110, away: -110 },
+    total: { current: 46.5, over: -110, under: -110 },
+    moneyline: { home: -575, away: 425 },
+  },
+  {
+    id: '2026-w1-mia-at-lv',
+    season: 2026, week: 1,
+    kickoff: '2026-09-13T16:25:00-04:00',
+    away: "Miami Dolphins",
+    home: "Las Vegas Raiders",
+    spread: { open: -3, current: -3.5, home: -110, away: -110 },
+    total: { current: 40.5, over: -110, under: -110 },
+    moneyline: { home: -192, away: 160 },
+  },
+  {
+    id: '2026-w1-gb-at-min',
+    season: 2026, week: 1,
+    kickoff: '2026-09-13T16:25:00-04:00',
+    away: "Green Bay Packers",
+    home: "Minnesota Vikings",
+    spread: { open: 1.5, current: -1.5, home: -102, away: -118 },
+    total: { current: 45.5, over: -110, under: -110 },
+    moneyline: { home: -118, away: -102 },
+  },
+  {
+    id: '2026-w1-wsh-at-phi',
+    season: 2026, week: 1,
+    kickoff: '2026-09-13T16:25:00-04:00',
+    away: "Washington Commanders",
+    home: "Philadelphia Eagles",
+    spread: { open: -4, current: -4.5, home: -110, away: -110 },
+    total: { current: 47.5, over: -105, under: -115 },
+    moneyline: { home: -218, away: 180 },
+  },
+  {
+    id: '2026-w1-dal-at-nyg',
+    season: 2026, week: 1,
+    kickoff: '2026-09-13T20:20:00-04:00',
+    away: "Dallas Cowboys",
+    home: "New York Giants",
+    spread: { open: 2.5, current: 2.5, home: -105, away: -115 },
+    total: { current: 48.5, over: -110, under: -110 },
+    moneyline: { home: 124, away: -148 },
+  },
+  {
+    id: '2026-w1-den-at-kc',
+    season: 2026, week: 1,
+    kickoff: '2026-09-14T20:15:00-04:00',
+    away: "Denver Broncos",
+    home: "Kansas City Chiefs",
+    spread: { open: -3, current: -3, home: -105, away: -115 },
+    total: { current: 42.5, over: -110, under: -110 },
+    moneyline: { home: -148, away: 124 },
+  },
+];
+
+// Get the upcoming games board — same gate as picks and trends.
+//
+// Published picks are attached to their game by the optional `gameId` on the
+// pick record, so a pick and the line it was made against render together.
+// Picks without a gameId (anything posted before this existed) are left for
+// /api/picks to serve.
+app.get('/api/games', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const token = authHeader.slice(7);
+    const isAdmin = await verifyAdminSession(token);
+
+    // Member sessions live in Redis; without it only an admin session gets
+    // through, which is what keeps the board testable in local dev.
+    let email = 'admin';
+    const picksByGame = new Map();
+
+    if (!isAdmin && !process.env.REDIS_URL) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    if (process.env.REDIS_URL) {
+      const client = await getRedisClient();
+      if (!isAdmin) {
+        email = await client.get(`session:${token}`);
+        if (!email) {
+          return res.status(401).json({ error: 'Session expired. Please log in again.' });
+        }
+      }
+
+      // Newest first, so if a game somehow has two picks the latest one wins.
+      const ids = (await client.sMembers('all_picks')).sort((a, b) => b - a);
+      for (const id of ids) {
+        const data = await client.get(`pick:${id}`);
+        if (!data) continue;
+        const pick = JSON.parse(data);
+        if (pick.gameId && !picksByGame.has(pick.gameId)) {
+          picksByGame.set(pick.gameId, pick);
+        }
+      }
+    }
+
+    const games = UPCOMING_GAMES
+      .map((g) => ({ ...g, pick: picksByGame.get(g.id) || null }))
+      .sort((a, b) => new Date(a.kickoff) - new Date(b.kickoff));
+
+    console.log('Games requested by', email, '— returning', games.length, 'games');
+    res.json({ asOf: GAMES_AS_OF, games });
+  } catch (error) {
+    console.error('Error fetching games:', error);
+    res.status(500).json({ error: 'Failed to fetch games' });
   }
 });
 
