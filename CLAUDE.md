@@ -7,9 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 npm start       # Run production server (node server.js)
 npm run dev     # Run development server with auto-reload (nodemon server.js)
+npm test        # Run unit tests (Node's built-in runner; test/*.test.js)
 ```
-
-No test suite is currently configured.
 
 ## Architecture
 
@@ -18,6 +17,7 @@ No test suite is currently configured.
 ### Key Files
 
 - `server.js` — Single-file Express server containing all active API logic, middleware, and route handlers
+- `lib/notify.js` — Owner email alerts (free-pick signups, sales) sent through Resend; best-effort, never throws
 - `public/` — Static frontend: vanilla JS, no framework; Stripe.js for payments, Google Analytics
 - `vercel.json` — Deployment config: builds server.js, serves `public/` as static, falls back to server.js
 
@@ -60,6 +60,9 @@ GET  /api/export/emails             (admin CSV)
 | `REDIS_URL` | Redis connection string |
 | `JWT_SECRET` | JWT signing secret |
 | `PORT` | Server port (defaults to 3000) |
+| `RESEND_API_KEY` | Resend API key (set by the Vercel Resend integration) |
+| `RESEND_EMAIL_DOMAIN` | Verified sending domain (set by the integration); alerts come from `alerts@` it |
+| `NOTIFY_EMAIL` | Where owner alerts are delivered (production only) |
 
 ## Brand & Business Context
 YardlineIQ sells NFL ATS picks and analytics to serious sports bettors.

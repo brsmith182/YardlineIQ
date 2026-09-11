@@ -3,6 +3,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { createClient } = require('redis');
 const crypto = require('crypto');
 const path = require('path');
+const { sendNotificationEmail } = require('./lib/notify');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -351,11 +352,12 @@ async function saveEmailToRedis(email) {
     // Store individual email
     await client.set(`email:${emailLower}`, JSON.stringify(emailEntry));
     
-    // Add to list of all emails
-    await client.sAdd('all_emails', emailLower);
-    
+    // Add to list of all emails. sAdd reports 0 for an address already in the
+    // set, which is how a repeat signup is told apart from a new one.
+    const added = await client.sAdd('all_emails', emailLower);
+
     console.log(`Email saved to Redis: ${email}`);
-    return { success: true };
+    return { success: true, isNew: added === 1 };
     
   } catch (error) {
     console.error('Redis email save error:', error);
@@ -525,9 +527,15 @@ app.post('/api/email/free-pick', async (req, res) => {
     }
     
     const result = await saveEmailToRedis(email);
-    
+
     if (result.success) {
-      res.json({ 
+      // Awaited, not fired after the response: Vercel can freeze the function
+      // once the response is sent. The notifier never throws and gives up
+      // after a few seconds, so it cannot cost the signup.
+      if (result.isNew) {
+        await sendNotificationEmail('signup', { email: email.toLowerCase() });
+      }
+      res.json({
         success: true,
         message: 'You have been successfully registered for this week\'s Free Pick! Email will be sent out prior to the game. Thank you and Good Luck!'
       });
@@ -603,13 +611,6 @@ app.post('/api/payments/create-payment-intent', async (req, res) => {
   }
 });
 
-// Owner notification hook. Email delivery was never implemented — this used
-// to be an undefined call that threw mid-fulfillment. Logging keeps the seam
-// without pretending mail is wired up.
-async function sendNotificationEmail(type, data) {
-  console.log(`[notify:${type}]`, JSON.stringify(data));
-}
-
 // The one fulfillment path, shared by the Stripe webhook and the browser's
 // post-checkout call. Package and buyer come from the PaymentIntent metadata
 // the server wrote at creation time, never from the caller — so a modified
@@ -660,7 +661,8 @@ async function fulfillPurchase(paymentIntent, source) {
   if (!purchase.duplicate) {
     try {
       await sendNotificationEmail('payment', {
-        name, email, packageType, amount: paymentIntent.amount / 100, source
+        name, email, packageType, packageLabel: PACKAGES[packageType].label,
+        amount: paymentIntent.amount / 100, source
       });
     } catch (error) {
       console.error('Notification failed for', paymentIntent.id, error);
