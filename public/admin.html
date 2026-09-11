@@ -406,7 +406,7 @@
 
             <div class="content-section">
                 <h2 class="section-title">Email Signups <span id="emailCount" class="email-badge">0</span></h2>
-                <p class="section-sub">Free-pick signups that have not converted to a paid package.</p>
+                <p class="section-sub">Everyone who signed up for the free pick, including anyone who later bought a package.</p>
                 <button class="btn" onclick="refreshEmails()">Refresh Emails</button>
                 <button class="btn btn-secondary" onclick="exportEmails()">Export Emails</button>
                 <div id="emailsList"></div>
@@ -569,13 +569,19 @@
             }
         }
 
+        // Free-pick signups are stored with type 'free_pick' (older records may
+        // have no type); paid customers are 'paid_subscriber'.
+        function isEmailSignup(user) {
+            return user.type !== 'paid_subscriber';
+        }
+
         // Refresh emails
         async function refreshEmails() {
             try {
                 const response = await fetchWithAuth(`${API_BASE}/api/users`);
                 if (response.ok) {
                     const users = await response.json();
-                    const emailUsers = users.filter(user => user.type === 'email_signup' || !user.type);
+                    const emailUsers = users.filter(isEmailSignup);
                     const emailsList = document.getElementById('emailsList');
 
                     if (emailUsers.length === 0) {
@@ -633,7 +639,7 @@
                 const response = await fetchWithAuth(`${API_BASE}/api/users`);
                 if (response.ok) {
                     const users = await response.json();
-                    const emailUsers = users.filter(user => user.type === 'email_signup' || !user.type);
+                    const emailUsers = users.filter(isEmailSignup);
                     const emailList = emailUsers.map(user => user.email).join('\n');
 
                     const blob = new Blob([emailList], { type: 'text/plain' });
