@@ -508,6 +508,17 @@
         }
         .game-move-delta.moved { color: #00ccff; }
 
+        /* Final score. The winner is set brighter, never green: green is the
+           pick colour on this page. */
+        .game-final {
+            font-size: 15px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .final-side { white-space: nowrap; }
+        .final-won { color: rgba(255, 255, 255, 0.95); font-weight: 800; }
+        .final-sep { margin: 0 0.4rem; color: rgba(255, 255, 255, 0.2); }
+
         /* Pick slot — always present, so the page reads the same whether or
            not this week's pick is out yet. */
         .game-pick {
@@ -621,6 +632,20 @@
             font-size: 11px;
             color: rgba(255, 255, 255, 0.3);
             margin-top: 3px;
+        }
+        .pick-final {
+            margin-top: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .pick-final-label {
+            margin-right: 0.5rem;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: rgba(255, 255, 255, 0.25);
         }
 
         /* Confidence badge */
@@ -1046,11 +1071,22 @@
 
         function resultBadge(result) {
             return {
-                win:     '<span class="result-badge result-win-badge">✓ Win</span>',
-                loss:    '<span class="result-badge result-loss-badge">✕ Loss</span>',
+                win:     '<span class="result-badge result-win-badge">✓ Covered</span>',
+                loss:    '<span class="result-badge result-loss-badge">✕ No Cover</span>',
                 push:    '<span class="result-badge result-push-badge">Push</span>',
                 pending: '<span class="result-badge result-pending-badge">Pending</span>'
             }[result] || '<span class="result-badge result-pending-badge">Pending</span>';
+        }
+
+        // "NE 10 · SEA 13", away first like the team rows. Blank until the
+        // pick has been graded.
+        function finalScoreHtml(awayName, homeName, score) {
+            if (!score || score.away == null || score.home == null) return '';
+            const side = (name, pts, other) =>
+                `<span class="final-side${pts > other ? ' final-won' : ''}">${escHtml(teamCode(name))} ${escHtml(pts)}</span>`;
+            return side(awayName, score.away, score.home)
+                + '<span class="final-sep">·</span>'
+                + side(homeName, score.home, score.away);
         }
 
         function confidenceBadge(confidence) {
@@ -1092,6 +1128,8 @@
             const tags = [];
             if (game.neutralSite) tags.push('Neutral site');
 
+            const final = finalScoreHtml(game.away, game.home, game.pick && game.pick.finalScore);
+
             return `
                 <div class="game-card${game.pick ? ' has-pick' : ''}">
                     <div class="game-card-top">
@@ -1109,6 +1147,12 @@
                     ${teamRow(game.home, homeSpread, spread.home, ml.home)}
 
                     <div class="game-meta">
+                        ${final
+                            ? `<div class="game-meta-row">
+                                <span class="game-meta-label">Final</span>
+                                <span class="game-final">${final}</span>
+                            </div>`
+                            : ''}
                         <div class="game-meta-row">
                             <span class="game-meta-label">O/U</span>
                             <span class="game-total-num">${fmtNum(total.current)}</span>
@@ -1157,18 +1201,12 @@
                 ? `<span class="confidence-badge confidence-${conf}">${p.confidence}</span>`
                 : '';
 
-            const resultBadge = {
-                win:     `<span class="result-badge result-win-badge">✓ Win</span>`,
-                loss:    `<span class="result-badge result-loss-badge">✕ Loss</span>`,
-                push:    `<span class="result-badge result-push-badge">Push</span>`,
-                pending: `<span class="result-badge result-pending-badge">Pending</span>`
-            }[result] || `<span class="result-badge result-pending-badge">Pending</span>`;
-
             const reasoning = p.reasoning
                 ? `<div class="pick-reasoning">${escHtml(p.reasoning)}</div>`
                 : '';
 
             const teams = parseTeams(p.game);
+            const final = teams ? finalScoreHtml(teams.away, teams.home, p.finalScore) : '';
             let logosHtml = '';
             if (teams) {
                 const awayLogo = teamLogoUrl(teams.away);
@@ -1189,11 +1227,12 @@
                             ${logosHtml}
                             <div class="pick-game">${escHtml(p.game)}</div>
                             ${p.time ? `<div class="pick-time">${escHtml(p.time)}</div>` : ''}
+                            ${final ? `<div class="pick-final"><span class="pick-final-label">Final</span>${final}</div>` : ''}
                         </div>
                         ${confBadge}
                     </div>
                     <div class="pick-recommendation">${escHtml(p.pick)}</div>
-                    ${resultBadge}
+                    ${resultBadge(result)}
                     ${reasoning}
                 </div>`;
         }
