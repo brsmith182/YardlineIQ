@@ -553,7 +553,9 @@
             color: rgba(255, 255, 255, 0.4);
             line-height: 1.55;
         }
-        /* The badge stacks in a flex row here, not above a block of copy. */
+        /* The status always takes its own line under the pick. Left inline, it
+           sat beside short picks and wrapped under long ones. */
+        .game-pick-status { flex-basis: 100%; }
         .game-pick .result-badge { margin-bottom: 0; }
         .game-card.has-pick { border-color: rgba(0, 255, 136, 0.25); }
 
@@ -1110,7 +1112,7 @@
                 <span class="game-pick-label">Pick</span>
                 <span class="game-pick-value">${escHtml(pick.pick)}</span>
                 ${confidenceBadge(pick.confidence)}
-                ${resultBadge(result)}
+                <div class="game-pick-status">${resultBadge(result)}</div>
                 ${pick.reasoning
                     ? `<div class="game-pick-reasoning">${escHtml(pick.reasoning)}</div>`
                     : ''}
