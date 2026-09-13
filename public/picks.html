@@ -405,6 +405,16 @@
             color: rgba(255, 255, 255, 0.4);
             white-space: nowrap;
         }
+        /* Pick tier. Amber, not green: green is the pick colour on this page. */
+        .game-tag.tier-vip {
+            background: rgba(255, 196, 0, 0.1);
+            border-color: rgba(255, 196, 0, 0.3);
+            color: #ffc400;
+        }
+        .game-tag.tier-free {
+            border-color: rgba(255, 255, 255, 0.22);
+            color: rgba(255, 255, 255, 0.75);
+        }
 
         /* logo | code | name | spread | juice | moneyline */
         .game-team,
@@ -1091,6 +1101,14 @@
                 + side(homeName, score.home, score.away);
         }
 
+        // VIP or the week's free pick, set on the pick record. Blank otherwise.
+        function tierTag(tier) {
+            const label = { vip: 'VIP', free: 'Free Pick' }[String(tier || '').toLowerCase()];
+            return label
+                ? `<span class="game-tag tier-${String(tier).toLowerCase()}">${label}</span>`
+                : '';
+        }
+
         function confidenceBadge(confidence) {
             const conf = String(confidence || '').toLowerCase();
             if (!['high', 'medium', 'low'].includes(conf)) return '';
@@ -1127,8 +1145,8 @@
             const homeSpread = spread.current == null ? null : Number(spread.current);
             const awaySpread = homeSpread == null ? null : -homeSpread;
 
-            const tags = [];
-            if (game.neutralSite) tags.push('Neutral site');
+            const tags = [tierTag(game.pick && game.pick.tier)].filter(Boolean);
+            if (game.neutralSite) tags.push('<span class="game-tag">Neutral site</span>');
 
             const final = finalScoreHtml(game.away, game.home, game.pick && game.pick.finalScore);
 
@@ -1137,7 +1155,7 @@
                     <div class="game-card-top">
                         <div class="game-kick">${escHtml(fmtKickoff(game.kickoff))}</div>
                         ${tags.length
-                            ? `<div class="game-tags">${tags.map(t => `<span class="game-tag">${escHtml(t)}</span>`).join('')}</div>`
+                            ? `<div class="game-tags">${tags.join('')}</div>`
                             : ''}
                     </div>
 
@@ -1231,7 +1249,7 @@
                             ${p.time ? `<div class="pick-time">${escHtml(p.time)}</div>` : ''}
                             ${final ? `<div class="pick-final"><span class="pick-final-label">Final</span>${final}</div>` : ''}
                         </div>
-                        ${confBadge}
+                        <div class="game-tags">${tierTag(p.tier)}${confBadge}</div>
                     </div>
                     <div class="pick-recommendation">${escHtml(p.pick)}</div>
                     ${resultBadge(result)}
