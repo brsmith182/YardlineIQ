@@ -4,6 +4,7 @@ const { createClient } = require('redis');
 const crypto = require('crypto');
 const path = require('path');
 const { sendNotificationEmail } = require('./lib/notify');
+const { publicStatic } = require('./lib/static-files');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -278,12 +279,9 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
 // Basic middleware
 app.use(express.json());
 // Absolute path — a relative one resolves against process.cwd(), which is not
-// guaranteed to be the project root in a serverless runtime.
-//
-// `extensions` resolves /privacy-policy to privacy-policy.html. Extensionless
-// links exist on the site and used to be absorbed by the catch-all; now that
-// unknown paths return a real 404, they have to resolve properly.
-app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
+// guaranteed to be the project root in a serverless runtime. See
+// lib/static-files.js for why pages are validated on their content.
+app.use(publicStatic(path.join(__dirname, 'public')));
 // CORS allowlist. The previous wildcard paired `Allow-Origin: *` with
 // `Allow-Headers: *`, which explicitly permitted cross-origin Authorization
 // headers — any site could drive the authenticated API.
