@@ -1046,7 +1046,7 @@ const UPCOMING_GAMES = [
     home: "Buffalo Bills",
     spread: { open: -3, current: -5.5, home: -105, away: -110 },
     total: { current: 54.5, over: -115, under: -114 },
-    moneyline: { home: -165, away: 205 },
+    moneyline: { home: -250, away: 205 },
     split: { moneyHome: 60, ticketsHome: 50 },
   },
   {
