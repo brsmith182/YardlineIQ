@@ -81,6 +81,9 @@ function fmtKickoff(iso) {
     week: String(game.week),
     game: `${game.away} vs ${game.home}`,
     gameId: game.id,
+    // Stored as well as printed: the archive orders past picks by kickoff,
+    // and the board that knows it is replaced every week.
+    kickoff: game.kickoff,
     time: fmtKickoff(game.kickoff),
     pick: pickText.trim(),
     confidence: flag('confidence'),

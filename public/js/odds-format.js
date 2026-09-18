@@ -76,3 +76,68 @@ function nickname(name) {
     const parts = String(name || '').trim().split(/\s+/);
     return parts[parts.length - 1] || '';
 }
+
+/* ── Pick archive ─────────────────────────────────────────────────
+   Past weeks are ordered by when the games were played, not by when the
+   picks were posted: a Monday nighter posted first would otherwise open a
+   week that starts on Thursday. */
+
+/* When the game kicked off, in ms, or null if the pick cannot say.
+   `kickoff` is the real answer. Picks posted before it was stored carry only
+   the printed `time`, which parses in the reader's own zone rather than
+   Eastern — that shifts every pick by the same amount, so the ordering it
+   produces is still right even though the instant is not. */
+function pickKickoffMs(pick) {
+    const iso = pick && pick.kickoff;
+    if (iso) {
+        const ms = Date.parse(iso);
+        if (!isNaN(ms)) return ms;
+    }
+
+    const printed = String((pick && pick.time) || '').trim();
+    if (!printed) return null;
+    const ms = Date.parse(printed.replace(' · ', ' ').replace(/\s*ET$/, ''));
+    return isNaN(ms) ? null : ms;
+}
+
+/* Earliest game first. A pick that cannot be dated goes last rather than
+   sorting as 1970 and pushing itself to the top of the week. */
+function byKickoff(a, b) {
+    const x = pickKickoffMs(a);
+    const y = pickKickoffMs(b);
+    if (x == null && y == null) return 0;
+    if (x == null) return 1;
+    if (y == null) return -1;
+    return x - y;
+}
+
+/* A week is dated by its last game, which is what lets weeks be listed
+   newest first without reading the week number — so "Super Bowl LX" lands in
+   the right place too. */
+function latestKickoffMs(picks) {
+    let latest = null;
+    (picks || []).forEach((p) => {
+        const ms = pickKickoffMs(p);
+        if (ms != null && (latest == null || ms > latest)) latest = ms;
+    });
+    return latest;
+}
+
+/* "9-7", or "9-7-1" when the week had a push. Ungraded picks are left out
+   entirely: counting a pending pick as anything would misstate the record. */
+function weekRecord(picks) {
+    let win = 0, loss = 0, push = 0;
+    (picks || []).forEach((p) => {
+        const result = String((p && p.result) || '').toLowerCase();
+        if (result === 'win') win++;
+        else if (result === 'loss') loss++;
+        else if (result === 'push') push++;
+    });
+    if (!win && !loss && !push) return '';
+    return push ? `${win}-${loss}-${push}` : `${win}-${loss}`;
+}
+
+/* The member pages load this as a plain script; the tests require it. */
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { pickKickoffMs, byKickoff, latestKickoffMs, weekRecord };
+}

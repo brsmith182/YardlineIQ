@@ -582,6 +582,71 @@
             color: rgba(255, 255, 255, 0.25);
         }
 
+        /* Past weeks collapse behind their own summary row. The caret is
+           drawn rather than left to the native marker, which each browser
+           styles its own way and none of them match this page. */
+        .week-accordion {
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .week-summary {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-height: 44px;
+            padding: 0.6rem 0;
+            cursor: pointer;
+            list-style: none;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255, 255, 255, 0.35);
+            transition: color 0.2s var(--ease-out);
+        }
+
+        .week-summary::-webkit-details-marker { display: none; }
+
+        .week-summary::before {
+            content: '';
+            flex: none;
+            width: 0;
+            height: 0;
+            border-left: 5px solid currentColor;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            transition: transform 0.2s var(--ease-out);
+        }
+
+        .week-accordion[open] > .week-summary::before { transform: rotate(90deg); }
+
+        .week-summary:hover,
+        .week-accordion[open] > .week-summary { color: rgba(255, 255, 255, 0.7); }
+
+        .week-summary:focus-visible {
+            outline: 1px solid rgba(255, 255, 255, 0.3);
+            outline-offset: 3px;
+        }
+
+        .week-name { flex: none; }
+
+        /* The record reads at full strength — it is the number a member is
+           scanning the archive for. */
+        .week-record {
+            flex: none;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 0.06em;
+        }
+
+        .week-count {
+            margin-left: auto;
+            flex: none;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .week-accordion .picks-grid { padding: 0.4rem 0 1.6rem; }
+
         /* Pick cards grid */
         .picks-grid {
             display: grid;
@@ -1200,13 +1265,36 @@
                 byWeek.get(w).push(p);
             });
 
+            // Newest week first, each week's picks in the order they kicked
+            // off. Weeks are dated by their last game rather than by the week
+            // number, so a named week sorts with the rest of them.
+            const weeks = [...byWeek.entries()]
+                .map(([week, weekPicks]) => [week, weekPicks.slice().sort(byKickoff)])
+                .sort((a, b) => {
+                    const x = latestKickoffMs(a[1]);
+                    const y = latestKickoffMs(b[1]);
+                    if (x == null && y == null) return 0;
+                    if (x == null) return 1;
+                    if (y == null) return -1;
+                    return y - x;
+                });
+
+            // Collapsed by default: a season of picks is a long page to
+            // scroll past to reach the week you wanted. <details> keeps the
+            // toggle keyboard-operable without any state of our own.
             let html = '<div class="history-head">Past picks &amp; results</div>';
-            for (const [week, weekPicks] of byWeek) {
-                html += `<div class="week-section">
-                    <div class="week-label">${weekLabel(week)}</div>
+            for (const [week, weekPicks] of weeks) {
+                const record = weekRecord(weekPicks);
+                const count = weekPicks.length;
+                html += `<details class="week-accordion">
+                    <summary class="week-summary">
+                        <span class="week-name">${weekLabel(week)}</span>
+                        ${record ? `<span class="week-record">${escHtml(record)} ATS</span>` : ''}
+                        <span class="week-count">${count} pick${count === 1 ? '' : 's'}</span>
+                    </summary>
                     <div class="picks-grid">`;
                 weekPicks.forEach(p => { html += renderPickCard(p); });
-                html += `</div></div>`;
+                html += `</div></details>`;
             }
 
             container.innerHTML = html;

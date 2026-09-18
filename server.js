@@ -900,13 +900,22 @@ app.post('/api/picks', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Week, game, and pick are required' });
     }
 
+    const boardId = (gameId || '').toString().trim();
+
+    // Read off the board rather than accepted from the client, so a pick can
+    // never carry a kickoff its own game disagrees with. It is stored on the
+    // pick because the board is replaced every week and the archive still has
+    // to order past picks by when the games were played.
+    const boardGame = UPCOMING_GAMES.find((g) => g.id === boardId);
+
     const newPick = {
       id: Date.now().toString(),
       week: week.toString().trim(),
       game: game.toString().trim(),
       // Optional: ties the pick to a row on the /api/games board so the two
       // render together. Blank on anything posted before the board existed.
-      gameId: (gameId || '').toString().trim(),
+      gameId: boardId,
+      kickoff: boardGame ? boardGame.kickoff : '',
       time: time || '',
       pick: pick.toString().trim(),
       confidence: confidence || '',
