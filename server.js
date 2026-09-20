@@ -1198,7 +1198,7 @@ const UPCOMING_GAMES = [
     kickoff: '2026-09-20T20:20:00-04:00',
     away: "Indianapolis Colts",
     home: "Kansas City Chiefs",
-    spread: { open: -5.5, current: -6.5, home: -107, away: -111 },
+    spread: { open: -5.5, current: -6, home: -107, away: -111 },
     total: { current: 46.5, over: -108, under: -110 },
     moneyline: { home: -285, away: 230 },
     split: { moneyHome: 65, ticketsHome: 75 },
