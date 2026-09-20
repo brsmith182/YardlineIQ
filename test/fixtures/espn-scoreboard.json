@@ -1,0 +1,271 @@
+{
+  "season": {
+    "type": 2,
+    "year": 2026
+  },
+  "week": {
+    "number": 2
+  },
+  "events": [
+    {
+      "id": "401872933",
+      "date": "2026-09-20T17:00Z",
+      "name": "Carolina Panthers at Atlanta Falcons",
+      "shortName": "CAR @ ATL",
+      "status": {
+        "type": {
+          "state": "in",
+          "name": "STATUS_HALFTIME",
+          "completed": false,
+          "shortDetail": "Halftime"
+        }
+      },
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "3",
+              "team": {
+                "abbreviation": "ATL",
+                "displayName": "Atlanta Falcons",
+                "shortDisplayName": "Falcons",
+                "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/atl.png"
+              },
+              "records": [
+                {
+                  "name": "overall",
+                  "summary": "0-1"
+                }
+              ]
+            },
+            {
+              "homeAway": "away",
+              "score": "20",
+              "team": {
+                "abbreviation": "CAR",
+                "displayName": "Carolina Panthers",
+                "shortDisplayName": "Panthers",
+                "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/car.png"
+              },
+              "records": [
+                {
+                  "name": "overall",
+                  "summary": "0-1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401872937",
+      "date": "2026-09-20T17:00Z",
+      "name": "Minnesota Vikings at Chicago Bears",
+      "shortName": "MIN @ CHI",
+      "status": {
+        "type": {
+          "state": "in",
+          "name": "STATUS_IN_PROGRESS",
+          "completed": false,
+          "shortDetail": "9:03 - 3rd"
+        }
+      },
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "3",
+              "team": {
+                "abbreviation": "CHI",
+                "displayName": "Chicago Bears",
+                "shortDisplayName": "Bears",
+                "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/chi.png"
+              },
+              "records": [
+                {
+                  "name": "overall",
+                  "summary": "1-0"
+                }
+              ]
+            },
+            {
+              "homeAway": "away",
+              "score": "6",
+              "team": {
+                "abbreviation": "MIN",
+                "displayName": "Minnesota Vikings",
+                "shortDisplayName": "Vikings",
+                "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/min.png"
+              },
+              "records": [
+                {
+                  "name": "overall",
+                  "summary": "1-0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401872932",
+      "date": "2026-09-18T00:15Z",
+      "name": "Detroit Lions at Buffalo Bills",
+      "shortName": "DET @ BUF",
+      "status": {
+        "type": {
+          "state": "post",
+          "name": "STATUS_FINAL",
+          "completed": true,
+          "shortDetail": "Final"
+        }
+      },
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "41",
+              "team": {
+                "abbreviation": "BUF",
+                "displayName": "Buffalo Bills",
+                "shortDisplayName": "Bills",
+                "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/buf.png"
+              },
+              "records": [
+                {
+                  "name": "overall",
+                  "summary": "2-0"
+                }
+              ]
+            },
+            {
+              "homeAway": "away",
+              "score": "31",
+              "team": {
+                "abbreviation": "DET",
+                "displayName": "Detroit Lions",
+                "shortDisplayName": "Lions",
+                "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/det.png"
+              },
+              "records": [
+                {
+                  "name": "overall",
+                  "summary": "1-1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401872945",
+      "date": "2026-09-21T00:20Z",
+      "name": "Indianapolis Colts at Kansas City Chiefs",
+      "shortName": "IND @ KC",
+      "status": {
+        "type": {
+          "state": "pre",
+          "name": "STATUS_SCHEDULED",
+          "completed": false,
+          "shortDetail": "9/20 - 8:20 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "0",
+              "team": {
+                "abbreviation": "KC",
+                "displayName": "Kansas City Chiefs",
+                "shortDisplayName": "Chiefs",
+                "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/kc.png"
+              },
+              "records": [
+                {
+                  "name": "overall",
+                  "summary": "1-0"
+                }
+              ]
+            },
+            {
+              "homeAway": "away",
+              "score": "0",
+              "team": {
+                "abbreviation": "IND",
+                "displayName": "Indianapolis Colts",
+                "shortDisplayName": "Colts",
+                "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ind.png"
+              },
+              "records": [
+                {
+                  "name": "overall",
+                  "summary": "0-1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401872943",
+      "date": "2026-09-20T20:25Z",
+      "name": "Seattle Seahawks at Arizona Cardinals",
+      "shortName": "SEA @ ARI",
+      "status": {
+        "type": {
+          "state": "pre",
+          "name": "STATUS_SCHEDULED",
+          "completed": false,
+          "shortDetail": "9/20 - 4:25 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "competitors": [
+            {
+              "homeAway": "home",
+              "score": "0",
+              "team": {
+                "abbreviation": "ARI",
+                "displayName": "Arizona Cardinals",
+                "shortDisplayName": "Cardinals",
+                "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ari.png"
+              },
+              "records": [
+                {
+                  "name": "overall",
+                  "summary": "1-0"
+                }
+              ]
+            },
+            {
+              "homeAway": "away",
+              "score": "0",
+              "team": {
+                "abbreviation": "SEA",
+                "displayName": "Seattle Seahawks",
+                "shortDisplayName": "Seahawks",
+                "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/sea.png"
+              },
+              "records": [
+                {
+                  "name": "overall",
+                  "summary": "1-0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

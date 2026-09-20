@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const path = require('path');
 const { sendNotificationEmail } = require('./lib/notify');
 const { publicStatic } = require('./lib/static-files');
+const { normalizeScoreboard } = require('./lib/scoreboard');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -1271,6 +1272,57 @@ app.get('/api/games', async (req, res) => {
   } catch (error) {
     console.error('Error fetching games:', error);
     res.status(500).json({ error: 'Failed to fetch games' });
+  }
+});
+
+// ===================== LIVE SCOREBOARD (public) =====================
+// Feeds the ticker strip across the top of every page. Public and
+// unauthenticated on purpose: the strip has to render for a visitor who has
+// never logged in, which makes this the only open data route on the site.
+//
+// ESPN's scoreboard is unofficial and needs no key, so nothing new goes in the
+// environment. Every field name ESPN chose is confined to lib/scoreboard.js,
+// which means moving to a paid feed later is a rewrite of that one file.
+const ESPN_SCOREBOARD_URL = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
+const SCOREBOARD_TTL_MS = 20 * 1000;
+const SCOREBOARD_TIMEOUT_MS = 5000;
+const SCOREBOARD_CACHE_HEADER = 'public, s-maxage=15, stale-while-revalidate=30';
+
+// In memory rather than Redis: the Redis layer is not changed without asking,
+// and this way the ticker still works locally with REDIS_URL unset. On Vercel
+// the worst case is one ESPN call per warm instance per TTL, and ESPN serves
+// its own response with max-age=2, so it expects to be polled.
+let scoreboardCache = { at: 0, payload: null };
+
+app.get('/api/scoreboard', async (req, res) => {
+  const now = Date.now();
+  if (scoreboardCache.payload && now - scoreboardCache.at < SCOREBOARD_TTL_MS) {
+    res.set('Cache-Control', SCOREBOARD_CACHE_HEADER);
+    return res.json(scoreboardCache.payload);
+  }
+
+  try {
+    const response = await fetch(ESPN_SCOREBOARD_URL, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(SCOREBOARD_TIMEOUT_MS)
+    });
+    if (!response.ok) throw new Error(`ESPN returned ${response.status}`);
+
+    const payload = normalizeScoreboard(await response.json(), UPCOMING_GAMES);
+    scoreboardCache = { at: now, payload };
+
+    res.set('Cache-Control', SCOREBOARD_CACHE_HEADER);
+    res.json(payload);
+  } catch (error) {
+    console.error('Error fetching scoreboard:', error.message);
+    // A scoreboard outage must never degrade a page that sells picks. Serve the
+    // last good slate if there is one; otherwise say so plainly and let the
+    // strip take itself off the page.
+    if (scoreboardCache.payload) {
+      res.set('Cache-Control', SCOREBOARD_CACHE_HEADER);
+      return res.json(scoreboardCache.payload);
+    }
+    res.status(503).json({ error: 'Scoreboard unavailable' });
   }
 });
 

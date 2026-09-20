@@ -62,3 +62,10 @@ function parseTeams(game) {
     if (parts.length !== 2) return null;
     return { away: parts[0].trim(), home: parts[1].trim() };
 }
+
+/* Also loaded server-side by lib/scoreboard.js, which needs the same 32-team
+   map to join ESPN's feed onto the board. Guarded so the plain <script src>
+   usage in picks.html and handle.html is unaffected. */
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { NFL_LOGOS, teamAbbr, teamCode, teamLogoUrl, parseTeams };
+}
