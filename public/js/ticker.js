@@ -13,7 +13,8 @@
     var ENDPOINT = '/api/scoreboard';
     var POLL_LIVE_MS = 30 * 1000;      // a game is in progress; scores move
     var POLL_IDLE_MS = 5 * 60 * 1000;  // nothing is live; just keep the slate fresh
-    var strip, rail, timer, lastHeight;
+    var strip, rail, timer;
+    var lastHeight = null;
 
     /* Styling matches the house system: Barlow Semi Condensed with tabular
        figures for anything numeric, #00ff88 for the live state, #0a0a0a ground.
@@ -84,12 +85,11 @@
     /* Two header patterns exist on this site and the strip must not cover
        either. Read which one this page uses rather than hard-coding a list:
 
-         fixed  (index + the article/calculator pages) — the header already
-                overlays a 100vh hero by design, so it only needs pushing down.
-                Adding body padding here would introduce a scrollbar on a page
-                that did not have one.
-         sticky (picks / trends / handle) — normal document flow, so the body
-                needs padding too or the strip sits on top of the content.
+         fixed  (index + the article/calculator pages) — these clear their own
+                header with padding on the content, so the header and the body
+                have to move down together by the same amount or the nav lands
+                closer to the content than the page was designed for.
+         sticky (picks / trends / handle) — normal document flow, same offset.
          none   (terms / disclaimer / 404) — body padding only. */
     function applyOffset() {
         if (!strip) return;
@@ -111,9 +111,14 @@
             void header.offsetHeight; // commit before transitions come back
             header.style.transition = transition;
         }
-        if (position !== 'fixed') {
-            document.body.style.paddingTop = height + 'px';
-        }
+
+        // Header and content both move down by exactly the strip's height, so
+        // every page keeps the spacing it was designed with and the strip is
+        // a pure translation rather than a reflow. A full-height hero then
+        // runs the strip's height past the fold, which is the deliberate
+        // trade: shortening it instead re-centres its content and changes the
+        // gap between the nav and the headline on the one page that has one.
+        document.body.style.paddingTop = height + 'px';
     }
 
     function clearOffset() {
