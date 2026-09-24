@@ -137,7 +137,15 @@ function weekRecord(picks) {
     return push ? `${win}-${loss}-${push}` : `${win}-${loss}`;
 }
 
+/* The same record over one tier's picks ('vip' or 'free'); blank when that
+   tier had nothing graded that week, so the summary shows no empty 0-0. */
+function tierRecord(picks, tier) {
+    const want = String(tier || '').toLowerCase();
+    return weekRecord((picks || []).filter((p) =>
+        String((p && p.tier) || '').toLowerCase() === want));
+}
+
 /* The member pages load this as a plain script; the tests require it. */
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { pickKickoffMs, byKickoff, latestKickoffMs, weekRecord };
+    module.exports = { pickKickoffMs, byKickoff, latestKickoffMs, weekRecord, tierRecord };
 }

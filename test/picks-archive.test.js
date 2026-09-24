@@ -5,6 +5,7 @@ const {
   byKickoff,
   latestKickoffMs,
   weekRecord,
+  tierRecord,
 } = require('../public/js/odds-format.js');
 
 // A pick as the archive actually receives it, trimmed to the fields the
@@ -88,4 +89,21 @@ test('a week with nothing graded yet has no record to show', () => {
 
 test('grades are read whatever case they are stored in', () => {
   assert.equal(weekRecord([pick({ result: 'Win' }), pick({ result: 'LOSS' })]), '1-1');
+});
+
+test('counts a tier record from only that tier\'s picks', () => {
+  const picks = [
+    pick({ result: 'win', tier: 'vip' }),
+    pick({ result: 'loss', tier: 'VIP' }),
+    pick({ result: 'win', tier: 'free' }),
+    pick({ result: 'loss' }),
+  ];
+  assert.equal(tierRecord(picks, 'vip'), '1-1');
+  assert.equal(tierRecord(picks, 'free'), '1-0');
+});
+
+test('a tier with no graded picks that week has no record to show', () => {
+  const picks = [pick({ result: 'win' }), pick({ result: 'pending', tier: 'free' })];
+  assert.equal(tierRecord(picks, 'vip'), '');
+  assert.equal(tierRecord(picks, 'free'), '');
 });

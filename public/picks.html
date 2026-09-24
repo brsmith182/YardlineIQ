@@ -638,6 +638,8 @@
             letter-spacing: 0.06em;
         }
 
+        .week-record-label { color: rgba(255, 255, 255, 0.35); }
+
         .week-count {
             margin-left: auto;
             flex: none;
@@ -841,6 +843,9 @@
             }
             .game-name { display: none; }
             .game-card { padding: 1rem; }
+
+            /* Three records plus the week and count outrun a phone's width. */
+            .week-summary { flex-wrap: wrap; row-gap: 0.35rem; }
         }
     </style>
 </head>
@@ -1284,12 +1289,16 @@
             // toggle keyboard-operable without any state of our own.
             let html = '<div class="history-head">Past picks &amp; results</div>';
             for (const [week, weekPicks] of weeks) {
-                const record = weekRecord(weekPicks);
+                const records = [
+                    ['ATS', weekRecord(weekPicks)],
+                    ['VIP', tierRecord(weekPicks, 'vip')],
+                    ['Free', tierRecord(weekPicks, 'free')],
+                ].filter(([, r]) => r);
                 const count = weekPicks.length;
                 html += `<details class="week-accordion">
                     <summary class="week-summary">
                         <span class="week-name">${weekLabel(week)}</span>
-                        ${record ? `<span class="week-record">${escHtml(record)} ATS</span>` : ''}
+                        ${records.map(([label, r]) => `<span class="week-record"><span class="week-record-label">${label}</span> ${escHtml(r)}</span>`).join('')}
                         <span class="week-count">${count} pick${count === 1 ? '' : 's'}</span>
                     </summary>
                     <div class="picks-grid">`;
