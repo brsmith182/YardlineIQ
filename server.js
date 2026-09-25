@@ -1426,6 +1426,10 @@ app.get('/api/handle', async (req, res) => {
 // post hoc so their p-values are optimistic; and "Spread of exactly 14 ... prices not
 // equal" (84.6%, n=26), which the workbook flags as an isolated artifact — the
 // neighbouring 13 / 13.5 / 14.5 buckets run 47.8 / 52.6 / 58.3%.
+// The four overtime trends (off an OT win / loss / either team off OT) were added
+// 2026-09-24 from a separate cut of the same dataset; "Off an OT loss" (p = 0.073) is
+// published alongside its siblings even though it misses p < 0.05. The "off an OT game,
+// any result" baseline (115-114, p = 1.0) is the control and is not published.
 const TRENDS = [
   // ─── Against the spread ─────────────────────────────────────────────
   { category: 'spread', tier: 1, group: 'Cross-market', trend: 'Totals/spread avg-ticket pctile > 14.55%; Over ticket % ≤ 76.13%; dog sharp gap > 6.47%', side: 'Underdog', n: 455, rate: 60.66, p: 6e-06 },
@@ -1488,6 +1492,7 @@ const TRENDS = [
   { category: 'spread', tier: 3, group: 'Cross-market', trend: 'Sharp dog ≥8 + sharp UNDER ≥6', side: 'Underdog', n: 216, rate: 57.87, p: 0.024519 },
   { category: 'spread', tier: 3, group: 'Situational', trend: 'Sharp dog at home (gap ≥ 5 pts)', side: 'Home underdog', n: 429, rate: 55.48, p: 0.026243 },
   { category: 'spread', tier: 3, group: 'Liquidity & attention', trend: 'Low-handle games (bottom 20% of season dollars)', side: 'Underdog', n: 433, rate: 55.43, p: 0.026947 },
+  { category: 'spread', tier: 3, group: 'Streaks & form', trend: 'Home team off an overtime win', side: 'Away team', n: 53, rate: 66.04, p: 0.027008 },
   { category: 'spread', tier: 3, group: 'Line movement', trend: 'Sharp buyback: sharp gap toward away ≥ 5 pts and line moves toward home ≥ 1', side: 'Away team', n: 169, rate: 58.58, p: 0.030948 },
   { category: 'spread', tier: 3, group: 'Liquidity & attention', trend: 'Sharp dog ≥6 + top 19% totals ticket volume', side: 'Underdog', n: 87, rate: 62.07, p: 0.031418 },
   { category: 'spread', tier: 3, group: 'Key numbers', trend: 'Sharp dog (gap ≥ 5 pts) with spread 0.5–3', side: 'Underdog', n: 266, rate: 56.77, p: 0.03168 },
@@ -1499,9 +1504,11 @@ const TRENDS = [
   { category: 'spread', tier: 3, group: 'Totals context', trend: 'Game total line < 40', side: 'Home team', n: 209, rate: 57.42, p: 0.037719 },
   { category: 'spread', tier: 3, group: 'Key numbers', trend: 'Normalized-spread top quintile AND home underdog', side: 'Home underdog', n: 119, rate: 59.66, p: 0.043268 },
   { category: 'spread', tier: 3, group: 'Liquidity & attention', trend: 'Sharp dog ≥8 + bottom 19% totals/spread dollar ratio', side: 'Underdog', n: 143, rate: 58.74, p: 0.044373 },
+  { category: 'spread', tier: 3, group: 'Streaks & form', trend: 'Off an overtime win', side: 'Fade that team', n: 112, rate: 59.82, p: 0.046735 },
   { category: 'spread', tier: 3, group: 'Spread price', trend: 'Home and away spread prices differ by 20 cents or more', side: 'Away team', n: 695, rate: 53.81, p: 0.048478 },
   { category: 'spread', tier: 3, group: 'Situational', trend: 'Home underdog of 7 or more (fade the road favorite −7+)', side: 'Home underdog', n: 191, rate: 57.07, p: 0.059648 },
   { category: 'spread', tier: 3, group: 'Streaks & form', trend: 'Weeks 1–4, off an ATS loss', side: 'The team', n: 505, rate: 54.26, p: 0.061519 },
+  { category: 'spread', tier: 3, group: 'Streaks & form', trend: 'Off an overtime loss', side: 'The team', n: 101, rate: 59.41, p: 0.072757 },
   { category: 'spread', tier: 3, group: 'Situational', trend: 'Home team implied total ≤ 17 (any spread)', side: 'Home team', n: 118, rate: 58.47, p: 0.079834 },
   { category: 'spread', tier: 3, group: 'Situational', trend: 'Home underdog of 7+ with home implied total ≤ 17', side: 'Home underdog', n: 74, rate: 60.81, p: 0.080507 },
   { category: 'spread', tier: 3, group: 'Situational', trend: 'Divisional underdog', side: 'Underdog', n: 770, rate: 53.12, p: 0.090245 },
@@ -1533,6 +1540,7 @@ const TRENDS = [
   { category: 'total', tier: 4, group: 'Totals context', trend: 'Primetime + public OVER tickets ≥60%', side: 'Under', n: 396, rate: 55.56, p: 0.030579 },
   { category: 'total', tier: 4, group: 'Totals context', trend: 'Primetime game', side: 'Under', n: 579, rate: 54.58, p: 0.030603 },
   { category: 'total', tier: 4, group: 'Liquidity & attention', trend: 'Both spread and totals ticket volume in the top 30% of the season', side: 'Under', n: 478, rate: 55.02, p: 0.031469 },
+  { category: 'total', tier: 4, group: 'Totals context', trend: 'Either team off an overtime game', side: 'Under', n: 225, rate: 57.33, p: 0.032667 },
   { category: 'total', tier: 4, group: 'Totals sharp money', trend: 'Totals sharp-gap season percentile 60–80%', side: 'Under', n: 445, rate: 54.83, p: 0.04636 },
   { category: 'total', tier: 4, group: 'Totals context', trend: 'Outdoor game', side: 'Under', n: 1505, rate: 52.43, p: 0.063426 },
 
