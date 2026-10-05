@@ -1036,7 +1036,7 @@ app.get('/api/picks', async (req, res) => {
 // GAMES_AS_OF is the date the slate was pulled. It is rendered on the page: a
 // hardcoded board goes stale between deploys and members are entitled to know
 // how old the numbers are before they act on them.
-const GAMES_AS_OF = '2026-10-03';
+const GAMES_AS_OF = '2026-10-05';
 
 const UPCOMING_GAMES = [
   {
@@ -1211,10 +1211,10 @@ const UPCOMING_GAMES = [
     kickoff: '2026-10-05T20:15:00-04:00',
     away: "Atlanta Falcons",
     home: "New Orleans Saints",
-    spread: { open: -2.5, current: -2.5, home: -106, away: -112 },
-    total: { current: 48, over: -112, under: -110 },
-    moneyline: { home: -132, away: 110 },
-    split: { moneyHome: 31, ticketsHome: 47 },
+    spread: { open: -2.5, current: -1.5, home: -108, away: -111 },
+    total: { current: 47.5, over: -113, under: -106 },
+    moneyline: { home: -120, away: -100 },
+    split: { moneyHome: 30, ticketsHome: 45 },
   },
 ];
 
