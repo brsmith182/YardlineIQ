@@ -1200,10 +1200,10 @@ const UPCOMING_GAMES = [
     kickoff: '2026-10-12T20:15:00-04:00',
     away: "Buffalo Bills",
     home: "Los Angeles Rams",
-    spread: { open: -3, current: -3.5, home: -102, away: -118 },
-    total: { current: 54.5, over: -115, under: -110 },
-    moneyline: { home: -182, away: 147 },
-    split: { moneyHome: 22, ticketsHome: 22 },
+    spread: { open: -3, current: -3.5, home: -105, away: -115 },
+    total: { current: 55.5, over: -105, under: -112 },
+    moneyline: { home: -179, away: 148 },
+    split: { moneyHome: 21, ticketsHome: 23 },
   },
 ];
 
