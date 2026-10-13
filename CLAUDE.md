@@ -17,7 +17,9 @@ npm test        # Run unit tests (Node's built-in runner; test/*.test.js)
 ### Key Files
 
 - `server.js` — Single-file Express server containing all active API logic, middleware, and route handlers
-- `lib/notify.js` — Owner email alerts (free-pick signups, sales) sent through Resend; best-effort, never throws
+- `lib/resend.js` — Shared Resend sender used by every email; best-effort, never throws
+- `lib/notify.js` — Owner email alerts (free-pick signups, sales)
+- `lib/free-pick-email.js` — Confirmation emailed to a new free-pick requester, from `picks@`
 - `public/` — Static frontend: vanilla JS, no framework; Stripe.js for payments, Google Analytics
 - `vercel.json` — Deployment config: builds server.js, serves `public/` as static, falls back to server.js
 

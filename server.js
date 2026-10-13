@@ -4,6 +4,7 @@ const { createClient } = require('redis');
 const crypto = require('crypto');
 const path = require('path');
 const { sendNotificationEmail } = require('./lib/notify');
+const { sendFreePickConfirmation } = require('./lib/free-pick-email');
 const { publicStatic } = require('./lib/static-files');
 const { normalizeScoreboard } = require('./lib/scoreboard');
 const app = express();
@@ -529,10 +530,15 @@ app.post('/api/email/free-pick', async (req, res) => {
 
     if (result.success) {
       // Awaited, not fired after the response: Vercel can freeze the function
-      // once the response is sent. The notifier never throws and gives up
-      // after a few seconds, so it cannot cost the signup.
+      // once the response is sent. Neither send throws and each gives up
+      // after a few seconds, so they cannot cost the signup. Only a new
+      // address is mailed, so resubmitting the form can't flood an inbox.
       if (result.isNew) {
-        await sendNotificationEmail('signup', { email: email.toLowerCase() });
+        const signupEmail = email.toLowerCase();
+        await Promise.all([
+          sendNotificationEmail('signup', { email: signupEmail }),
+          sendFreePickConfirmation(signupEmail)
+        ]);
       }
       res.json({
         success: true,
