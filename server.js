@@ -1194,9 +1194,11 @@ const UPCOMING_GAMES = [
     kickoff: '2026-11-02T20:15:00-05:00',
     away: "Chicago Bears",
     home: "Seattle Seahawks",
-    // DraftKings odds and spread splits refreshed November 2, 2026:
+    // Consensus spread (CHI +3.5) and common pricing via Covers, November 2:
+    // https://www.covers.com/sport/football/nfl/matchup/380038/odds
+    // DraftKings total, moneyline, and spread splits refreshed November 2:
     // https://dknetwork.draftkings.com/draftkings-sportsbook-betting-splits/?tb_edate=n30days&tb_eg=NFL
-    spread: { open: -4.5, current: -3, home: -120, away: 100 },
+    spread: { open: -4.5, current: -3.5, home: 100, away: -120 },
     total: { current: 46.5, over: -108, under: -112 },
     moneyline: { home: -170, away: 142 },
     split: { moneyHome: 62, ticketsHome: 53 },
