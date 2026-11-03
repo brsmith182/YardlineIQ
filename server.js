@@ -1042,7 +1042,7 @@ app.get('/api/picks', async (req, res) => {
 // GAMES_AS_OF is the date the slate was pulled. It is rendered on the page: a
 // hardcoded board goes stale between deploys and members are entitled to know
 // how old the numbers are before they act on them.
-const GAMES_AS_OF = '2026-11-01';
+const GAMES_AS_OF = '2026-11-02';
 
 const UPCOMING_GAMES = [
   {
@@ -1194,10 +1194,12 @@ const UPCOMING_GAMES = [
     kickoff: '2026-11-02T20:15:00-05:00',
     away: "Chicago Bears",
     home: "Seattle Seahawks",
-    spread: { open: -4.5, current: -3, home: -115, away: -105 },
-    total: { current: 46.5, over: -110, under: -110 },
-    moneyline: { home: -174, away: 142 },
-    split: { moneyHome: 40, ticketsHome: 38 },
+    // DraftKings odds and spread splits refreshed November 2, 2026:
+    // https://dknetwork.draftkings.com/draftkings-sportsbook-betting-splits/?tb_edate=n30days&tb_eg=NFL
+    spread: { open: -4.5, current: -3, home: -120, away: 100 },
+    total: { current: 46.5, over: -108, under: -112 },
+    moneyline: { home: -170, away: 142 },
+    split: { moneyHome: 62, ticketsHome: 53 },
   },
 ];
 
