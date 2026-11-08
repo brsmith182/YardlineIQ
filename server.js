@@ -1042,7 +1042,7 @@ app.get('/api/picks', async (req, res) => {
 // GAMES_AS_OF is the date the slate was pulled. It is rendered on the page: a
 // hardcoded board goes stale between deploys and members are entitled to know
 // how old the numbers are before they act on them.
-const GAMES_AS_OF = '2026-11-07';
+const GAMES_AS_OF = '2026-11-08';
 
 const UPCOMING_GAMES = [
   {
@@ -1051,8 +1051,6 @@ const UPCOMING_GAMES = [
     kickoff: '2026-11-05T20:15:00-05:00',
     away: "Jacksonville Jaguars",
     home: "Baltimore Ravens",
-    // DraftKings odds and spread splits refreshed November 5, 2026, 4:44 PM ET:
-    // https://dknetwork.draftkings.com/draftkings-sportsbook-betting-splits/?tb_edate=n30days&tb_eg=NFL
     spread: { open: -4.5, current: 10, home: -110, away: -110 },
     total: { current: 39.5, over: -115, under: -105 },
     moneyline: { home: 410, away: -550 },
@@ -1153,10 +1151,10 @@ const UPCOMING_GAMES = [
     kickoff: '2026-11-08T16:05:00-05:00',
     away: "Houston Texans",
     home: "Los Angeles Chargers",
-    spread: { open: -2.5, current: 6, home: -111, away: -109 },
-    total: { current: 40.5, over: -111, under: -108 },
-    moneyline: { home: 200, away: -242 },
-    split: { moneyHome: 24, ticketsHome: 36 },
+    spread: { open: -2.5, current: 5.5, home: -109, away: -111 },
+    total: { current: 40.5, over: -111, under: -109 },
+    moneyline: { home: 195, away: -236 },
+    split: { moneyHome: 28, ticketsHome: 36 },
   },
   {
     id: '2026-w9-lv-at-sf',
@@ -1164,10 +1162,10 @@ const UPCOMING_GAMES = [
     kickoff: '2026-11-08T16:05:00-05:00',
     away: "Las Vegas Raiders",
     home: "San Francisco 49ers",
-    spread: { open: -8.5, current: -9.5, home: -111, away: -109 },
-    total: { current: 52, over: -109, under: -111 },
-    moneyline: { home: -490, away: 375 },
-    split: { moneyHome: 58, ticketsHome: 54 },
+    spread: { open: -8.5, current: -9.5, home: -110, away: -110 },
+    total: { current: 52, over: -113, under: -109 },
+    moneyline: { home: -475, away: 372 },
+    split: { moneyHome: 64, ticketsHome: 57 },
   },
   {
     id: '2026-w9-gb-at-ne',
@@ -1175,10 +1173,10 @@ const UPCOMING_GAMES = [
     kickoff: '2026-11-08T16:25:00-05:00',
     away: "Green Bay Packers",
     home: "New England Patriots",
-    spread: { open: -1.5, current: -3.5, home: -102, away: -114 },
-    total: { current: 44.5, over: -110, under: -110 },
+    spread: { open: -1.5, current: -3, home: -113, away: -106 },
+    total: { current: 44.5, over: -111, under: -109 },
     moneyline: { home: -175, away: 145 },
-    split: { moneyHome: 23, ticketsHome: 28 },
+    split: { moneyHome: 26, ticketsHome: 29 },
   },
   {
     id: '2026-w9-ari-at-sea',
@@ -1186,10 +1184,10 @@ const UPCOMING_GAMES = [
     kickoff: '2026-11-08T16:25:00-05:00',
     away: "Arizona Cardinals",
     home: "Seattle Seahawks",
-    spread: { open: -13.5, current: -8.5, home: -110, away: -110 },
+    spread: { open: -13.5, current: -8.5, home: -108, away: -110 },
     total: { current: 39.5, over: -110, under: -110 },
-    moneyline: { home: -427, away: 343 },
-    split: { moneyHome: 54, ticketsHome: 55 },
+    moneyline: { home: -427, away: 334 },
+    split: { moneyHome: 56, ticketsHome: 57 },
   },
   {
     id: '2026-w9-tb-at-chi',
@@ -1197,10 +1195,10 @@ const UPCOMING_GAMES = [
     kickoff: '2026-11-08T20:20:00-05:00',
     away: "Tampa Bay Buccaneers",
     home: "Chicago Bears",
-    spread: { open: -3.5, current: -6.5, home: -107, away: -112 },
-    total: { current: 47.5, over: -110, under: -110 },
-    moneyline: { home: -275, away: 220 },
-    split: { moneyHome: 72, ticketsHome: 67 },
+    spread: { open: -3.5, current: -6, home: -109, away: -110 },
+    total: { current: 47.5, over: -110, under: -109 },
+    moneyline: { home: -272, away: 215 },
+    split: { moneyHome: 68, ticketsHome: 68 },
   },
   {
     id: '2026-w9-buf-at-min',
@@ -1208,10 +1206,10 @@ const UPCOMING_GAMES = [
     kickoff: '2026-11-09T20:15:00-05:00',
     away: "Buffalo Bills",
     home: "Minnesota Vikings",
-    spread: { open: 3, current: 3, home: -105, away: -115 },
-    total: { current: 44.5, over: -111, under: -110 },
-    moneyline: { home: 145, away: -173 },
-    split: { moneyHome: 21, ticketsHome: 33 },
+    spread: { open: 3, current: 3, home: -106, away: -113 },
+    total: { current: 44.5, over: -110, under: -110 },
+    moneyline: { home: 141, away: -170 },
+    split: { moneyHome: 31, ticketsHome: 33 },
   },
 ];
 
