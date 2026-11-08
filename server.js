@@ -1118,7 +1118,7 @@ const UPCOMING_GAMES = [
     kickoff: '2026-11-08T13:00:00-05:00',
     away: "Cleveland Browns",
     home: "New Orleans Saints",
-    spread: { open: -3.5, current: -3, home: -116, away: -103 },
+    spread: { open: -3.5, current: -3.5, home: -116, away: -103 },
     total: { current: 42.5, over: -108, under: -112 },
     moneyline: { home: -172, away: 141 },
     split: { moneyHome: 45, ticketsHome: 37 },
