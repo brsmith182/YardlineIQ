@@ -1095,7 +1095,7 @@ const UPCOMING_GAMES = [
     kickoff: '2026-11-27T15:00:00-05:00',
     away: "Denver Broncos",
     home: "Pittsburgh Steelers",
-    spread: { open: 1.5, current: 4, home: -109, away: -109 },
+    spread: { open: 1.5, current: 4.5, home: -109, away: -109 },
     total: { current: 36.5, over: -112, under: -105 },
     moneyline: { home: 169, away: -209 },
     split: { moneyHome: 15, ticketsHome: 21 },
